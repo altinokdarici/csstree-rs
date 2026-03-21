@@ -1,0 +1,62 @@
+[
+  {
+    "describe": "exports / entry points",
+    "it": "tokenizer",
+    "css_input": null,
+    "line": 22
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "parser",
+    "css_input": null,
+    "line": 90
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "generator",
+    "css_input": null,
+    "line": 119
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "walker",
+    "css_input": null,
+    "line": 123
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "convertor",
+    "css_input": null,
+    "line": 133
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "lexer",
+    "css_input": null,
+    "line": 156
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "definitionSyntax",
+    "css_input": null,
+    "line": 163
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "data",
+    "css_input": null,
+    "line": 172
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "data-patch",
+    "css_input": null,
+    "line": 180
+  },
+  {
+    "describe": "exports / entry points",
+    "it": "utils",
+    "css_input": null,
+    "line": 188
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "describe": "names utils > keyword",
+    "it": "base test",
+    "css_input": null,
+    "line": 6
+  },
+  {
+    "describe": "names utils > keyword",
+    "it": "result should be immutable",
+    "css_input": null,
+    "line": 16
+  },
+  {
+    "describe": "names utils > keyword",
+    "it": "should normalize name to lower case",
+    "css_input": null,
+    "line": 30
+  },
+  {
+    "describe": "names utils > keyword",
+    "it": "should return the same object",
+    "css_input": null,
+    "line": 54
+  },
+  {
+    "describe": "names utils > keyword",
+    "it": "shouldn\\'t detect a verdor prefix for name that doesn\\'t starts with dash",
+    "css_input": null,
+    "line": 67
+  },
+  {
+    "describe": "names utils > property",
+    "it": "base test",
+    "css_input": null,
+    "line": 93
+  },
+  {
+    "describe": "names utils > property",
+    "it": "result should be immutable",
+    "css_input": null,
+    "line": 104
+  },
+  {
+    "describe": "names utils > property",
+    "it": "should normalize name to lower case",
+    "css_input": null,
+    "line": 119
+  },
+  {
+    "describe": "names utils > property > should detect vendor prefixes",
+    "it": "name with dashes",
+    "css_input": null,
+    "line": 144
+  },
+  {
+    "describe": "names utils > property",
+    "it": "should normalize vendor to lower case",
+    "css_input": null,
+    "line": 156
+  },
+  {
+    "describe": "names utils > property",
+    "it": "should detect custom property",
+    "css_input": null,
+    "line": 182
+  },
+  {
+    "describe": "names utils > property",
+    "it": "should detect vendor prefix and hack",
+    "css_input": null,
+    "line": 193
+  },
+  {
+    "describe": "names utils > property",
+    "it": "should detect custom property and hack",
+    "css_input": null,
+    "line": 204
+  },
+  {
+    "describe": "names utils > property",
+    "it": "should return the same object",
+    "css_input": null,
+    "line": 215
+  },
+  {
+    "describe": "names utils > property",
+    "it": "shouldn\\'t detect a verdor prefix for name that doesn\\'t starts with dash",
+    "css_input": null,
+    "line": 228
+  },
+  {
+    "describe": "names utils > property",
+    "it": "shouldn\\'t normalize custom property names",
+    "css_input": null,
+    "line": 239
+  },
+  {
+    "describe": "names utils > isCustomProperty",
+    "it": "\\'",
+    "css_input": null,
+    "line": 287
+  },
+  {
+    "describe": "names utils > isCustomProperty",
+    "it": "\\'$",
+    "css_input": null,
+    "line": 291
+  },
+  {
+    "describe": "names utils > vendorPrefix",
+    "it": "\\'",
+    "css_input": null,
+    "line": 309
+  },
+  {
+    "describe": "names utils > vendorPrefix",
+    "it": "\\'$",
+    "css_input": null,
+    "line": 313
+  }
+]

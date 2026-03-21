@@ -1,0 +1,44 @@
+[
+  {
+    "describe": "Nested Selector Disambiguation > Edge cases and complex scenarios",
+    "it": "should handle multiple nested selectors in one block",
+    "css_input": null,
+    "line": 133
+  },
+  {
+    "describe": "Nested Selector Disambiguation > Edge cases and complex scenarios",
+    "it": "should handle mixed declarations and nested rules",
+    "css_input": null,
+    "line": 151
+  },
+  {
+    "describe": "Nested Selector Disambiguation > Edge cases and complex scenarios",
+    "it": "should handle deeply nested selectors",
+    "css_input": null,
+    "line": 169
+  },
+  {
+    "describe": "Nested Selector Disambiguation > Edge cases and complex scenarios",
+    "it": "should not confuse property-like selectors",
+    "css_input": null,
+    "line": 181
+  },
+  {
+    "describe": "Nested Selector Disambiguation > Edge cases and complex scenarios",
+    "it": "should handle comma-separated selector list",
+    "css_input": null,
+    "line": 191
+  },
+  {
+    "describe": "Nested Selector Disambiguation > Regression tests for the original issue",
+    "it": "should parse the original failing case correctly",
+    "css_input": null,
+    "line": 250
+  },
+  {
+    "describe": "Nested Selector Disambiguation > Regression tests for the original issue",
+    "it": "should still work when selector is at top level",
+    "css_input": null,
+    "line": 285
+  }
+]

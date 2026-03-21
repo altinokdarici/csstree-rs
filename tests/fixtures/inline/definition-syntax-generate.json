@@ -1,0 +1,38 @@
+[
+  {
+    "describe": "definitionSyntax.generate()",
+    "it": "should throw an exception on bad node type",
+    "css_input": "<number>",
+    "line": 17
+  },
+  {
+    "describe": "lexer dictionary",
+    "it": "${section}/${name}",
+    "css_input": null,
+    "line": 88
+  },
+  {
+    "describe": "lexer dictionary > atrules/${name}",
+    "it": "prelude",
+    "css_input": null,
+    "line": 98
+  },
+  {
+    "describe": "",
+    "it": "using forceBraces",
+    "css_input": "a b   |   c ||   d &&   e f",
+    "line": 117
+  },
+  {
+    "describe": "using decorate",
+    "it": "basic",
+    "css_input": "<foo> && <bar>",
+    "line": 126
+  },
+  {
+    "describe": "using decorate",
+    "it": "all the node types",
+    "css_input": "<foo> && <'bar'> | [ ( a+, b( 'c' / <d>#{1,2} ) ) ]!",
+    "line": 145
+  }
+]

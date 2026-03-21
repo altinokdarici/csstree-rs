@@ -1,0 +1,20 @@
+[
+  {
+    "describe": "Lexer#checkPropertyName()",
+    "it": "should pass correct property",
+    "css_input": null,
+    "line": 5
+  },
+  {
+    "describe": "Lexer#checkPropertyName()",
+    "it": "should pass correct vendor property",
+    "css_input": null,
+    "line": 9
+  },
+  {
+    "describe": "Lexer#checkPropertyName()",
+    "it": "should fail on invalid property",
+    "css_input": null,
+    "line": 14
+  }
+]

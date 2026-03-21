@@ -1,0 +1,38 @@
+[
+  {
+    "describe": "extension > value",
+    "it": "should not affect base syntax",
+    "css_input": "$a",
+    "line": 30
+  },
+  {
+    "describe": "extension > value",
+    "it": "should parse according new rules",
+    "css_input": "$a",
+    "line": 37
+  },
+  {
+    "describe": "extension > value",
+    "it": "should fail on unknown",
+    "css_input": "@a",
+    "line": 55
+  },
+  {
+    "describe": "extension > selector",
+    "it": "should not affect base syntax",
+    "css_input": "a %",
+    "line": 84
+  },
+  {
+    "describe": "extension > selector",
+    "it": "should parse according new rules",
+    "css_input": "a %",
+    "line": 91
+  },
+  {
+    "describe": "extension > selector",
+    "it": "should fail on unknown",
+    "css_input": "@a",
+    "line": 118
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "describe": "lexer search fragments > findValueFragments()",
+    "it": "should find single entry",
+    "css_input": "border: 1px solid red",
+    "line": 14
+  },
+  {
+    "describe": "lexer search fragments > findValueFragments()",
+    "it": "should find multiple entries",
+    "css_input": "font: 10px Arial, Courier new, Times new roman",
+    "line": 21
+  },
+  {
+    "describe": "lexer search fragments > findDeclarationValueFragments()",
+    "it": "should find single entry",
+    "css_input": "border: 1px solid red",
+    "line": 30
+  },
+  {
+    "describe": "lexer search fragments > findDeclarationValueFragments()",
+    "it": "should find multiple entries",
+    "css_input": "font: 10px Arial, Courier new, Times new roman",
+    "line": 37
+  },
+  {
+    "describe": "lexer search fragments > findAllFragments()",
+    "it": "should find all entries in ast",
+    "css_input": "foo { border: 1px solid red; } bar { color: rgba(1,2,3,4); border-color: #123 rgb(1,2,3) }",
+    "line": 46
+  }
+]

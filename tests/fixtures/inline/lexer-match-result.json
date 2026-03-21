@@ -1,0 +1,26 @@
+[
+  {
+    "describe": "lexer match result",
+    "it": "getTrace()",
+    "css_input": null,
+    "line": 16
+  },
+  {
+    "describe": "lexer match result",
+    "it": "isType()",
+    "css_input": "repeat 0",
+    "line": 31
+  },
+  {
+    "describe": "lexer match result",
+    "it": "isProperty()",
+    "css_input": "repeat 0",
+    "line": 40
+  },
+  {
+    "describe": "lexer match result",
+    "it": "isKeyword()",
+    "css_input": "repeat 0",
+    "line": 49
+  }
+]

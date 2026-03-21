@@ -1,0 +1,410 @@
+[
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(25 25 25 / 50%)",
+    "css_input": "rgb(25 25 25 / 50%)",
+    "line": 6
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from hsl(0 100% 50%) r g b)",
+    "css_input": "rgb(from hsl(0 100% 50%) r g b)",
+    "line": 12
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from hsl(0 100% 50%) 132 132 224)",
+    "css_input": "rgb(from hsl(0 100% 50%) 132 132 224)",
+    "line": 18
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from #123456 calc(r + 40) calc(g + 40) b)",
+    "css_input": "rgb(from #123456 calc(r + 40) calc(g + 40) b)",
+    "line": 24
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from hwb(120deg 10% 20%) r g calc(b + 200))",
+    "css_input": "rgb(from hwb(120deg 10% 20%) r g calc(b + 200))",
+    "line": 30
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(25 25 25 / 50%)",
+    "css_input": "rgb(25 25 25 / 50%)",
+    "line": 36
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from hsl(0 100% 50%) r 80 80)",
+    "css_input": "rgb(from hsl(0 100% 50%) r 80 80)",
+    "line": 42
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from hsl(0 100% 50% / 0.8) r g b / alpha)",
+    "css_input": "rgb(from hsl(0 100% 50% / 0.8) r g b / alpha)",
+    "line": 48
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from hsl(0 100% 50% / 0.8) r g b / 0.5)",
+    "css_input": "rgb(from hsl(0 100% 50% / 0.8) r g b / 0.5)",
+    "line": 54
+  },
+  {
+    "describe": "lexer relative colors > rgb() with relative colors",
+    "it": "should match rgb(from hsl(0 100% 50%) calc(r/2) calc(g + 25) calc(b + 175) / calc(alpha - 0.1))",
+    "css_input": "rgb(from hsl(0 100% 50%) calc(r/2) calc(g + 25) calc(b + 175) / calc(alpha - 0.1))",
+    "line": 60
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(25 25 25)",
+    "css_input": "rgba(25 25 25)",
+    "line": 68
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(25 25 25 / 50%)",
+    "css_input": "rgba(25 25 25 / 50%)",
+    "line": 74
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from hsl(0 100% 50%) r g b)",
+    "css_input": "rgba(from hsl(0 100% 50%) r g b)",
+    "line": 80
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from hsl(0 100% 50%) 132 132 224)",
+    "css_input": "rgba(from hsl(0 100% 50%) 132 132 224)",
+    "line": 86
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from #123456 calc(r + 40) calc(g + 40) b)",
+    "css_input": "rgba(from #123456 calc(r + 40) calc(g + 40) b)",
+    "line": 92
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from hwb(120deg 10% 20%) r g calc(b + 200))",
+    "css_input": "rgba(from hwb(120deg 10% 20%) r g calc(b + 200))",
+    "line": 98
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(25 25 25 / 50%)",
+    "css_input": "rgba(25 25 25 / 50%)",
+    "line": 104
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from hsl(0 100% 50%) r 80 80)",
+    "css_input": "rgba(from hsl(0 100% 50%) r 80 80)",
+    "line": 110
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from hsl(0 100% 50% / 0.8) r g b / alpha)",
+    "css_input": "rgba(from hsl(0 100% 50% / 0.8) r g b / alpha)",
+    "line": 116
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from hsl(0 100% 50% / 0.8) r g b / 0.5)",
+    "css_input": "rgba(from hsl(0 100% 50% / 0.8) r g b / 0.5)",
+    "line": 122
+  },
+  {
+    "describe": "lexer relative colors > rgba() with relative colors",
+    "it": "should match rgba(from hsl(0 100% 50%) calc(r/2) calc(g + 25) calc(b + 175) / calc(alpha - 0.1))",
+    "css_input": "rgba(from hsl(0 100% 50%) calc(r/2) calc(g + 25) calc(b + 175) / calc(alpha - 0.1))",
+    "line": 128
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(50 80% 40%)",
+    "css_input": "hsl(50 80% 40%)",
+    "line": 136
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(150deg 30% 60%)",
+    "css_input": "hsl(150deg 30% 60%)",
+    "line": 142
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(0.3turn 60% 45% / 0.7)",
+    "css_input": "hsl(0.3turn 60% 45% / 0.7)",
+    "line": 148
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(0 80% 50% / 25%)",
+    "css_input": "hsl(0 80% 50% / 25%)",
+    "line": 154
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(none 75% 25%)",
+    "css_input": "hsl(none 75% 25%)",
+    "line": 160
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(from green h s l / 0.5)",
+    "css_input": "hsl(from green h s l / 0.5)",
+    "line": 166
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(from #123456 h s calc(l + 20))",
+    "css_input": "hsl(from #123456 h s calc(l + 20))",
+    "line": 172
+  },
+  {
+    "describe": "lexer relative colors > hsl() with relative colors",
+    "it": "should match hsl(from rgb(200 0 0) calc(h + 30) s calc(l + 30))",
+    "css_input": "hsl(from rgb(200 0 0) calc(h + 30) s calc(l + 30))",
+    "line": 178
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(50 80% 40%)",
+    "css_input": "hsla(50 80% 40%)",
+    "line": 186
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(150deg 30% 60%)",
+    "css_input": "hsla(150deg 30% 60%)",
+    "line": 192
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(0.3turn 60% 45% / 0.7)",
+    "css_input": "hsla(0.3turn 60% 45% / 0.7)",
+    "line": 198
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(0 80% 50% / 25%)",
+    "css_input": "hsla(0 80% 50% / 25%)",
+    "line": 204
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(none 75% 25%)",
+    "css_input": "hsla(none 75% 25%)",
+    "line": 210
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(from green h s l / 0.5)",
+    "css_input": "hsla(from green h s l / 0.5)",
+    "line": 216
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(from #123456 h s calc(l + 20))",
+    "css_input": "hsla(from #123456 h s calc(l + 20))",
+    "line": 222
+  },
+  {
+    "describe": "lexer relative colors > hsla() with relative colors",
+    "it": "should match hsla(from rgb(200 0 0) calc(h + 30) s calc(l + 30))",
+    "css_input": "hsla(from rgb(200 0 0) calc(h + 30) s calc(l + 30))",
+    "line": 228
+  },
+  {
+    "describe": "lexer relative colors > hwb() with relative colors",
+    "it": "should match hwb(12 50% 0%)",
+    "css_input": "hwb(12 50% 0%)",
+    "line": 236
+  },
+  {
+    "describe": "lexer relative colors > hwb() with relative colors",
+    "it": "should match hwb(50deg 30% 40%)",
+    "css_input": "hwb(50deg 30% 40%)",
+    "line": 242
+  },
+  {
+    "describe": "lexer relative colors > hwb() with relative colors",
+    "it": "should match hwb(0.5turn 10% 0% / 0.5)",
+    "css_input": "hwb(0.5turn 10% 0% / 0.5)",
+    "line": 248
+  },
+  {
+    "describe": "lexer relative colors > hwb() with relative colors",
+    "it": "should match hwb(0 100% 0% / 50%)",
+    "css_input": "hwb(0 100% 0% / 50%)",
+    "line": 254
+  },
+  {
+    "describe": "lexer relative colors > hwb() with relative colors",
+    "it": "should match hwb(from green h w b / 0.5)",
+    "css_input": "hwb(from green h w b / 0.5)",
+    "line": 260
+  },
+  {
+    "describe": "lexer relative colors > hwb() with relative colors",
+    "it": "should match hwb(from #123456 h calc(w + 30) b)",
+    "css_input": "hwb(from #123456 h calc(w + 30) b)",
+    "line": 266
+  },
+  {
+    "describe": "lexer relative colors > hwb() with relative colors",
+    "it": "should match hwb(from lch(40% 70 240deg) h w calc(b - 30))",
+    "css_input": "hwb(from lch(40% 70 240deg) h w calc(b - 30))",
+    "line": 272
+  },
+  {
+    "describe": "lexer relative colors > lab() with relative colors",
+    "it": "should match lab(29.2345% 39.3825 20.0664)",
+    "css_input": "lab(29.2345% 39.3825 20.0664)",
+    "line": 280
+  },
+  {
+    "describe": "lexer relative colors > lab() with relative colors",
+    "it": "should match lab(52.2345% 40.1645 59.9971 / .5)",
+    "css_input": "lab(52.2345% 40.1645 59.9971 / .5)",
+    "line": 286
+  },
+  {
+    "describe": "lexer relative colors > lab() with relative colors",
+    "it": "should match lab(from green l a b / 0.5)",
+    "css_input": "lab(from green l a b / 0.5)",
+    "line": 292
+  },
+  {
+    "describe": "lexer relative colors > lab() with relative colors",
+    "it": "should match lab(from #123456 calc(l + 10) a b)",
+    "css_input": "lab(from #123456 calc(l + 10) a b)",
+    "line": 298
+  },
+  {
+    "describe": "lexer relative colors > lab() with relative colors",
+    "it": "should match lab(from hsl(180 100% 50%) calc(l - 10) a b)",
+    "css_input": "lab(from hsl(180 100% 50%) calc(l - 10) a b)",
+    "line": 304
+  },
+  {
+    "describe": "lexer relative colors > oklab() with relative colors",
+    "it": "should match oklab(29.2345% 39.3825 20.0664)",
+    "css_input": "oklab(29.2345% 39.3825 20.0664)",
+    "line": 312
+  },
+  {
+    "describe": "lexer relative colors > oklab() with relative colors",
+    "it": "should match oklab(52.2345% 40.1645 59.9971 / .5)",
+    "css_input": "oklab(52.2345% 40.1645 59.9971 / .5)",
+    "line": 318
+  },
+  {
+    "describe": "lexer relative colors > oklab() with relative colors",
+    "it": "should match oklab(from green l a b / 0.5)",
+    "css_input": "oklab(from green l a b / 0.5)",
+    "line": 324
+  },
+  {
+    "describe": "lexer relative colors > oklab() with relative colors",
+    "it": "should match oklab(from #123456 calc(l + 10) a b)",
+    "css_input": "oklab(from #123456 calc(l + 10) a b)",
+    "line": 330
+  },
+  {
+    "describe": "lexer relative colors > oklab() with relative colors",
+    "it": "should match oklab(from hsl(180 100% 50%) calc(l - 10) a b)",
+    "css_input": "oklab(from hsl(180 100% 50%) calc(l - 10) a b)",
+    "line": 336
+  },
+  {
+    "describe": "lexer relative colors > lch() with relative colors",
+    "it": "should match lch(29.2345% 44.2 27);",
+    "css_input": "lch(29.2345% 44.2 27)",
+    "line": 344
+  },
+  {
+    "describe": "lexer relative colors > lch() with relative colors",
+    "it": "should match lch(52.2345% 72.2 56.2 / .5)",
+    "css_input": "lch(52.2345% 72.2 56.2 / .5)",
+    "line": 350
+  },
+  {
+    "describe": "lexer relative colors > lch() with relative colors",
+    "it": "should match lch(from green l c h / 0.5)",
+    "css_input": "lch(from green l c h / 0.5)",
+    "line": 356
+  },
+  {
+    "describe": "lexer relative colors > lch() with relative colors",
+    "it": "should match lch(from #123456 calc(l + 10) c h)",
+    "css_input": "lch(from #123456 calc(l + 10) c h)",
+    "line": 362
+  },
+  {
+    "describe": "lexer relative colors > lch() with relative colors",
+    "it": "should match lch(from hsl(180 100% 50%) calc(l - 10) c h)",
+    "css_input": "lch(from hsl(180 100% 50%) calc(l - 10) c h)",
+    "line": 368
+  },
+  {
+    "describe": "lexer relative colors > oklch() with relative colors",
+    "it": "should match oklch(29.2345% 44.2 27);",
+    "css_input": "oklch(29.2345% 44.2 27)",
+    "line": 376
+  },
+  {
+    "describe": "lexer relative colors > oklch() with relative colors",
+    "it": "should match oklch(52.2345% 72.2 56.2 / .5)",
+    "css_input": "oklch(52.2345% 72.2 56.2 / .5)",
+    "line": 382
+  },
+  {
+    "describe": "lexer relative colors > oklch() with relative colors",
+    "it": "should match oklch(from green l c h / 0.5)",
+    "css_input": "oklch(from green l c h / 0.5)",
+    "line": 388
+  },
+  {
+    "describe": "lexer relative colors > oklch() with relative colors",
+    "it": "should match oklch(from #123456 calc(l + 10) c h)",
+    "css_input": "oklch(from #123456 calc(l + 10) c h)",
+    "line": 394
+  },
+  {
+    "describe": "lexer relative colors > oklch() with relative colors",
+    "it": "should match oklch(from hsl(180 100% 50%) calc(l - 10) c h)",
+    "css_input": "oklch(from hsl(180 100% 50%) calc(l - 10) c h)",
+    "line": 400
+  },
+  {
+    "describe": "lexer relative colors > alpha() with relative colors",
+    "it": "should match alpha(from #123456)",
+    "css_input": "alpha(from #123456)",
+    "line": 408
+  },
+  {
+    "describe": "lexer relative colors > alpha() with relative colors",
+    "it": "should match alpha(from #123456 / .25)",
+    "css_input": "alpha(from #123456 / .25)",
+    "line": 414
+  },
+  {
+    "describe": "lexer relative colors > alpha() with relative colors",
+    "it": "should match alpha(from hsl(0 100% 50%) / calc(0.1 * 5))",
+    "css_input": "alpha(from hsl(0 100% 50%) / calc(0.1 * 5))",
+    "line": 420
+  },
+  {
+    "describe": "lexer relative colors > alpha() with relative colors",
+    "it": "should match alpha(from rgb(25 25 25) / none)",
+    "css_input": "alpha(from rgb(25 25 25) / none)",
+    "line": 426
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "describe": "definitionSyntax.parse() > bad syntax",
+    "it": "expected a quote",
+    "css_input": "'x",
+    "line": 35
+  },
+  {
+    "describe": "definitionSyntax.parse() > parse",
+    "it": "${section}/${name}",
+    "css_input": null,
+    "line": 143
+  },
+  {
+    "describe": "definitionSyntax.parse() > parse > atrules/${name}",
+    "it": "prelude",
+    "css_input": null,
+    "line": 153
+  }
+]

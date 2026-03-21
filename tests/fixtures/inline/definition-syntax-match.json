@@ -1,0 +1,38 @@
+[
+  {
+    "describe": "",
+    "it": "create default syntax",
+    "css_input": null,
+    "line": 18
+  },
+  {
+    "describe": "",
+    "it": "should MATCH to \"${input}\"",
+    "css_input": null,
+    "line": 98
+  },
+  {
+    "describe": "",
+    "it": "should NOT MATCH to \"${input}\"",
+    "css_input": null,
+    "line": 115
+  },
+  {
+    "describe": "",
+    "it": "match result for \"${input}\"",
+    "css_input": null,
+    "line": 127
+  },
+  {
+    "describe": "syntax matching",
+    "it": "should raise an error on broken type reference",
+    "css_input": null,
+    "line": 140
+  },
+  {
+    "describe": "syntax matching",
+    "it": "should raise an error on broken property reference",
+    "css_input": null,
+    "line": 149
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "describe": "Lexer#match()",
+    "it": "should match by type",
+    "css_input": "fn(1, 2, 3)",
+    "line": 14
+  },
+  {
+    "describe": "Lexer#match()",
+    "it": "should take a string as a value",
+    "css_input": "fn(1, 2, 3)",
+    "line": 24
+  },
+  {
+    "describe": "Lexer#match()",
+    "it": "should take a string as a syntax",
+    "css_input": "fn(1, 2, 3)",
+    "line": 32
+  },
+  {
+    "describe": "Lexer#match()",
+    "it": "should fails on bad syntax",
+    "css_input": "fn(1, 2, 3)",
+    "line": 39
+  },
+  {
+    "describe": "Lexer#match() > mismatch position",
+    "it": "${syntax} -> ${value}",
+    "css_input": null,
+    "line": 93
+  }
+]

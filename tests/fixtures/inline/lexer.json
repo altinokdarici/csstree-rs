@@ -1,0 +1,86 @@
+[
+  {
+    "describe": "lexer",
+    "it": "should not override generic types when used",
+    "css_input": "foo",
+    "line": 5
+  },
+  {
+    "describe": "lexer",
+    "it": "should not use generic type names when generics are not used",
+    "css_input": "foo",
+    "line": 17
+  },
+  {
+    "describe": "lexer",
+    "it": "validate()",
+    "css_input": null,
+    "line": 28
+  },
+  {
+    "describe": "lexer",
+    "it": "should allow override units",
+    "css_input": "1px",
+    "line": 57
+  },
+  {
+    "describe": "lexer",
+    "it": "should not add new unit groups or discard existing",
+    "css_input": null,
+    "line": 71
+  },
+  {
+    "describe": "lexer",
+    "it": "should allow to override CSS wide keywords",
+    "css_input": "foo",
+    "line": 84
+  },
+  {
+    "describe": "lexer > should allow append definitions",
+    "it": "properties",
+    "css_input": "foo",
+    "line": 111
+  },
+  {
+    "describe": "lexer > should allow append definitions",
+    "it": "types",
+    "css_input": "foo",
+    "line": 115
+  },
+  {
+    "describe": "lexer > should allow append definitions",
+    "it": "should not append to generic",
+    "css_input": "foo",
+    "line": 119
+  },
+  {
+    "describe": "lexer",
+    "it": "default syntax shouldn\\'t to be broken",
+    "css_input": null,
+    "line": 124
+  },
+  {
+    "describe": "lexer > dump & recovery",
+    "it": "custom syntax should not affect base syntax",
+    "css_input": "1 2aa 3",
+    "line": 143
+  },
+  {
+    "describe": "lexer > dump & recovery",
+    "it": "custom syntax should be valid and correct",
+    "css_input": "1 2aa 3",
+    "line": 150
+  },
+  {
+    "describe": "lexer > dump & recovery",
+    "it": "custom syntax should match own grammar only",
+    "css_input": "1 2aa 3",
+    "line": 154
+  },
+  {
+    "describe": "lexer > dump & recovery",
+    "it": "recovery syntax from dump",
+    "css_input": "1 2aa 3",
+    "line": 160
+  }
+]

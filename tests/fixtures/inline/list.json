@@ -1,0 +1,362 @@
+[
+  {
+    "describe": "",
+    "it": "iterate",
+    "css_input": null,
+    "line": 66
+  },
+  {
+    "describe": "",
+    "it": "iterate with thisArg",
+    "css_input": null,
+    "line": 75
+  },
+  {
+    "describe": "",
+    "it": "nested iterate",
+    "css_input": null,
+    "line": 85
+  },
+  {
+    "describe": "",
+    "it": "remove items on iterate",
+    "css_input": null,
+    "line": 123
+  },
+  {
+    "describe": "",
+    "it": "insert items on iterate",
+    "css_input": null,
+    "line": 137
+  },
+  {
+    "describe": "List",
+    "it": ".createItem()",
+    "css_input": null,
+    "line": 192
+  },
+  {
+    "describe": "List",
+    "it": "#createItem()",
+    "css_input": null,
+    "line": 200
+  },
+  {
+    "describe": "List",
+    "it": "#size",
+    "css_input": null,
+    "line": 208
+  },
+  {
+    "describe": "List",
+    "it": "#fromArray()",
+    "css_input": null,
+    "line": 214
+  },
+  {
+    "describe": "List",
+    "it": "#toArray()",
+    "css_input": null,
+    "line": 221
+  },
+  {
+    "describe": "List",
+    "it": "#toJSON()",
+    "css_input": null,
+    "line": 227
+  },
+  {
+    "describe": "List",
+    "it": "#isEmpty",
+    "css_input": null,
+    "line": 233
+  },
+  {
+    "describe": "List",
+    "it": "#first",
+    "css_input": null,
+    "line": 239
+  },
+  {
+    "describe": "List",
+    "it": "#last",
+    "css_input": null,
+    "line": 245
+  },
+  {
+    "describe": "List",
+    "it": "#reduce()",
+    "css_input": null,
+    "line": 263
+  },
+  {
+    "describe": "List",
+    "it": "#reduceRight()",
+    "css_input": null,
+    "line": 270
+  },
+  {
+    "describe": "List > #nextUntil()",
+    "it": "should not iterate when start is null",
+    "css_input": null,
+    "line": 278
+  },
+  {
+    "describe": "List > #nextUntil()",
+    "it": "should stop iterate when callback returns true",
+    "css_input": null,
+    "line": 288
+  },
+  {
+    "describe": "List > #prevUntil()",
+    "it": "should not iterate when start is null",
+    "css_input": null,
+    "line": 305
+  },
+  {
+    "describe": "List > #prevUntil()",
+    "it": "should stop iterate when callback returns true",
+    "css_input": null,
+    "line": 315
+  },
+  {
+    "describe": "List > #some()",
+    "it": "basic",
+    "css_input": null,
+    "line": 332
+  },
+  {
+    "describe": "List > #some()",
+    "it": "should stop on first match",
+    "css_input": null,
+    "line": 340
+  },
+  {
+    "describe": "List > #map()",
+    "it": "basic",
+    "css_input": null,
+    "line": 354
+  },
+  {
+    "describe": "List > #filter()",
+    "it": "basic",
+    "css_input": null,
+    "line": 372
+  },
+  {
+    "describe": "List > #clear()",
+    "it": "empty list",
+    "css_input": null,
+    "line": 388
+  },
+  {
+    "describe": "List > #clear()",
+    "it": "non-empty list",
+    "css_input": null,
+    "line": 396
+  },
+  {
+    "describe": "List",
+    "it": "#copy()",
+    "css_input": null,
+    "line": 405
+  },
+  {
+    "describe": "List",
+    "it": "#prepend()",
+    "css_input": null,
+    "line": 415
+  },
+  {
+    "describe": "List",
+    "it": "#prependData()",
+    "css_input": null,
+    "line": 424
+  },
+  {
+    "describe": "List",
+    "it": "#unshift()",
+    "css_input": null,
+    "line": 433
+  },
+  {
+    "describe": "List > #shift()",
+    "it": "should remove first item",
+    "css_input": null,
+    "line": 449
+  },
+  {
+    "describe": "List > #shift()",
+    "it": "should return an undefined for an empty list",
+    "css_input": null,
+    "line": 458
+  },
+  {
+    "describe": "List",
+    "it": "#append()",
+    "css_input": null,
+    "line": 463
+  },
+  {
+    "describe": "List",
+    "it": "#appendData()",
+    "css_input": null,
+    "line": 472
+  },
+  {
+    "describe": "List",
+    "it": "#push()",
+    "css_input": null,
+    "line": 481
+  },
+  {
+    "describe": "List > #pop()",
+    "it": "should remove last item",
+    "css_input": null,
+    "line": 497
+  },
+  {
+    "describe": "List > #pop()",
+    "it": "should return an undefined for an empty list",
+    "css_input": null,
+    "line": 506
+  },
+  {
+    "describe": "List > #insert()",
+    "it": "should append when no ref item",
+    "css_input": null,
+    "line": 512
+  },
+  {
+    "describe": "List > #insert()",
+    "it": "should insert before ref item",
+    "css_input": null,
+    "line": 520
+  },
+  {
+    "describe": "List > #insert()",
+    "it": "insert in the middle",
+    "css_input": null,
+    "line": 528
+  },
+  {
+    "describe": "List > #insert()",
+    "it": "insert the item before an item that doesn\\'t belong to list",
+    "css_input": null,
+    "line": 553
+  },
+  {
+    "describe": "List > #insertData()",
+    "it": "should append when no ref item",
+    "css_input": null,
+    "line": 563
+  },
+  {
+    "describe": "List > #insertData()",
+    "it": "should insert before ref item",
+    "css_input": null,
+    "line": 571
+  },
+  {
+    "describe": "List > #insertData()",
+    "it": "insert in the middle",
+    "css_input": null,
+    "line": 579
+  },
+  {
+    "describe": "List > #insertData()",
+    "it": "insert the item before an item that doesn\\'t belong to list",
+    "css_input": null,
+    "line": 603
+  },
+  {
+    "describe": "List > #remove()",
+    "it": "clear a list",
+    "css_input": null,
+    "line": 611
+  },
+  {
+    "describe": "List > #remove()",
+    "it": "clear a list in reverse order",
+    "css_input": null,
+    "line": 632
+  },
+  {
+    "describe": "List > #remove()",
+    "it": "remove head item that doesn\\'t belong to list",
+    "css_input": null,
+    "line": 653
+  },
+  {
+    "describe": "List > #remove()",
+    "it": "remove tail item that doesn\\'t belong to list",
+    "css_input": null,
+    "line": 659
+  },
+  {
+    "describe": "List > #prependList()",
+    "it": "prepend non-empty list to non-empty list",
+    "css_input": null,
+    "line": 667
+  },
+  {
+    "describe": "List > #prependList()",
+    "it": "prepend non-empty list to empty list",
+    "css_input": null,
+    "line": 687
+  },
+  {
+    "describe": "List > #prependList()",
+    "it": "prepend empty list to non-empty",
+    "css_input": null,
+    "line": 699
+  },
+  {
+    "describe": "List > #appendList()",
+    "it": "append non-empty list to non-empty list",
+    "css_input": null,
+    "line": 710
+  },
+  {
+    "describe": "List > #appendList()",
+    "it": "append non-empty list to empty list",
+    "css_input": null,
+    "line": 730
+  },
+  {
+    "describe": "List > #appendList()",
+    "it": "append empty list to non-empty",
+    "css_input": null,
+    "line": 742
+  },
+  {
+    "describe": "List > #insertList()",
+    "it": "add non-empty list to non-empty list",
+    "css_input": null,
+    "line": 753
+  },
+  {
+    "describe": "List > #insertList()",
+    "it": "add non-empty list to empty list",
+    "css_input": null,
+    "line": 777
+  },
+  {
+    "describe": "List > #insertList()",
+    "it": "add empty list to non-empty",
+    "css_input": null,
+    "line": 789
+  },
+  {
+    "describe": "List > #replace()",
+    "it": "replace for an item",
+    "css_input": null,
+    "line": 800
+  },
+  {
+    "describe": "List > #replace()",
+    "it": "replace for a list",
+    "css_input": null,
+    "line": 807
+  }
+]

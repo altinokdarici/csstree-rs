@@ -1,0 +1,14 @@
+[
+  {
+    "describe": "convert",
+    "it": "fromPlainObject",
+    "css_input": null,
+    "line": 7
+  },
+  {
+    "describe": "convert",
+    "it": "toPlainObject",
+    "css_input": null,
+    "line": 15
+  }
+]

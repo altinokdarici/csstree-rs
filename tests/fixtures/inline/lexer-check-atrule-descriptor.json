@@ -1,0 +1,26 @@
+[
+  {
+    "describe": "Lexer#checkAtruleDescriptorName()",
+    "it": "should fail on invalid atrule",
+    "css_input": null,
+    "line": 5
+  },
+  {
+    "describe": "Lexer#checkAtruleDescriptorName()",
+    "it": "should fail when at-rule has no descriptors",
+    "css_input": null,
+    "line": 11
+  },
+  {
+    "describe": "Lexer#checkAtruleDescriptorName()",
+    "it": "should fail when at-rule has no descriptor",
+    "css_input": null,
+    "line": 16
+  },
+  {
+    "describe": "Lexer#checkAtruleDescriptorName()",
+    "it": "should pass on correct descriptor",
+    "css_input": null,
+    "line": 21
+  }
+]

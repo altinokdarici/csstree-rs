@@ -1,0 +1,60 @@
+[package]
+name = "csstree"
+version = "0.1.0"
+edition = "2024"
+description = "A comprehensive CSS toolkit: fast parser, walker, generator, and lexer — Rust port of csstree"
+license = "MIT"
+rust-version = "1.85"
+
+[lints.rust]
+missing_debug_implementations = "warn"
+redundant_imports = "warn"
+trivial_numeric_casts = "warn"
+unsafe_op_in_unsafe_fn = "warn"
+unused_lifetimes = "warn"
+
+[lints.clippy]
+# Correctness & safety
+correctness = { level = "deny", priority = -1 }
+suspicious = { level = "warn", priority = -1 }
+
+# Quality
+complexity = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
+style = { level = "warn", priority = -1 }
+
+# Specific overrides for pedantic that are too noisy for this project
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+
+# Restriction lints (opt-in, high value)
+clone_on_ref_ptr = "warn"
+empty_enum_variants_with_brackets = "warn"
+empty_structs_with_brackets = "warn"
+if_then_some_else_none = "warn"
+map_err_ignore = "warn"
+redundant_type_annotations = "warn"
+string_to_string = "warn"
+undocumented_unsafe_blocks = "warn"
+
+[lib]
+name = "csstree"
+path = "src/lib.rs"
+
+[[bin]]
+name = "csstree"
+path = "src/main.rs"
+
+[dependencies]
+serde_json = "1"
+
+[dev-dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bin]]
+name = "test-coverage"
+path = "scripts/test_coverage.rs"

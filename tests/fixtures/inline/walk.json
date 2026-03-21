@@ -1,0 +1,92 @@
+[
+  {
+    "describe": "AST traversal",
+    "it": "base test",
+    "css_input": "@import url(\"test\");@media (min-width: 200px) { .foo:nth-child(2n) { color: rgb(100%, 10%, 0%); width: calc(3px + 5%); content: \"test\" } }",
+    "line": 96
+  },
+  {
+    "describe": "AST traversal",
+    "it": "base test #2",
+    "css_input": ".a { color: red }",
+    "line": 130
+  },
+  {
+    "describe": "AST traversal > traverse order",
+    "it": "natural",
+    "css_input": null,
+    "line": 166
+  },
+  {
+    "describe": "AST traversal > traverse order",
+    "it": "reverse",
+    "css_input": null,
+    "line": 186
+  },
+  {
+    "describe": "AST traversal > break traverse > natural order",
+    "it": "this.break",
+    "css_input": null,
+    "line": 240
+  },
+  {
+    "describe": "AST traversal > break traverse > natural order",
+    "it": "walk.break",
+    "css_input": null,
+    "line": 262
+  },
+  {
+    "describe": "AST traversal > break traverse > reverse order",
+    "it": "this.break",
+    "css_input": null,
+    "line": 314
+  },
+  {
+    "describe": "AST traversal > break traverse > reverse order",
+    "it": "walk.break",
+    "css_input": null,
+    "line": 337
+  },
+  {
+    "describe": "AST traversal > skip node traverse > natural order",
+    "it": "this.skip",
+    "css_input": null,
+    "line": 410
+  },
+  {
+    "describe": "AST traversal > skip node traverse > natural order",
+    "it": "walk.skip",
+    "css_input": null,
+    "line": 433
+  },
+  {
+    "describe": "AST traversal > skip node traverse > reverse order",
+    "it": "this.skip",
+    "css_input": null,
+    "line": 500
+  },
+  {
+    "describe": "AST traversal > skip node traverse > reverse order",
+    "it": "walk.skip",
+    "css_input": null,
+    "line": 524
+  },
+  {
+    "describe": "AST traversal > bad options",
+    "it": "should throws when no enter/leave handlers is set",
+    "css_input": null,
+    "line": 554
+  },
+  {
+    "describe": "AST traversal > bad options",
+    "it": "should throws when visit has wrong value",
+    "css_input": null,
+    "line": 566
+  },
+  {
+    "describe": "AST traversal > walk(ast, { visit: \\'Declaration\\' })",
+    "it": "iterate DeclarationList",
+    "css_input": "foo: a; bar: b",
+    "line": 653
+  }
+]

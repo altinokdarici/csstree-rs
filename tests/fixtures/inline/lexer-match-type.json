@@ -1,0 +1,26 @@
+[
+  {
+    "describe": "Lexer#matchType()",
+    "it": "should match type",
+    "css_input": null,
+    "line": 18
+  },
+  {
+    "describe": "Lexer#matchType()",
+    "it": "should match type using nested",
+    "css_input": null,
+    "line": 25
+  },
+  {
+    "describe": "Lexer#matchType()",
+    "it": "should fail on matching wrong value",
+    "css_input": null,
+    "line": 32
+  },
+  {
+    "describe": "Lexer#matchType()",
+    "it": "should return null and save error for unknown type",
+    "css_input": null,
+    "line": 39
+  }
+]

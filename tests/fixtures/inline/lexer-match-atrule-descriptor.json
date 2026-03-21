@@ -1,0 +1,44 @@
+[
+  {
+    "describe": "Lexer#matchAtruleDescriptor()",
+    "it": "should match",
+    "css_input": null,
+    "line": 24
+  },
+  {
+    "describe": "Lexer#matchAtruleDescriptor() > vendor prefixes",
+    "it": "vendor prefix in keyword name",
+    "css_input": null,
+    "line": 32
+  },
+  {
+    "describe": "Lexer#matchAtruleDescriptor() > vendor prefixes",
+    "it": "vendor prefix in declarator name",
+    "css_input": null,
+    "line": 39
+  },
+  {
+    "describe": "Lexer#matchAtruleDescriptor() > vendor prefixes",
+    "it": "case insensetive with vendor prefix",
+    "css_input": null,
+    "line": 46
+  },
+  {
+    "describe": "Lexer#matchAtruleDescriptor() > vendor prefixes",
+    "it": "should use verdor version first",
+    "css_input": "",
+    "line": 58
+  },
+  {
+    "describe": "Lexer#matchAtruleDescriptor()",
+    "it": "should not be matched to empty value",
+    "css_input": "",
+    "line": 71
+  },
+  {
+    "describe": "Lexer#matchAtruleDescriptor()",
+    "it": "should not be matched to at-rules with no descriptors",
+    "css_input": null,
+    "line": 85
+  }
+]

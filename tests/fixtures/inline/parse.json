@@ -1,0 +1,182 @@
+[
+  {
+    "describe": "parse > context",
+    "it": "should take parse context",
+    "css_input": "property: value",
+    "line": 113
+  },
+  {
+    "describe": "parse > context",
+    "it": "wrong context",
+    "css_input": "a{}",
+    "line": 143
+  },
+  {
+    "describe": "parse > list",
+    "it": "should use List for children by default",
+    "css_input": "a{}",
+    "line": 151
+  },
+  {
+    "describe": "parse > list",
+    "it": "should use List for children when list is true",
+    "css_input": "a{}",
+    "line": 156
+  },
+  {
+    "describe": "parse > list",
+    "it": "should use Array for children when list is false",
+    "css_input": "a{}",
+    "line": 161
+  },
+  {
+    "describe": "parse",
+    "it": "should call onParseError when handler is passed",
+    "css_input": "{a: 1!; foo; b: 2}",
+    "line": 167
+  },
+  {
+    "describe": "parse > errors",
+    "it": "formattedMessage",
+    "css_input": "/**/\n.\nfoo",
+    "line": 200
+  },
+  {
+    "describe": "parse > errors",
+    "it": "formattedMessage at eof",
+    "css_input": ".",
+    "line": 227
+  },
+  {
+    "describe": "parse > errors",
+    "it": "formattedMessage (windows new lines)",
+    "css_input": "/**/\r\n.\r\nfoo",
+    "line": 242
+  },
+  {
+    "describe": "parse > errors",
+    "it": "formattedMessage with tabs",
+    "css_input": "a {\n\tb:\tc#\t\n}",
+    "line": 269
+  },
+  {
+    "describe": "parse > errors",
+    "it": "formattedMessage for source with long lines",
+    "css_input": null,
+    "line": 285
+  },
+  {
+    "describe": "parse > errors",
+    "it": "with custom offset/line/column",
+    "css_input": "#.classname\n\n\n",
+    "line": 309
+  },
+  {
+    "describe": "parse > onComment",
+    "it": "with no locations",
+    "css_input": null,
+    "line": 342
+  },
+  {
+    "describe": "parse > onComment",
+    "it": "with locations",
+    "css_input": "test.css",
+    "line": 358
+  },
+  {
+    "describe": "parse > onToken",
+    "it": "as function",
+    "css_input": null,
+    "line": 417
+  },
+  {
+    "describe": "parse > onToken",
+    "it": "as function with API",
+    "css_input": null,
+    "line": 431
+  },
+  {
+    "describe": "parse > onToken",
+    "it": "as array",
+    "css_input": ".foo.bar {\n  property: value 123 123.4 .123 123px 99% #fff url( a ) / var( --a ), \"test\" 'test';\n}",
+    "line": 479
+  },
+  {
+    "describe": "parse > positions",
+    "it": "should start with line 1 column 1 by default",
+    "css_input": ".foo.bar {\n  property: value 123 123.4 .123 123px 99% #fff url( a ) / var( --a ), \"test\" 'test';\n}",
+    "line": 491
+  },
+  {
+    "describe": "parse > positions",
+    "it": "should start with specified offset, line and column",
+    "css_input": ".foo.bar {\n  property: value 123 123.4 .123 123px 99% #fff url( a ) / var( --a ), \"test\" 'test';\n}",
+    "line": 535
+  },
+  {
+    "describe": "parse > browser hacks",
+    "it": "should parse *property as Declaration (browser hack)",
+    "css_input": null,
+    "line": 584
+  },
+  {
+    "describe": "parse > browser hacks",
+    "it": "should parse other hack prefixes as Declaration",
+    "css_input": null,
+    "line": 593
+  },
+  {
+    "describe": "parse > browser hacks",
+    "it": "should parse * followed by space as nested rule selector",
+    "css_input": null,
+    "line": 607
+  },
+  {
+    "describe": "parse > browser hacks",
+    "it": "should parse * followed by space and ident as nested rule with descendant selector",
+    "css_input": "*foo",
+    "line": 616
+  },
+  {
+    "describe": "parse > selector validation",
+    "it": "should throw error for *ident without whitespace in selector context",
+    "css_input": "*foo",
+    "line": 630
+  },
+  {
+    "describe": "parse > selector validation",
+    "it": "should allow * followed by whitespace and ident",
+    "css_input": "* foo",
+    "line": 639
+  },
+  {
+    "describe": "parse > selector validation",
+    "it": "should allow * followed by pseudo-class without whitespace",
+    "css_input": "*:hover",
+    "line": 645
+  },
+  {
+    "describe": "parse > selector validation",
+    "it": "should allow * followed by class without whitespace",
+    "css_input": "*.foo",
+    "line": 650
+  },
+  {
+    "describe": "parse > selector validation",
+    "it": "should allow * followed by attribute without whitespace",
+    "css_input": "*[attr]",
+    "line": 655
+  },
+  {
+    "describe": "parse > selector validation",
+    "it": "should allow * followed by id without whitespace",
+    "css_input": "*#id",
+    "line": 660
+  },
+  {
+    "describe": "parse > selector validation",
+    "it": "should throw error for *ident in rule prelude",
+    "css_input": null,
+    "line": 665
+  }
+]

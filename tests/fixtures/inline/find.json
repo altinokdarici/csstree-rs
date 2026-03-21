@@ -1,0 +1,44 @@
+[
+  {
+    "describe": "Search > find",
+    "it": "base",
+    "css_input": null,
+    "line": 24
+  },
+  {
+    "describe": "Search > find",
+    "it": "using refs",
+    "css_input": null,
+    "line": 32
+  },
+  {
+    "describe": "Search > find",
+    "it": "using context",
+    "css_input": null,
+    "line": 40
+  },
+  {
+    "describe": "Search > findLast",
+    "it": "findLast",
+    "css_input": null,
+    "line": 54
+  },
+  {
+    "describe": "Search > findLast",
+    "it": "using refs",
+    "css_input": null,
+    "line": 62
+  },
+  {
+    "describe": "Search > findLast",
+    "it": "using context",
+    "css_input": null,
+    "line": 70
+  },
+  {
+    "describe": "Search",
+    "it": "findAll",
+    "css_input": null,
+    "line": 83
+  }
+]

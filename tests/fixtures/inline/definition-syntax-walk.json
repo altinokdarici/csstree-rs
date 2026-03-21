@@ -1,0 +1,26 @@
+[
+  {
+    "describe": "definitionSyntax.walk()",
+    "it": "pass a single walk function",
+    "css_input": "a b | c() && [ <d>? || <'e'> || ( f{2,4} ) ]*",
+    "line": 7
+  },
+  {
+    "describe": "definitionSyntax.walk()",
+    "it": "pass a pair of walk functions",
+    "css_input": "a b? | c() && [ <d> ]+",
+    "line": 38
+  },
+  {
+    "describe": "definitionSyntax.walk()",
+    "it": "should throw an exception when nothing passed as walker handler",
+    "css_input": "a | b",
+    "line": 81
+  },
+  {
+    "describe": "definitionSyntax.walk()",
+    "it": "should throw an exception when passed object has no enter or leave methods",
+    "css_input": "a | b",
+    "line": 88
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "describe": "Lexer#checkAtrulePrelude()",
+    "it": "should fail on invalid atrule",
+    "css_input": null,
+    "line": 5
+  },
+  {
+    "describe": "Lexer#checkAtrulePrelude()",
+    "it": "should fail when prelude is set for at-rule with no prelude",
+    "css_input": null,
+    "line": 11
+  },
+  {
+    "describe": "Lexer#checkAtrulePrelude()",
+    "it": "should pass when no prelude for at-rule with no prelude",
+    "css_input": null,
+    "line": 16
+  },
+  {
+    "describe": "Lexer#checkAtrulePrelude()",
+    "it": "should pass when prelude is not defined and syntax allows it",
+    "css_input": null,
+    "line": 22
+  },
+  {
+    "describe": "Lexer#checkAtrulePrelude()",
+    "it": "should fail when prelude is not set for at-rule with prelude",
+    "css_input": null,
+    "line": 28
+  },
+  {
+    "describe": "Lexer#checkAtrulePrelude()",
+    "it": "should pass when prelude for at-rule with prelude",
+    "css_input": null,
+    "line": 43
+  }
+]

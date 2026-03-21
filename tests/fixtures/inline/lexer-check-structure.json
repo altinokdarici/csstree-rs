@@ -1,0 +1,74 @@
+[
+  {
+    "describe": "Lexer#checkStructure() > structure in AST node definition",
+    "it": "should fail when no structure field in node definition",
+    "css_input": null,
+    "line": 7
+  },
+  {
+    "describe": "Lexer#checkStructure() > structure in AST node definition",
+    "it": "should fail on bad value in structure",
+    "css_input": ".foo { color: red }",
+    "line": 17
+  },
+  {
+    "describe": "Lexer#checkStructure()",
+    "it": "should pass correct structure",
+    "css_input": ".foo { color: red }",
+    "line": 32
+  },
+  {
+    "describe": "Lexer#checkStructure()",
+    "it": "should ignore properties from prototype",
+    "css_input": null,
+    "line": 39
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors",
+    "it": "node should be an object",
+    "css_input": null,
+    "line": 66
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors",
+    "it": "missed fields",
+    "css_input": null,
+    "line": 75
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors",
+    "it": "missed field",
+    "css_input": null,
+    "line": 85
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors",
+    "it": "unknown field",
+    "css_input": null,
+    "line": 97
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors > bad value",
+    "it": "bad data type",
+    "css_input": null,
+    "line": 111
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors > bad value",
+    "it": "bad loc",
+    "css_input": "-",
+    "line": 123
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors > bad value",
+    "it": "bad loc #2",
+    "css_input": "-",
+    "line": 135
+  },
+  {
+    "describe": "Lexer#checkStructure() > errors > bad value",
+    "it": "bad loc #3",
+    "css_input": "-",
+    "line": 151
+  }
+]

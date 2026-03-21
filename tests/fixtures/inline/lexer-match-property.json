@@ -1,0 +1,56 @@
+[
+  {
+    "describe": "Lexer#matchProperty() > vendor prefixes and hacks",
+    "it": "vendor prefix",
+    "css_input": null,
+    "line": 29
+  },
+  {
+    "describe": "Lexer#matchProperty() > vendor prefixes and hacks",
+    "it": "hacks",
+    "css_input": null,
+    "line": 36
+  },
+  {
+    "describe": "Lexer#matchProperty() > vendor prefixes and hacks",
+    "it": "vendor prefix and hack",
+    "css_input": null,
+    "line": 43
+  },
+  {
+    "describe": "Lexer#matchProperty() > vendor prefixes and hacks",
+    "it": "case insensetive with vendor prefix and hack",
+    "css_input": null,
+    "line": 50
+  },
+  {
+    "describe": "Lexer#matchProperty() > vendor prefixes and hacks",
+    "it": "should use verdor version first",
+    "css_input": null,
+    "line": 70
+  },
+  {
+    "describe": "Lexer#matchProperty()",
+    "it": "custom property",
+    "css_input": null,
+    "line": 83
+  },
+  {
+    "describe": "Lexer#matchProperty()",
+    "it": "typed custom property",
+    "css_input": "rgb(0 0 0 / 1)",
+    "line": 90
+  },
+  {
+    "describe": "Lexer#matchProperty()",
+    "it": "should match css wide keywords",
+    "css_input": "",
+    "line": 120
+  },
+  {
+    "describe": "Lexer#matchProperty()",
+    "it": "should not be matched to empty value",
+    "css_input": "",
+    "line": 129
+  }
+]

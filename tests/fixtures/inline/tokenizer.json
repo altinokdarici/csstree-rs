@@ -1,0 +1,86 @@
+[
+  {
+    "describe": "tokenize/stream",
+    "it": "edge case: no arguments",
+    "css_input": null,
+    "line": 58
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "edge case: empty input",
+    "css_input": null,
+    "line": 66
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "should convert input to string",
+    "css_input": null,
+    "line": 74
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "should accept a Buffer",
+    "css_input": null,
+    "line": 84
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "dump()",
+    "css_input": null,
+    "line": 90
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "next() types",
+    "css_input": null,
+    "line": 96
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "next() start",
+    "css_input": null,
+    "line": 108
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "next() end",
+    "css_input": null,
+    "line": 120
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "skip()",
+    "css_input": null,
+    "line": 132
+  },
+  {
+    "describe": "tokenize/stream",
+    "it": "skip() to end",
+    "css_input": null,
+    "line": 150
+  },
+  {
+    "describe": "tokenize/stream > getBlockTokenPairIndex()",
+    "it": "all blocks closed",
+    "css_input": null,
+    "line": 159
+  },
+  {
+    "describe": "tokenize/stream > getBlockTokenPairIndex()",
+    "it": "non-closed blocks",
+    "css_input": null,
+    "line": 170
+  },
+  {
+    "describe": "tokenize/stream > Raw",
+    "it": "testcase#",
+    "css_input": null,
+    "line": 271
+  },
+  {
+    "describe": "tokenize/stream > Raw",
+    "it": "dynamic buffer",
+    "css_input": null,
+    "line": 295
+  }
+]

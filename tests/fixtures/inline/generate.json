@@ -1,0 +1,32 @@
+[
+  {
+    "describe": "generate",
+    "it": "should throws on unknown node type",
+    "css_input": ".a {\n  color: red;\n}\n",
+    "line": 56
+  },
+  {
+    "describe": "generate > sourceMap",
+    "it": "should generate a map",
+    "css_input": ".a {\n  color: red;\n}\n",
+    "line": 66
+  },
+  {
+    "describe": "generate > sourceMap",
+    "it": "complex CSS",
+    "css_input": ".a { color: #ff0000; } .b { display: block; float: left; } @media foo { .c { color: red } }",
+    "line": 77
+  },
+  {
+    "describe": "generate > auto-emit whitespace",
+    "it": "should auto insert whitespaces where necessary",
+    "css_input": "span#foo { border: 1%var(--a)#ff0000; }",
+    "line": 121
+  },
+  {
+    "describe": "generate > auto-emit whitespace",
+    "it": "should not insert whitespaces for values passed to tokenize() by default",
+    "css_input": "span#foo { border: 1%var(--a)#ff0000; }",
+    "line": 127
+  }
+]

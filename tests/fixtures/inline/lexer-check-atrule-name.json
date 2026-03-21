@@ -1,0 +1,20 @@
+[
+  {
+    "describe": "Lexer#checkAtruleName()",
+    "it": "should pass correct atrule",
+    "css_input": null,
+    "line": 5
+  },
+  {
+    "describe": "Lexer#checkAtruleName()",
+    "it": "should pass correct vendor atrule",
+    "css_input": null,
+    "line": 9
+  },
+  {
+    "describe": "Lexer#checkAtruleName()",
+    "it": "should fail on invalid atrule",
+    "css_input": null,
+    "line": 14
+  }
+]
