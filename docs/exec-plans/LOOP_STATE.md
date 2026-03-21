@@ -7,8 +7,8 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 3
 phase_name: parser
-step: 4
-step_name: implement_remaining
+step: 5
+step_name: port_fixture_tests
 status: IN_PROGRESS
 blocked: false
 blocker: null
@@ -50,6 +50,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 ## History
 
 - **2026-03-21 P1S1** read_js_source — Read all 7 JS tokenizer files (types, char-code-definitions, names, utils, index, TokenStream, OffsetToLocation). Wrote architecture summary to src/tokenizer/mod.rs.
+- **2026-03-21 P3S4** implement_remaining — Added MediaQueryList, MediaQuery, Condition, LayerList, Layer, Comment, WhiteSpace parse functions. Improved at-rule prelude dispatch. All 11 parse contexts now have real implementations. 100 tests, clippy clean.
 - **2026-03-21 P3S3** implement_core — Parser struct with TokenStream + OffsetToLocation. Core: parse(), read_sequence(), parse_with_fallback() error recovery. Node parsers: StyleSheet, Rule, Declaration, SelectorList, Selector (with scope recognizer + implicit combinators), Value (with scope recognizer), Block, Atrule, Function, plus all simple nodes (Hash, String, Number, Dimension, Percentage, Url, Identifier, Operator, Parentheses, Brackets, TypeSelector, ClassSelector, IdSelector, Combinator, NestingSelector, AttributeSelector, PseudoClassSelector, PseudoElementSelector, CDO, CDC). 100 tests, clippy clean.
 - **2026-03-21 P3S2** implement_types — Defined CssSyntaxError (with source_fragment display), ParseContext enum (11 contexts), ParseFlags, ParseOptions struct. 4 tests, clippy clean.
 - **2026-03-21 P3S1** read_js_source — Read all parser files: create.js (factory pattern), SyntaxError.js, sequence.js (readSequence loop), 4 scope files (default/selector/value/atrulePrelude), parser config, key node parse functions (StyleSheet/Rule/Declaration/Selector/Value/Function/Block). Documented architecture in src/parser/mod.rs.

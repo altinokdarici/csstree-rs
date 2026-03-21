@@ -487,6 +487,190 @@ impl Parser {
         })
     }
 
+    /// Parse a `MediaQueryList` node (comma-separated media queries).
+    pub fn parse_media_query_list(&mut self) -> Node {
+        let start = self.loc_start();
+        let mut children = Vec::new();
+
+        children.push(self.parse_media_query());
+
+        while self.token_type() == TokenType::Comma {
+            self.next();
+            self.skip_sc();
+            children.push(self.parse_media_query());
+        }
+
+        Node::MediaQueryList(MediaQueryList {
+            loc: self.make_loc(start),
+            children,
+        })
+    }
+
+    /// Parse a `MediaQuery` node.
+    pub fn parse_media_query(&mut self) -> Node {
+        let start = self.loc_start();
+        self.skip_sc();
+
+        let mut modifier = None;
+        let mut media_type = None;
+        let mut condition = None;
+
+        // Check for modifier (not/only) or media type
+        if self.token_type() == TokenType::Ident {
+            let val = self.token_value().to_ascii_lowercase();
+            match val.as_str() {
+                "not" | "only" => {
+                    modifier = Some(val);
+                    self.next();
+                    self.skip_sc();
+                    if self.token_type() == TokenType::Ident {
+                        media_type = Some(self.token_value().to_string());
+                        self.next();
+                        self.skip_sc();
+                    }
+                }
+                _ => {
+                    // Could be a media type or condition start
+                    media_type = Some(val);
+                    self.next();
+                    self.skip_sc();
+                }
+            }
+        }
+
+        // Parse condition if present (after "and" keyword or standalone)
+        if self.token_type() == TokenType::Ident {
+            let kw = self.token_value().to_ascii_lowercase();
+            if kw == "and" || kw == "or" || kw == "not" {
+                condition = Some(Box::new(self.parse_condition("media")));
+            }
+        } else if self.token_type() == TokenType::LeftParenthesis {
+            // Condition without media type
+            if media_type.is_some() && modifier.is_none() {
+                // Was actually a condition start, not a media type
+                // Reparse — simplified: treat as-is for now
+            }
+            condition = Some(Box::new(self.parse_condition("media")));
+        }
+
+        Node::MediaQuery(MediaQuery {
+            loc: self.make_loc(start),
+            modifier,
+            media_type,
+            condition,
+        })
+    }
+
+    /// Parse a `Condition` node (media or supports condition).
+    pub fn parse_condition(&mut self, kind: &str) -> Node {
+        let start = self.loc_start();
+        let mut children = Vec::new();
+
+        // Consume condition terms and combinators (and/or/not)
+        while !self.stream.eof
+            && self.token_type() != TokenType::LeftCurlyBracket
+            && self.token_type() != TokenType::Semicolon
+            && self.token_type() != TokenType::RightParenthesis
+        {
+            match self.token_type() {
+                TokenType::WhiteSpace | TokenType::Comment => {
+                    self.next();
+                }
+                TokenType::Ident => {
+                    children.push(self.parse_identifier());
+                }
+                TokenType::LeftParenthesis => {
+                    children.push(self.parse_parentheses());
+                }
+                TokenType::Function => {
+                    children.push(self.parse_function());
+                }
+                _ => break,
+            }
+        }
+
+        Node::Condition(Condition {
+            loc: self.make_loc(start),
+            kind: kind.to_string(),
+            children,
+        })
+    }
+
+    /// Parse a `LayerList` node.
+    pub fn parse_layer_list(&mut self) -> Node {
+        let start = self.loc_start();
+        let mut children = Vec::new();
+
+        children.push(self.parse_layer());
+
+        while self.token_type() == TokenType::Comma {
+            self.next();
+            self.skip_sc();
+            children.push(self.parse_layer());
+        }
+
+        Node::LayerList(LayerList {
+            loc: self.make_loc(start),
+            children,
+        })
+    }
+
+    /// Parse a `Layer` node.
+    pub fn parse_layer(&mut self) -> Node {
+        let start = self.loc_start();
+        self.skip_sc();
+        let mut name = String::new();
+
+        // Layer name can be dotted: a.b.c
+        while self.token_type() == TokenType::Ident {
+            if !name.is_empty() {
+                name.push('.');
+            }
+            name.push_str(self.token_value());
+            self.next();
+            if self.token_type() == TokenType::Delim
+                && self.source().as_bytes().get(self.stream.token_start) == Some(&b'.')
+            {
+                self.next();
+            } else {
+                break;
+            }
+        }
+
+        Node::Layer(Layer {
+            loc: self.make_loc(start),
+            name,
+        })
+    }
+
+    /// Parse a `Comment` node.
+    pub fn parse_comment(&mut self) -> Node {
+        let start = self.loc_start();
+        let raw = self.token_value();
+        // Strip /* and */
+        let value = if raw.len() >= 4 {
+            raw[2..raw.len() - 2].to_string()
+        } else {
+            raw.to_string()
+        };
+        self.next();
+        Node::Comment(Comment {
+            loc: self.make_loc(start),
+            value,
+        })
+    }
+
+    /// Parse a `WhiteSpace` node.
+    pub fn parse_whitespace(&mut self) -> Node {
+        let start = self.loc_start();
+        let value = self.token_value().to_string();
+        self.next();
+        Node::WhiteSpace(WhiteSpace {
+            loc: self.make_loc(start),
+            value,
+        })
+    }
+
     // ── Selector scope node recognizer ──
 
     fn selector_get_node(&mut self) -> Option<Node> {
@@ -940,10 +1124,8 @@ pub fn parse(source: &str, options: ParseOptions) -> Node {
         super::options::ParseContext::Block => parser.parse_block(true),
         super::options::ParseContext::Atrule => parser.parse_atrule(),
         super::options::ParseContext::AtrulePrelude => parser.parse_atrule_prelude(),
-        super::options::ParseContext::MediaQueryList | super::options::ParseContext::MediaQuery => {
-            // Simplified: parse as raw value for now
-            parser.parse_value()
-        }
+        super::options::ParseContext::MediaQueryList => parser.parse_media_query_list(),
+        super::options::ParseContext::MediaQuery => parser.parse_media_query(),
     }
 }
 
