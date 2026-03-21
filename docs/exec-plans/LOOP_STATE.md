@@ -7,8 +7,8 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 1
 phase_name: tokenizer
-step: 2
-step_name: implement_types
+step: 3
+step_name: implement_core
 status: IN_PROGRESS
 blocked: false
 blocker: null
@@ -50,3 +50,4 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 ## History
 
 - **2026-03-21 P1S1** read_js_source — Read all 7 JS tokenizer files (types, char-code-definitions, names, utils, index, TokenStream, OffsetToLocation). Wrote architecture summary to src/tokenizer/mod.rs.
+- **2026-03-21 P1S2** implement_types — Defined `TokenType` enum (#[repr(u8)], 26 variants), `CharCategory` enum, 128-byte ASCII category lookup table, all char classification functions (`is_digit`, `is_name_start`, `is_identifier_start`, `is_number_start`, etc.), token spec names, block opener/closer/balance methods. 17 tests passing, clippy clean.

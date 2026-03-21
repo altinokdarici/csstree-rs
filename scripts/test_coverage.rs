@@ -1,3 +1,12 @@
+// Dev tool — exempt from library-grade lints.
+#![allow(
+    clippy::pedantic,
+    clippy::restriction,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::missing_docs_in_private_items
+)]
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -126,8 +135,7 @@ fn main() {
     for (file, (count, _module)) in &by_fixture {
         // Heuristic: check if any Rust file references this fixture file name
         let file_stem = file
-            .replace('/', "_")
-            .replace('-', "_")
+            .replace(['/', '-'], "_")
             .replace(".json", "");
         let referenced = rs_all_content.contains(&file_stem)
             || rs_all_content.contains(file.as_str());
@@ -204,7 +212,7 @@ fn collect_all_rust_tests(root: &Path) -> Vec<String> {
     for entry in walk_dir(&root.join("src")) {
         if entry.extension().is_some_and(|e| e == "rs") {
             let module_path = entry
-                .strip_prefix(&root.join("src"))
+                .strip_prefix(root.join("src"))
                 .unwrap()
                 .to_str()
                 .unwrap()
@@ -264,8 +272,8 @@ fn extract_test_functions(content: &str) -> Vec<String> {
     for (i, line) in lines.iter().enumerate() {
         let trimmed = line.trim();
         if trimmed == "#[test]" || trimmed.starts_with("#[test]") {
-            for j in (i + 1)..lines.len().min(i + 5) {
-                let next = lines[j].trim();
+            for next_line in &lines[(i + 1)..lines.len().min(i + 5)] {
+                let next = next_line.trim();
                 if next.starts_with("fn ") {
                     if let Some(name) = next
                         .strip_prefix("fn ")

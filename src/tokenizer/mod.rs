@@ -7,7 +7,7 @@
 //! The tokenizer has 6 submodules:
 //!
 //! - **types** — 26 token types (EOF + 25 CSS tokens) as integer constants 0..25.
-//! - **char_code_definitions** — Character classification functions (`is_digit`, `is_name_start`,
+//! - **`char_code_definitions`** — Character classification functions (`is_digit`, `is_name_start`,
 //!   `is_identifier_start`, `is_number_start`, `char_code_category`) plus fast-lookup category
 //!   table for ASCII (0..127). Non-ASCII chars are all `NameStartCategory`.
 //! - **names** — Token type to CSS spec name mapping (e.g. `1 => "ident-token"`).
@@ -16,12 +16,12 @@
 //!   `consume_number` (sign, digits, dot, exponent), `consume_bad_url_remnants`, plus helpers
 //!   `cmp_char`, `cmp_str`, `find_whitespace_start/end`, `find_decimal_number_end`,
 //!   `decode_escaped`.
-//! - **token_stream** — `TokenStream`: tokenizes source into a packed `Uint32Array` where each
+//! - **`token_stream`** — `TokenStream`: tokenizes source into a packed `Uint32Array` where each
 //!   entry stores `(type << 24) | end_offset`. Also builds a `balance` array that maps block
 //!   openers to their closers (and vice versa). Provides indexed access: `next()`, `skip()`,
 //!   `lookup_type()`, `lookup_value()`, `skip_until_balanced()`, `for_each_token()`, etc.
 //!   The parser calls `TokenStream` methods to navigate the token sequence.
-//! - **offset_to_location** — `OffsetToLocation`: lazily computes line/column arrays from source,
+//! - **`offset_to_location`** — `OffsetToLocation`: lazily computes line/column arrays from source,
 //!   then maps byte offsets to `{source, offset, line, column}` locations. Used for AST position
 //!   tracking.
 //!

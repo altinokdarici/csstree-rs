@@ -37,7 +37,7 @@ empty_structs_with_brackets = "warn"
 if_then_some_else_none = "warn"
 map_err_ignore = "warn"
 redundant_type_annotations = "warn"
-string_to_string = "warn"
+implicit_clone = "warn"
 undocumented_unsafe_blocks = "warn"
 
 [lib]
