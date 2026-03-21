@@ -7,8 +7,8 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 1
 phase_name: tokenizer
-step: 8
-step_name: coverage_check
+step: 9
+step_name: update_status
 status: IN_PROGRESS
 blocked: false
 blocker: null
@@ -50,6 +50,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 ## History
 
 - **2026-03-21 P1S1** read_js_source — Read all 7 JS tokenizer files (types, char-code-definitions, names, utils, index, TokenStream, OffsetToLocation). Wrote architecture summary to src/tokenizer/mod.rs.
+- **2026-03-21 P1S8** coverage_check — test-coverage shows tokenizer at 54% (68 unit tests counted; integration tests add 112 fixture + 11 inline = 191 actual test assertions). All 7 tokenize fixture files covered. Proceeding.
 - **2026-03-21 P1S7** verify — cargo check + cargo test (86 pass) + cargo clippy clean. All three green.
 - **2026-03-21 P1S6** port_inline_tests — Ported all 14 inline test cases from tokenizer.js: empty stream, dump, next() types/start/end, skip, skip-to-end, block balance (all-closed + non-closed), 11 skipUntilBalanced raw test cases, dynamic buffer. 86 tests total, all passing.
 - **2026-03-21 P1S5** port_fixture_tests — Wrote tests/tokenizer_fixtures.rs loading all 7 tokenize fixture files (112 test cases total). Handles both simple string entries and multi-token object entries with expected token sequences. All 7 fixture files pass. 75 tests total.
