@@ -89,8 +89,16 @@ After completing the step's work, update `docs/exec-plans/LOOP_STATE.md`:
 - Update `status` to `IN_PROGRESS`
 - Add a History entry with timestamp and what was done
 
-### 4. Commit
-Stage and commit changes with a descriptive message. Always include the phase and step:
+### 4. Commit and push
+Stage, commit, and push. Every iteration lands on `origin/main` automatically.
+
+```sh
+git add -A
+git commit -m "<message>"
+git push
+```
+
+Commit message format — always include phase and step:
 - `feat(tokenizer): implement token types (phase 1, step 2)`
 - `test(tokenizer): port fixture tests for ident tokens (phase 1, step 5)`
 - `chore: update loop state after coverage check (phase 1, step 8)`
@@ -115,7 +123,7 @@ After committing, spend a moment reflecting on what just happened and improve th
 - **Missing lint/test** → Add to `Cargo.toml [lints]` or write a structural test.
 - **Nothing to improve** → That's fine. Not every iteration surfaces improvements.
 
-Commit improvements separately: `chore: improve <what> based on phase N step M learnings`
+Commit and push improvements separately: `chore: improve <what> based on phase N step M learnings`
 
 ## Rules
 
