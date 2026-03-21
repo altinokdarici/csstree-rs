@@ -89,6 +89,9 @@ Each iteration = one step. 10 steps per phase. 9 phases total. ~90 iterations to
 5. port_fixture_tests → 6. port_inline_tests → 7. verify → 8. coverage_check →
 9. update_status → 10. advance
 
+### Self-healing
+Every iteration ends with a self-improvement reflection. The agent looks for friction points, missing docs, repeated patterns, or stale references — then fixes them. This means the build system, docs, and tooling get better with every iteration, not just the code.
+
 ## Current Status
 
 See [docs/exec-plans/LOOP_STATE.md](docs/exec-plans/LOOP_STATE.md)

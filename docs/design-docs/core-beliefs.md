@@ -83,3 +83,14 @@ Bad patterns spread if left alone. Every module completion includes a quality ch
 - Run `cargo clippy -- -D warnings`
 - Verify no `#[allow(unused)]` on public items
 - Check that test count matches or exceeds JS test count for that module
+
+## 11. The system improves itself
+
+Every iteration of the build loop ends with a self-improvement reflection. The agent asks: what friction did I hit? What's missing? What could be automated? Then it fixes the infrastructure — adds missing docs, creates new skills/commands, updates golden principles, improves error messages. The build system, docs, and tooling get better with every iteration, not just the code.
+
+This means:
+- New patterns discovered during implementation get promoted into golden principles
+- Repeated manual steps get automated into scripts or commands
+- Stale docs get fixed immediately, not deferred
+- Missing test utilities get created when the gap is felt
+- The CLAUDE.md, build-next protocol, and conventions evolve as the project matures

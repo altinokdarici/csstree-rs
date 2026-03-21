@@ -95,6 +95,28 @@ Stage and commit changes with a descriptive message. Always include the phase an
 - `test(tokenizer): port fixture tests for ident tokens (phase 1, step 5)`
 - `chore: update loop state after coverage check (phase 1, step 8)`
 
+### 5. Self-improve (every iteration)
+After committing, spend a moment reflecting on what just happened and improve the system:
+
+**What to look for:**
+- Did you hit a friction point? (missing docs, unclear architecture, bad abstraction)
+- Did you repeat a pattern that should be a helper/utility?
+- Did an error message not help you? (improve the error or add a lint)
+- Is there a golden principle missing that would have prevented a mistake?
+- Could a new skill/command automate something you did manually?
+- Are any docs stale or misleading after this step's changes?
+
+**What to do about it:**
+- **Missing doc** → Write it. Add to `docs/` or update CLAUDE.md pointers.
+- **Repeated pattern** → Extract a helper, add to utils, or create a test utility.
+- **Missing golden principle** → Add to `docs/golden-principles.md`.
+- **Missing skill** → Create in `.claude/commands/` with clear protocol.
+- **Stale doc** → Fix it. Update cross-references.
+- **Missing lint/test** → Add to `Cargo.toml [lints]` or write a structural test.
+- **Nothing to improve** → That's fine. Not every iteration surfaces improvements.
+
+Commit improvements separately: `chore: improve <what> based on phase N step M learnings`
+
 ## Rules
 
 - **One step per iteration.** Do not try to do multiple steps in one run.
