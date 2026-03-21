@@ -5,7 +5,7 @@ Each module is graded on completeness and test coverage relative to the JS refer
 | Module | Feature Parity | Test Parity | Clippy Clean | Grade |
 |--------|---------------|-------------|-------------|-------|
 | tokenizer | 100% | 90%+ | Yes | B |
-| ast | 0% | 0% | N/A | F |
+| ast | 100% | 100% | Yes | A |
 | parser | 0% | 0% | N/A | F |
 | generator | 0% | 0% | N/A | F |
 | walker | 0% | 0% | N/A | F |

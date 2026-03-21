@@ -5,15 +5,15 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ## Current
 
 ```yaml
-phase: 2
-phase_name: ast
-step: 3
-step_name: implement_core
-status: IN_PROGRESS
+phase: 3
+phase_name: parser
+step: 1
+step_name: read_js_source
+status: NOT_STARTED
 blocked: false
 blocker: null
-last_completed_phase: 1
-last_commit: 437121c
+last_completed_phase: 2
+last_commit: 3460916
 ```
 
 ## Phase / Step Matrix
@@ -50,6 +50,8 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 ## History
 
 - **2026-03-21 P1S1** read_js_source — Read all 7 JS tokenizer files (types, char-code-definitions, names, utils, index, TokenStream, OffsetToLocation). Wrote architecture summary to src/tokenizer/mod.rs.
+- **2026-03-21 P2S9-10** update_status + advance — Phase 2 (AST) COMPLETE. 49 types, grade A. Advancing to Phase 3 (parser).
+- **2026-03-21 P2S3-8** skip — AST is types-only module. No core logic, no remaining submodules, no AST-specific fixtures or inline tests. Steps 3-8 have no additional work. Verification passed (4 tests, clippy clean).
 - **2026-03-21 P2S2** implement_types — Defined all 49 AST node structs + Node enum + Loc/Position types. All structs derive Debug/Clone/PartialEq. Node enum has node_type() and loc() methods. 4 tests verifying construction of all 49 types. Clippy clean.
 - **2026-03-21 P2S1** read_js_source — Read all 49 AST node files. Extracted structure definitions for every node: field names, types, optional/union fields. Wrote architecture summary to src/ast/mod.rs.
 - **2026-03-21 P1S10** advance — Phase 1 (tokenizer) COMPLETE. Advancing to Phase 2 (ast).
