@@ -68,6 +68,11 @@ impl TokenStream {
         self.token_count
     }
 
+    /// Returns the current token index.
+    pub fn token_index(&self) -> usize {
+        self.token_index
+    }
+
     /// Reset cursor to before the first token.
     pub fn reset(&mut self) {
         self.eof = false;
