@@ -73,6 +73,9 @@
 
 pub mod error;
 pub mod options;
+pub mod scope;
+pub mod parser_impl;
 
 pub use error::CssSyntaxError;
 pub use options::{ParseContext, ParseOptions};
+pub use parser_impl::{parse, Parser};
