@@ -7,8 +7,8 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 1
 phase_name: tokenizer
-step: 3
-step_name: implement_core
+step: 4
+step_name: implement_remaining
 status: IN_PROGRESS
 blocked: false
 blocker: null
@@ -50,4 +50,5 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 ## History
 
 - **2026-03-21 P1S1** read_js_source — Read all 7 JS tokenizer files (types, char-code-definitions, names, utils, index, TokenStream, OffsetToLocation). Wrote architecture summary to src/tokenizer/mod.rs.
+- **2026-03-21 P1S3** implement_core — Implemented all consume functions (utils.rs): consume_escaped, consume_name, consume_number, consume_bad_url_remnants, decode_escaped, cmp_char, cmp_str, find_whitespace_start/end, find_decimal_number_end. Implemented main tokenize() function with full §4.3.1 dispatch loop, plus consume_numeric_token, consume_ident_like_token, consume_string_token, consume_url_token, find_comment_end. 51 tests passing, clippy clean.
 - **2026-03-21 P1S2** implement_types — Defined `TokenType` enum (#[repr(u8)], 26 variants), `CharCategory` enum, 128-byte ASCII category lookup table, all char classification functions (`is_digit`, `is_name_start`, `is_identifier_start`, `is_number_start`, etc.), token spec names, block opener/closer/balance methods. 17 tests passing, clippy clean.
