@@ -47,7 +47,7 @@
 //! ### Key parse functions
 //!
 //! - `StyleSheet`: loops over top-level tokens (rules, at-rules, comments)
-//! - `Rule`: parses prelude (SelectorList or Raw) + Block
+//! - `Rule`: parses prelude (`SelectorList` or `Raw`) + `Block`
 //! - `Declaration`: property + colon + value (with `!important`) + error recovery
 //! - `Selector`: `read_sequence(selector_scope)`
 //! - `Value`: `read_sequence(value_scope)`
@@ -70,3 +70,9 @@
 //! - Error recovery via `Result` + `Raw` fallback pattern
 //! - `CssSyntaxError` struct with source fragment display
 //! - Parse options as a builder struct
+
+pub mod error;
+pub mod options;
+
+pub use error::CssSyntaxError;
+pub use options::{ParseContext, ParseOptions};
