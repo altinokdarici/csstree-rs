@@ -790,6 +790,19 @@ impl Parser {
                     Some(self.parse_pseudo_class_selector())
                 }
             }
+            // Percentage/Number as selectors (for keyframes: 0%, 50%, 100%, from, to)
+            TokenType::Percentage => {
+                let start = self.loc_start();
+                let name = self.token_value().to_string();
+                self.next();
+                Some(Node::TypeSelector(TypeSelector { loc: self.make_loc(start), name }))
+            }
+            TokenType::Number => {
+                let start = self.loc_start();
+                let name = self.token_value().to_string();
+                self.next();
+                Some(Node::TypeSelector(TypeSelector { loc: self.make_loc(start), name }))
+            }
             TokenType::Delim => {
                 let code = self.source().as_bytes().get(self.stream.token_start).copied().unwrap_or(0);
                 match code {
