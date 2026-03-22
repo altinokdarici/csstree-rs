@@ -26,6 +26,18 @@ fn round_trip_in_decl(css: &str) -> String {
     }
 }
 
+/// Parse CSS as a value inside a declaration and generate output.
+fn round_trip_as_value(css: &str) -> String {
+    let wrapped = format!("x{{p:{css}}}");
+    let full = round_trip(&wrapped);
+    // Extract value: strip "x{p:" prefix and "}" suffix
+    if let Some(inner) = full.strip_prefix("x{p:").and_then(|s| s.strip_suffix('}')) {
+        inner.to_string()
+    } else {
+        full
+    }
+}
+
 /// Parse CSS in a selector-wrapped context and generate output.
 fn round_trip_in_selector(css: &str) -> String {
     let wrapped = format!("{css}{{}}");
@@ -94,7 +106,9 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
             round_trip(source)
         } else if is_selector {
             round_trip_in_selector(source)
-        } else if is_value || is_declaration || is_media_query {
+        } else if is_value {
+            round_trip_as_value(source)
+        } else if is_declaration || is_media_query {
             round_trip_in_decl(source)
         } else {
             round_trip_in_decl(source)
