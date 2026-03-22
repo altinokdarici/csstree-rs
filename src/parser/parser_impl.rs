@@ -846,8 +846,14 @@ impl Parser {
 
     fn parse_url(&mut self) -> Node {
         let start = self.loc_start();
-        let value = self.token_value().to_string();
+        let raw = self.token_value().to_string();
         self.next();
+        // Strip the url(...) wrapper — the generator adds it back
+        let value = if raw.starts_with("url(") && raw.ends_with(')') {
+            raw[4..raw.len() - 1].trim().to_string()
+        } else {
+            raw
+        };
         Node::Url(Url { loc: self.make_loc(start), value })
     }
 
