@@ -314,9 +314,12 @@ impl Parser {
 
         self.skip_sc();
         self.eat(TokenType::Colon)?;
-        self.skip_sc();
 
         let is_custom = property.starts_with("--");
+        // For non-custom properties, skip whitespace after colon
+        if !is_custom {
+            self.skip_sc();
+        }
         // Check for progid: IE filter hack — treat entire value as raw
         let is_progid = self.token_type() == TokenType::Ident
             && self.token_value().eq_ignore_ascii_case("progid");
