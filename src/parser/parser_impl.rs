@@ -1119,10 +1119,15 @@ impl PipeOk for Node {
 /// Check if an at-rule name uses a style block (declarations rather than rules).
 fn is_style_atrule(name: &str) -> bool {
     let lower = name.to_ascii_lowercase();
-    matches!(
+    // At-rules with rule-list blocks (not declaration blocks)
+    let is_rule_list = matches!(
         lower.as_str(),
-        "font-face" | "page" | "font-feature-values" | "viewport" | "counter-style"
-    )
+        "media" | "supports" | "layer" | "scope" | "container"
+            | "document" | "starting-style" | "nest"
+            | "keyframes" | "-webkit-keyframes" | "-moz-keyframes"
+    );
+    // Default: if not a known rule-list at-rule, treat as style/declarations
+    !is_rule_list
 }
 
 // ── Public API ──
