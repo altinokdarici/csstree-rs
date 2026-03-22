@@ -953,7 +953,13 @@ impl Parser {
         self.next();
 
         let children = self.read_sequence(
-            |p| p.value_get_node(),
+            |p| {
+                // Allow colons inside function args (e.g., supports(foo:1))
+                if p.token_type() == TokenType::Colon {
+                    return Some(p.parse_operator());
+                }
+                p.value_get_node()
+            },
             |_p, _next, _children| {},
         );
 
