@@ -4,3 +4,5 @@ external/
 # Added by cargo
 
 /target
+.claude/ralph-loop.local.md
+.claude/*.local.*
