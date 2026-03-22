@@ -5,9 +5,9 @@ Real-time tracking of parse→generate round-trip correctness vs JS csstree.
 ## Current Scores
 
 ```yaml
-parser_pass: 466
+parser_pass: 502
 parser_total: 662
-parser_pct: 70.4
+parser_pct: 75.8
 lexer_pass: 657
 lexer_total: 1027
 lexer_pct: 64.0
@@ -17,7 +17,7 @@ lexer_pct: 64.0
 
 | # | Fix | Est. Impact | Status |
 |---|-----|-------------|--------|
-| 1 | Parse parenthesized at-rule preludes (@supports, @media features) | ~80 | TODO |
+| 1 | Parse parenthesized at-rule preludes (@supports, @media features) | ~80 | PARTIAL (+17) |
 | 2 | Strip comments in raw content during parse | ~40 | TODO |
 | 3 | Whitespace normalization in function/paren args | ~35 | TODO |
 | 4 | CSS nesting detection in declaration blocks | ~20 | TODO |
@@ -37,3 +37,5 @@ lexer_pct: 64.0
 - 2026-03-22: Fix #5 (custom property values) + consume_raw stop fix — 440/662
 - 2026-03-22: Attr selector whitespace/comment skip — 449/662
 - 2026-03-22: More value delimiters + atrule prelude colon — 466/662
+- 2026-03-22: Value context wrapping fix — 486/662
+- 2026-03-22: Parenthesized colon handling — 502/662
