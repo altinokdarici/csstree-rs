@@ -7,13 +7,13 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 5
 phase_name: walker
-step: 2
-step_name: implement_types
+step: 3
+step_name: implement_core
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 4
-last_commit: pending
+last_commit: feat(walker): implement walker types (phase 5, step 2)
 ```
 
 ## Phase / Step Matrix
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P5S2** implement_types — Defined WalkAction enum (Continue/Skip/Break), WalkContext struct (tracks stylesheet/atrule/rule/selector/block/declaration/function positions), VisitFilter enum (All/Atrule/Rule/Declaration/NodeType), WalkOptions struct (reverse, visit). 8 tests, clippy clean.
 - **2026-03-22 P5S1** read_js_source — Read walker JS files (create.js, index.js). Walker does depth-first traversal with enter/leave callbacks, break/skip sentinels, visit filter for specific node types, reverse option, and fast traversal for Rule/Atrule/Declaration. Helper methods: find, findLast, findAll.
 - **2026-03-22 P4S10** advance — Phase 4 (generator) COMPLETE. 176 tests, grade A. Advancing to Phase 5 (walker).
 - **2026-03-22 P4S7-9** verify+coverage+update_status — cargo check + test (176 pass) + clippy clean. Generator coverage adequate (27 unit + 11 fixture + 5 inline). Updated PLANS.md and QUALITY.md.
