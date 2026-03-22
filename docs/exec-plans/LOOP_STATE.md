@@ -7,13 +7,13 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 5
 phase_name: walker
-step: 7
-step_name: verify
+step: 10
+step_name: advance
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 4
-last_commit: test(walker): port inline tests (phase 5, step 6)
+last_commit: chore: verify + coverage check (phase 5, steps 7-8)
 ```
 
 ## Phase / Step Matrix
@@ -49,6 +49,8 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P5S9** update_status — Updated PLANS.md (walker=COMPLETE), QUALITY.md (walker=A grade, 95% feature parity, 123% test parity, clippy clean).
+- **2026-03-22 P5S7-8** verify+coverage — cargo check + test (234 pass) + clippy clean. Walker coverage 123% (27 Rust tests vs 22 JS). Proceeding.
 - **2026-03-22 P5S6** port_inline_tests — 11 inline tests from walk.json: base test (types), enter/leave ordering, natural/reverse traversal order, break traverse (natural/reverse), skip traverse (natural/reverse), visit Declaration filter, find/find_all helpers. 234 total tests, clippy clean.
 - **2026-03-22 P5S5** port_fixture_tests — 20 integration tests: 7 smoke tests across AST fixture dirs (atrule/rule/stylesheet/block/declaration/value/selector), enter/leave ordering, natural/reverse traversal, break/skip behavior, visit filters (Rule/Declaration/Atrule), find/find_all helpers. 223 total tests, clippy clean.
 - **2026-03-22 P5S4** implement_remaining — Added fast traversal optimization for Atrule/Rule/Declaration visit filters (only descend into container nodes). 5 new tests (atrule filter, rule filter, declaration filter, atrule children, leave break). 27 walker tests, 203 total, clippy clean.

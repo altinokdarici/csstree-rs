@@ -8,7 +8,7 @@ Each module is graded on completeness and test coverage relative to the JS refer
 | ast | 100% | 100% | Yes | A |
 | parser | 90% | 80%+ | Yes | B |
 | generator | 95% | 80%+ | Yes | A |
-| walker | 0% | 0% | N/A | F |
+| walker | 95% | 123% | Yes | A |
 | definition_syntax | 0% | 0% | N/A | F |
 | lexer | 0% | 0% | N/A | F |
 | utils | 0% | 0% | N/A | F |
