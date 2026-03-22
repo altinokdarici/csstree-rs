@@ -21,8 +21,10 @@ pub mod types;
 pub mod error;
 pub mod units;
 pub mod match_graph;
+pub mod generic;
 
 pub use error::{SyntaxMatchError, SyntaxReferenceError};
+pub use generic::get_generic_matcher;
 pub use match_graph::build_match_graph;
 pub use types::{MatchNode, MatchResult, MatchToken, LexerConfig};
 pub use units::UNITS;
