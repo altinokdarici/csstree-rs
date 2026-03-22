@@ -991,13 +991,19 @@ impl Parser {
         if self.token_type() != TokenType::RightSquareBracket && !self.stream.eof {
             let m = self.token_value().to_string();
             if m.contains('=') || self.token_type() == TokenType::Delim {
-                // Read full matcher
+                // Read full matcher (skip whitespace/comments)
                 let mut matcher_str = String::new();
                 while self.token_type() != TokenType::RightSquareBracket
                     && self.token_type() != TokenType::String
                     && self.token_type() != TokenType::Ident
                     && !self.stream.eof
                 {
+                    if self.token_type() == TokenType::WhiteSpace
+                        || self.token_type() == TokenType::Comment
+                    {
+                        self.next();
+                        continue;
+                    }
                     matcher_str.push_str(self.token_value());
                     self.next();
                 }
