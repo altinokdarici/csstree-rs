@@ -226,7 +226,16 @@ impl Generator {
             Node::Percentage(n) => {
                 self.token(TokenType::Percentage, &format!("{}%", n.value));
             }
-            Node::StringNode(n) => self.token(TokenType::String, &n.value),
+            Node::StringNode(n) => {
+                // Normalize single quotes to double quotes (matching JS csstree)
+                let val = if n.value.starts_with('\'') && n.value.ends_with('\'') {
+                    let inner = &n.value[1..n.value.len() - 1];
+                    format!("\"{}\"", inner.replace('"', "\\\"").replace("\\'", "'"))
+                } else {
+                    n.value.clone()
+                };
+                self.token(TokenType::String, &val);
+            }
             Node::Operator(n) => self.tokenize_chunk(&n.value),
             Node::Raw(n) => self.tokenize_chunk(&n.value),
             Node::UnicodeRange(n) => self.token(TokenType::Ident, &n.value),
@@ -546,7 +555,7 @@ mod tests {
             block: None,
         });
         let result = generate(&node, &GenerateOptions::default());
-        assert_eq!(result, "@charset 'utf-8';");
+        assert_eq!(result, "@charset \"utf-8\";");
     }
 
     // ── Round-trip tests (parse → generate) ──
@@ -597,7 +606,7 @@ mod tests {
 
     #[test]
     fn round_trip_at_rule_no_block() {
-        round_trip("@charset 'utf-8';", "@charset 'utf-8';");
+        round_trip("@charset 'utf-8';", "@charset \"utf-8\";");
     }
 
     #[test]
