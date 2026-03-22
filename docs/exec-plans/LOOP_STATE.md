@@ -11,13 +11,13 @@ phase: 6
 phase_name: definition_syntax
 phase: 7
 phase_name: lexer
-step: 1
-step_name: read_js_source
-status: NOT_STARTED
+step: 2
+step_name: implement_types
+status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 6
-last_commit: chore: advance to phase 7 — lexer
+last_commit: feat(lexer): read JS source (phase 7, step 1)
 ```
 
 ## Phase / Step Matrix
@@ -53,6 +53,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P7S1** read_js_source — Read all 14 lexer JS files. Lexer validates CSS values against definition syntax using match graphs (automata). Key components: 65+ generic type matchers, match graph construction (If/Enum/MatchOnce/Generic nodes), state machine executor with backtracking stacks, token preparation, Lexer class with lazy syntax parsing. Documented architecture in src/lexer/mod.rs.
 - **2026-03-22 P6S10** advance — Phase 6 (definition_syntax) COMPLETE. 326 tests, grade A. Advancing to Phase 7 (lexer).
 - **2026-03-22 P6S6-9** port_inline+verify+coverage+update — 23 inline tests (walk types, enter/leave pairs, parse→generate round trips for all syntax elements). 326 total tests, clippy clean. Coverage adequate (50 unit + 19 fixture + 23 inline).
 - **2026-03-22 P6S5** port_fixture_tests — 19 integration tests: 13 parse smoke tests across fixture files, 4 round-trip tests, common definition syntax parsing, walker integration. 303 total tests, clippy clean.
