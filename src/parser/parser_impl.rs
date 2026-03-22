@@ -1121,15 +1121,19 @@ impl Parser {
             let fn_name = name.strip_suffix('(').unwrap_or(&name).to_string();
             self.next();
 
-            let mut children = Vec::new();
-            // Consume everything until matching )
-            let raw_start = self.stream.token_start;
-            let start_token = self.stream.token_index();
-            self.stream.skip_until_balanced(start_token, |_| 0);
-            let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
-            if !raw_value.is_empty() {
-                children.push(Node::Raw(Raw { loc: None, value: raw_value }));
-            }
+            // Parse arguments properly (like function arguments)
+            let children = self.read_sequence(
+                |p| {
+                    // Allow colons inside pseudo-class args (e.g., :lang(en))
+                    if p.token_type() == TokenType::Colon {
+                        return Some(p.parse_operator());
+                    }
+                    p.selector_get_node()
+                        .or_else(|| p.value_get_node())
+                },
+                |_p, _next, _children| {},
+            );
+
             if self.token_type() == TokenType::RightParenthesis {
                 self.next();
             }
