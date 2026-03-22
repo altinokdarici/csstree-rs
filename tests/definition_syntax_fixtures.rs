@@ -56,7 +56,16 @@ fn run_parse_smoke_test(fixture_file: &str) {
             }
         }
     }
-    eprintln!("  {fixture_file}: {passed}/{} parsed successfully", cases.len());
+    let total = cases.len();
+    eprintln!("  {fixture_file}: {passed}/{total} parsed successfully");
+    // At least 80% of syntaxes should parse — these are real CSS definition syntaxes
+    if total > 0 {
+        let pct = passed as f64 / total as f64 * 100.0;
+        assert!(
+            pct >= 80.0,
+            "{fixture_file}: parse rate {pct:.0}% < 80% ({passed}/{total})"
+        );
+    }
 }
 
 /// Test parse→generate round trip.

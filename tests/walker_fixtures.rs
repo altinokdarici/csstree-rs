@@ -81,6 +81,8 @@ fn run_walk_smoke_test_dir(dir: &str) {
 
     assert!(total > 0, "No fixture cases found in {dir}");
     eprintln!("  {dir}: {passed}/{total} walk smoke tests passed");
+    // All cases should pass — walker visits any parsed AST
+    assert_eq!(passed, total, "{dir}: {passed}/{total} passed (expected all)");
 }
 
 #[test]

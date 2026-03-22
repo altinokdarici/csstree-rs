@@ -83,9 +83,19 @@ fn run_validation_tests(fixture_file: &str) {
         }
     }
 
+    let total = total_valid + total_invalid;
+    let passed = passed_valid + passed_invalid;
     eprintln!(
-        "  {fixture_file}: valid {passed_valid}/{total_valid}, invalid {passed_invalid}/{total_invalid}"
+        "  {fixture_file}: {passed}/{total} correct (valid {passed_valid}/{total_valid}, invalid {passed_invalid}/{total_invalid})"
     );
+    // Assert minimum correctness rate
+    if total > 0 {
+        let pct = passed as f64 / total as f64 * 100.0;
+        assert!(
+            pct >= 40.0,
+            "{fixture_file}: correctness {pct:.0}% < 40% ({passed}/{total})"
+        );
+    }
 }
 
 // ── Fixture tests ──
