@@ -313,6 +313,31 @@ fn collect_children(node: &Node) -> Vec<&Node> {
     }
 }
 
+// ── Fast traversal ──
+
+/// For Atrule/Rule/Declaration visit filters, only descend into container nodes.
+///
+/// This matches the JS walker's `createFastTraveralMap` which limits iteration
+/// to `StyleSheet`/`Atrule`/`Rule`/`Block` (and `DeclarationList` for Declaration).
+fn is_fast_traversal_container(node: &Node, filter: VisitFilter) -> bool {
+    match filter {
+        VisitFilter::Atrule | VisitFilter::Rule => matches!(
+            node,
+            Node::StyleSheet(_) | Node::Atrule(_) | Node::Rule(_) | Node::Block(_)
+        ),
+        VisitFilter::Declaration => matches!(
+            node,
+            Node::StyleSheet(_)
+                | Node::Atrule(_)
+                | Node::Rule(_)
+                | Node::Block(_)
+                | Node::DeclarationList(_)
+        ),
+        // No fast traversal for All or custom NodeType filters
+        VisitFilter::All | VisitFilter::NodeType(_) => true,
+    }
+}
+
 // ── Core walk implementation ──
 
 /// Internal recursive walk function.
@@ -339,7 +364,7 @@ where
         return true;
     }
 
-    if enter_action != WalkAction::Skip {
+    if enter_action != WalkAction::Skip && is_fast_traversal_container(node, filter) {
         // Set context for this node type
         let prev_ctx = set_context_for_node(ctx, node);
 
@@ -793,5 +818,124 @@ mod tests {
             WalkAction::Continue
         });
         assert!(fn_context_set);
+    }
+
+    // ── Fast traversal tests ──
+
+    #[test]
+    fn fast_traversal_declaration_filter_skips_non_container() {
+        let ast = make_simple_ast();
+        let mut all_types = Vec::new();
+        walk_full(
+            &ast,
+            &WalkOptions { reverse: false, visit: VisitFilter::Declaration },
+            |node, _ctx| {
+                all_types.push(node.node_type().to_string());
+                WalkAction::Continue
+            },
+            |_, _| WalkAction::Continue,
+        );
+        // With fast traversal, only Declaration callback fires
+        // It should NOT visit SelectorList, Selector, ClassSelector, Value, Identifier
+        assert_eq!(all_types, vec!["Declaration"]);
+    }
+
+    #[test]
+    fn fast_traversal_rule_filter() {
+        let ast = make_simple_ast();
+        let mut visited = Vec::new();
+        walk_full(
+            &ast,
+            &WalkOptions { reverse: false, visit: VisitFilter::Rule },
+            |node, _ctx| {
+                visited.push(node.node_type().to_string());
+                WalkAction::Continue
+            },
+            |_, _| WalkAction::Continue,
+        );
+        assert_eq!(visited, vec!["Rule"]);
+    }
+
+    #[test]
+    fn fast_traversal_atrule_filter() {
+        // Build: @media screen { .a { color: red } }
+        let ast = Node::StyleSheet(StyleSheet {
+            loc: None,
+            children: vec![Node::Atrule(Atrule {
+                loc: None,
+                name: "media".into(),
+                prelude: Some(Box::new(Node::AtrulePrelude(AtrulePrelude {
+                    loc: None,
+                    children: vec![Node::Identifier(Identifier {
+                        loc: None,
+                        name: "screen".into(),
+                    })],
+                }))),
+                block: Some(Box::new(Node::Block(Block {
+                    loc: None,
+                    children: vec![Node::Rule(Rule {
+                        loc: None,
+                        prelude: Box::new(Node::SelectorList(SelectorList {
+                            loc: None,
+                            children: vec![],
+                        })),
+                        block: Box::new(Node::Block(Block {
+                            loc: None,
+                            children: vec![],
+                        })),
+                    })],
+                }))),
+            })],
+        });
+        let mut visited = Vec::new();
+        walk_full(
+            &ast,
+            &WalkOptions { reverse: false, visit: VisitFilter::Atrule },
+            |node, _ctx| {
+                visited.push(node.node_type().to_string());
+                WalkAction::Continue
+            },
+            |_, _| WalkAction::Continue,
+        );
+        assert_eq!(visited, vec!["Atrule"]);
+    }
+
+    #[test]
+    fn walk_atrule_children() {
+        // Verify walker properly visits Atrule child fields
+        let ast = Node::Atrule(Atrule {
+            loc: None,
+            name: "import".into(),
+            prelude: Some(Box::new(Node::AtrulePrelude(AtrulePrelude {
+                loc: None,
+                children: vec![Node::StringNode(StringNode {
+                    loc: None,
+                    value: "foo.css".into(),
+                })],
+            }))),
+            block: None,
+        });
+        let mut types = Vec::new();
+        walk(&ast, |node, _ctx| {
+            types.push(node.node_type().to_string());
+            WalkAction::Continue
+        });
+        assert_eq!(types, vec!["Atrule", "AtrulePrelude", "String"]);
+    }
+
+    #[test]
+    fn leave_break_stops_walk() {
+        let ast = make_simple_ast();
+        let mut leave_count = 0;
+        walk_full(
+            &ast,
+            &WalkOptions::default(),
+            |_, _| WalkAction::Continue,
+            |_node, _ctx| {
+                leave_count += 1;
+                WalkAction::Break // break on first leave
+            },
+        );
+        assert_eq!(leave_count, 1);
     }
 }

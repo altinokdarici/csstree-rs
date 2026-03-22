@@ -7,13 +7,13 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 5
 phase_name: walker
-step: 4
-step_name: implement_remaining
+step: 5
+step_name: port_fixture_tests
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 4
-last_commit: feat(walker): implement core walk logic (phase 5, step 3)
+last_commit: feat(walker): add fast traversal optimization (phase 5, step 4)
 ```
 
 ## Phase / Step Matrix
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P5S4** implement_remaining — Added fast traversal optimization for Atrule/Rule/Declaration visit filters (only descend into container nodes). 5 new tests (atrule filter, rule filter, declaration filter, atrule children, leave break). 27 walker tests, 203 total, clippy clean.
 - **2026-03-22 P5S3** implement_core — Implemented walk(), walk_full(), find(), find_last(), find_all(). Exhaustive child iteration for all 49 node types. WalkContext save/restore via ContextField enum. 22 unit tests covering: traversal order, break/skip control flow, context tracking, reverse walk, visit filter, enter/leave callbacks. 198 total tests, clippy clean.
 - **2026-03-22 P5S2** implement_types — Defined WalkAction enum (Continue/Skip/Break), WalkContext struct (tracks stylesheet/atrule/rule/selector/block/declaration/function positions), VisitFilter enum (All/Atrule/Rule/Declaration/NodeType), WalkOptions struct (reverse, visit). 8 tests, clippy clean.
 - **2026-03-22 P5S1** read_js_source — Read walker JS files (create.js, index.js). Walker does depth-first traversal with enter/leave callbacks, break/skip sentinels, visit filter for specific node types, reverse option, and fast traversal for Rule/Atrule/Declaration. Helper methods: find, findLast, findAll.
