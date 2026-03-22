@@ -196,11 +196,31 @@ fn main() {
         println!("└──────────────────────────────────────────────────────────────────────┘\n");
     }
 
+    // ── Count FOUND fixture cases ──
+    let found_fixture_cases: usize = by_fixture.iter()
+        .filter(|(file, _)| {
+            let basename = file.rsplit('/').next().unwrap_or(file);
+            let basename_stem = basename.replace('-', "_").replace(".json", "");
+            let file_stem = file.replace(['/', '-'], "_").replace(".json", "");
+            rs_all_content.contains(&file_stem)
+                || rs_all_content.contains(file.as_str())
+                || rs_all_content.contains(basename)
+                || rs_all_content.contains(&basename_stem)
+        })
+        .map(|(_, (count, _))| count)
+        .sum();
+    let total_fixture_cases: usize = by_fixture.values().map(|(count, _)| count).sum();
+    let fixture_pct = if total_fixture_cases > 0 {
+        format!("{:.1}%", found_fixture_cases as f64 / total_fixture_cases as f64 * 100.0)
+    } else {
+        "0%".to_string()
+    };
+
     // ── Grand summary ──
     println!("══════════════════════════════════════════════════════════════════════");
     println!(
-        "  {} / {} test cases | {} Rust #[test] functions | Coverage: {}",
-        grand_rs, grand_total, rs_test_names.len(), grand_pct
+        "  {} Rust #[test] functions | {} / {} fixture cases covered ({})",
+        rs_test_names.len(), found_fixture_cases, total_fixture_cases, fixture_pct
     );
     println!("══════════════════════════════════════════════════════════════════════");
     println!();
