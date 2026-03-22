@@ -9,13 +9,15 @@ phase: 5
 phase_name: walker
 phase: 6
 phase_name: definition_syntax
-step: 6
-step_name: port_inline_tests
-status: IN_PROGRESS
+phase: 7
+phase_name: lexer
+step: 1
+step_name: read_js_source
+status: NOT_STARTED
 blocked: false
 blocker: null
-last_completed_phase: 5
-last_commit: test(definition_syntax): port fixture tests (phase 6, step 5)
+last_completed_phase: 6
+last_commit: chore: advance to phase 7 — lexer
 ```
 
 ## Phase / Step Matrix
@@ -51,6 +53,8 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P6S10** advance — Phase 6 (definition_syntax) COMPLETE. 326 tests, grade A. Advancing to Phase 7 (lexer).
+- **2026-03-22 P6S6-9** port_inline+verify+coverage+update — 23 inline tests (walk types, enter/leave pairs, parse→generate round trips for all syntax elements). 326 total tests, clippy clean. Coverage adequate (50 unit + 19 fixture + 23 inline).
 - **2026-03-22 P6S5** port_fixture_tests — 19 integration tests: 13 parse smoke tests across fixture files, 4 round-trip tests, common definition syntax parsing, walker integration. 303 total tests, clippy clean.
 - **2026-03-22 P6S4** implement_remaining — Generator (generate with force_braces/compact options, multiplier rendering, type range, group sequence) + Walker (enter/leave callbacks, pre-order traversal). 8 generator tests + 4 walker tests. 50 total definition_syntax tests, clippy clean.
 - **2026-03-22 P6S3** implement_core — Scanner (char_code, skip_ws, scan_word/number/string, eat, peek_char) + Parser (parse entry point, readImplicitGroup with regroupTerms for operator precedence, readType with range/boolean-expr, readProperty, readKeywordOrFunction, readGroup with ! suffix, readMultiplier with all forms + stacking, peek dispatch). 20 parser tests + 7 scanner tests. 38 total definition_syntax tests, clippy clean.

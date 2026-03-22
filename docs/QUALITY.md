@@ -9,7 +9,7 @@ Each module is graded on completeness and test coverage relative to the JS refer
 | parser | 90% | 80%+ | Yes | B |
 | generator | 95% | 80%+ | Yes | A |
 | walker | 95% | 123% | Yes | A |
-| definition_syntax | 0% | 0% | N/A | F |
+| definition_syntax | 95% | 90%+ | Yes | A |
 | lexer | 0% | 0% | N/A | F |
 | utils | 0% | 0% | N/A | F |
 

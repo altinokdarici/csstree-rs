@@ -9,7 +9,7 @@
 | 3 | Parser | COMPLETE | — |
 | 4 | Generator | COMPLETE | — |
 | 5 | Walker | COMPLETE | Phase 2 |
-| 6 | Definition Syntax | NOT STARTED | — |
+| 6 | Definition Syntax | COMPLETE | — |
 | 7 | Lexer | NOT STARTED | Phase 1, 2, 6 |
 | 8 | Utils | NOT STARTED | Phase 1 |
 | 9 | Syntax Config / Fork | NOT STARTED | All above |
@@ -21,6 +21,7 @@
 | 3 | Parser | 2026-03-22 | 133 tests, 74 fixture files, UTF-8 fix, clippy clean |
 | 4 | Generator | 2026-03-22 | 176 tests, auto-whitespace, round-trip, clippy clean |
 | 5 | Walker | 2026-03-22 | 58 tests (27 unit + 20 fixture + 11 inline), fast traversal, clippy clean |
+| 6 | Definition Syntax | 2026-03-22 | 92 tests (50 unit + 19 fixture + 23 inline), parse/generate/walk, clippy clean |
 
 ## Tech Debt Tracker
 
