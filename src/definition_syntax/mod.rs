@@ -58,11 +58,15 @@ pub mod types;
 pub mod error;
 pub mod scanner;
 pub mod parse;
+pub mod generate;
+pub mod walk;
 
 pub use error::DefinitionSyntaxError;
+pub use generate::{generate as generate_definition_syntax, GenerateOptions as DefSyntaxGenOptions};
 pub use parse::parse as parse_definition_syntax;
 pub use types::{
     Combinator, DefinitionSyntaxNode, GroupNode, MultiplierNode,
     BooleanNode, TypeNode, RangeNode, PropertyNode, KeywordNode,
     AtKeywordNode, FunctionNode, StringValueNode, TokenNode,
 };
+pub use walk::{walk as walk_definition_syntax, walk_enter as walk_definition_syntax_enter};
