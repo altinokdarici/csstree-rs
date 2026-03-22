@@ -548,4 +548,86 @@ mod tests {
         let result = generate(&node, &GenerateOptions::default());
         assert_eq!(result, "@charset 'utf-8';");
     }
+
+    // ── Round-trip tests (parse → generate) ──
+
+    fn round_trip(css: &str, expected: &str) {
+        let ast = crate::parser::parse(css, crate::parser::ParseOptions::default());
+        let result = generate(&ast, &GenerateOptions::default());
+        assert_eq!(result, expected, "round-trip failed for input: {css:?}");
+    }
+
+    #[test]
+    fn round_trip_simple_rule() {
+        round_trip("a { color: red }", "a{color:red}");
+    }
+
+    #[test]
+    fn round_trip_multiple_declarations() {
+        round_trip(
+            "a { color: red; font-size: 12px }",
+            "a{color:red;font-size:12px}",
+        );
+    }
+
+    #[test]
+    fn round_trip_class_selector() {
+        round_trip(".foo { display: block }", ".foo{display:block}");
+    }
+
+    #[test]
+    fn round_trip_id_selector() {
+        round_trip("#bar { margin: 0 }", "#bar{margin:0}");
+    }
+
+    #[test]
+    fn round_trip_compound_selector() {
+        round_trip("a.foo#bar { color: red }", "a.foo#bar{color:red}");
+    }
+
+    #[test]
+    fn round_trip_descendant_combinator() {
+        round_trip("a b { color: red }", "a b{color:red}");
+    }
+
+    #[test]
+    fn round_trip_important() {
+        round_trip("a { color: red !important }", "a{color:red!important}");
+    }
+
+    #[test]
+    fn round_trip_at_rule_no_block() {
+        round_trip("@charset 'utf-8';", "@charset 'utf-8';");
+    }
+
+    #[test]
+    fn round_trip_function_value() {
+        round_trip(
+            "a { color: rgb(255, 0, 0) }",
+            "a{color:rgb(255,0,0)}",
+        );
+    }
+
+    #[test]
+    fn round_trip_percentage() {
+        round_trip("a { width: 50% }", "a{width:50%}");
+    }
+
+    #[test]
+    fn round_trip_pseudo_class() {
+        round_trip("a:hover { color: red }", "a:hover{color:red}");
+    }
+
+    #[test]
+    fn round_trip_empty_stylesheet() {
+        round_trip("", "");
+    }
+
+    #[test]
+    fn round_trip_multiple_rules() {
+        round_trip(
+            "a { color: red } b { color: blue }",
+            "a{color:red}b{color:blue}",
+        );
+    }
 }
