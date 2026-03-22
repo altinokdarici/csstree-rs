@@ -5,9 +5,9 @@ Real-time tracking of parse→generate round-trip correctness vs JS csstree.
 ## Current Scores
 
 ```yaml
-parser_pass: 440
+parser_pass: 466
 parser_total: 662
-parser_pct: 66.5
+parser_pct: 70.4
 lexer_pass: 657
 lexer_total: 1027
 lexer_pct: 64.0
@@ -35,3 +35,5 @@ lexer_pct: 64.0
 - 2026-03-22: Fix #8 (url double-wrap) — 430/662
 - 2026-03-22: Fix #9 (comments) — 435/662
 - 2026-03-22: Fix #5 (custom property values) + consume_raw stop fix — 440/662
+- 2026-03-22: Attr selector whitespace/comment skip — 449/662
+- 2026-03-22: More value delimiters + atrule prelude colon — 466/662
