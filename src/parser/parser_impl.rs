@@ -449,10 +449,19 @@ impl Parser {
                 }
                 _ => {
                     if is_style_block {
-                        let node = self.parse_with_fallback(
-                            |p| p.parse_declaration(),
-                            |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
-                        );
+                        // Check if this looks like a nested rule (has { before ; or })
+                        let looks_like_rule = self.looks_like_nested_rule();
+                        let node = if looks_like_rule {
+                            self.parse_with_fallback(
+                                |p| p.parse_rule_result(),
+                                |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                            )
+                        } else {
+                            self.parse_with_fallback(
+                                |p| p.parse_declaration(),
+                                |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                            )
+                        };
                         children.push(node);
                     } else {
                         let node = self.parse_with_fallback(
@@ -478,6 +487,36 @@ impl Parser {
             loc: self.make_loc(start),
             children,
         })
+    }
+
+    /// Check if current position looks like a nested rule (selector + {) vs declaration.
+    ///
+    /// Heuristic: scan ahead. If we find `{` before `:` or `;` or `}`, it's likely a rule.
+    /// If we find `:` first (and it's not inside parens/brackets), it's likely a declaration.
+    fn looks_like_nested_rule(&self) -> bool {
+        let mut offset = 0;
+        let mut paren_depth: u32 = 0;
+        loop {
+            let tt = self.stream.lookup_type(offset);
+            match tt {
+                TokenType::LeftCurlyBracket => return paren_depth == 0,
+                TokenType::Colon if paren_depth == 0 => return false,
+                TokenType::Semicolon | TokenType::RightCurlyBracket => return false,
+                TokenType::LeftParenthesis | TokenType::LeftSquareBracket => paren_depth += 1,
+                TokenType::RightParenthesis | TokenType::RightSquareBracket => {
+                    paren_depth = paren_depth.saturating_sub(1);
+                }
+                _ => {}
+            }
+            // Reached end of stream with no conclusion
+            if tt == TokenType::Eof {
+                return false;
+            }
+            offset += 1;
+            if offset > 100 {
+                return false; // safety limit
+            }
+        }
     }
 
     /// Parse an `Atrule` node.
