@@ -6,7 +6,7 @@ Each module is graded on completeness and test coverage relative to the JS refer
 |--------|---------------|-------------|-------------|-------|
 | tokenizer | 100% | 90%+ | Yes | B |
 | ast | 100% | 100% | Yes | A |
-| parser | 0% | 0% | N/A | F |
+| parser | 90% | 80%+ | Yes | B |
 | generator | 0% | 0% | N/A | F |
 | walker | 0% | 0% | N/A | F |
 | definition_syntax | 0% | 0% | N/A | F |

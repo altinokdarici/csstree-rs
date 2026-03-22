@@ -6,7 +6,7 @@
 |-------|------|--------|------------|
 | 1 | [Tokenizer](active/phase-01-tokenizer.md) | COMPLETE | — |
 | 2 | [AST Types](active/phase-02-ast.md) | COMPLETE | — |
-| 3 | Parser | NOT STARTED | Phase 1, 2 |
+| 3 | Parser | COMPLETE | — |
 | 4 | Generator | NOT STARTED | Phase 2 |
 | 5 | Walker | NOT STARTED | Phase 2 |
 | 6 | Definition Syntax | NOT STARTED | — |
@@ -18,6 +18,7 @@
 
 | 1 | Tokenizer | 2026-03-21 | 86 tests, clippy clean |
 | 2 | AST Types | 2026-03-21 | 49 node types, 4 tests, clippy clean |
+| 3 | Parser | 2026-03-22 | 133 tests, 74 fixture files, UTF-8 fix, clippy clean |
 
 ## Tech Debt Tracker
 
