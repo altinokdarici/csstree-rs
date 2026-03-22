@@ -133,6 +133,18 @@ fn parse_numeric_fixtures() { run_parse_smoke_test("numeric.json"); }
 #[test]
 fn parse_edgecases_fixtures() { run_parse_smoke_test("edgecases.json"); }
 
+#[test]
+fn parse_default_properties_fixtures() { run_parse_smoke_test("default-properties.json"); }
+
+#[test]
+fn parse_env_fixtures() { run_parse_smoke_test("env.json"); }
+
+#[test]
+fn parse_parentheses_fixtures() { run_parse_smoke_test("parentheses.json"); }
+
+#[test]
+fn parse_var_fixtures() { run_parse_smoke_test("var.json"); }
+
 // ── Round-trip tests ──
 
 #[test]

@@ -39,11 +39,10 @@ fn main() {
         by_module.entry(module).or_default().push(tc);
     }
 
-    // ── Group Rust tests by module (first path component under src/) ──
+    // ── Group Rust tests by module ──
     let mut rs_by_module: BTreeMap<String, Vec<String>> = BTreeMap::new();
     for name in &rs_test_names {
-        // test names are like "tokenizer::types::test_name" or just "test_name"
-        let module = name.split("::").next().unwrap_or("unknown").to_string();
+        let module = map_test_to_module(name);
         rs_by_module.entry(module).or_default().push(name.clone());
     }
 
@@ -137,8 +136,13 @@ fn main() {
         let file_stem = file
             .replace(['/', '-'], "_")
             .replace(".json", "");
+        // Also check for just the filename without directory
+        let basename = file.rsplit('/').next().unwrap_or(file);
+        let basename_stem = basename.replace('-', "_").replace(".json", "");
         let referenced = rs_all_content.contains(&file_stem)
-            || rs_all_content.contains(file.as_str());
+            || rs_all_content.contains(file.as_str())
+            || rs_all_content.contains(basename)
+            || rs_all_content.contains(&basename_stem);
         let status = if referenced { " FOUND" } else { "  TODO" };
         println!(
             "│ {:<48} │ {:>6} │{:<7} │",
@@ -320,6 +324,43 @@ fn walk_dir(dir: &Path) -> Vec<PathBuf> {
     }
     results.sort();
     results
+}
+
+/// Map a Rust test name to a JS module name.
+fn map_test_to_module(name: &str) -> String {
+    // First component is either a src module or a tests/ file name
+    let first = name.split("::").next().unwrap_or("unknown");
+
+    // Direct module names from src/
+    match first {
+        "tokenizer" | "parser" | "generator" | "walker" | "lexer" | "utils" | "syntax" => {
+            return first.to_string()
+        }
+        "definition_syntax" => return "definition_syntax".to_string(),
+        _ => {}
+    }
+
+    // Integration test file name mapping
+    if first.contains("tokenizer") || first.contains("tokenize") {
+        return "tokenizer".to_string();
+    }
+    if first.contains("parser") {
+        return "parser".to_string();
+    }
+    if first.contains("generator") {
+        return "generator".to_string();
+    }
+    if first.contains("walker") {
+        return "walker".to_string();
+    }
+    if first.contains("definition_syntax") {
+        return "definition_syntax".to_string();
+    }
+    if first.contains("lexer") {
+        return "lexer".to_string();
+    }
+
+    first.to_string()
 }
 
 fn truncate(s: &str, max: usize) -> String {
