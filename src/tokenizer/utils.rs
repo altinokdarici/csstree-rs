@@ -122,6 +122,12 @@ pub fn consume_escaped(source: &[u8], offset: usize) -> usize {
 pub fn consume_name(source: &[u8], mut offset: usize) -> usize {
     while offset < source.len() {
         let code = source[offset];
+        // Non-ASCII bytes are name code points (§4.2: non-ASCII → name code point).
+        // Advance over the entire UTF-8 sequence.
+        if code >= 0x80 {
+            offset += utf8_byte_len(code);
+            continue;
+        }
         if is_name(code) {
             offset += 1;
             continue;
@@ -133,6 +139,19 @@ pub fn consume_name(source: &[u8], mut offset: usize) -> usize {
         break;
     }
     offset
+}
+
+/// Determine the length of a UTF-8 sequence from its leading byte.
+///
+/// For ASCII (< 0x80) or invalid continuation bytes (0x80..0xBF), returns 1.
+#[inline]
+fn utf8_byte_len(leading: u8) -> usize {
+    match leading {
+        0x00..=0xBF => 1, // ASCII or continuation byte (advance 1 to recover)
+        0xC0..=0xDF => 2,
+        0xE0..=0xEF => 3,
+        0xF0..=0xFF => 4,
+    }
 }
 
 /// Consume a number (§4.3.12).

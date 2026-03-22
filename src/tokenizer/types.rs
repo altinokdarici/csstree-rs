@@ -69,10 +69,35 @@ impl TokenType {
     ///
     /// Returns `None` if the value is out of range.
     pub fn from_u8(value: u8) -> Option<Self> {
-        (value < 26).then(||
-            // SAFETY: all values 0..26 are valid discriminants of this #[repr(u8)] enum.
-            unsafe { std::mem::transmute::<u8, Self>(value) }
-        )
+        match value {
+            0 => Some(Self::Eof),
+            1 => Some(Self::Ident),
+            2 => Some(Self::Function),
+            3 => Some(Self::AtKeyword),
+            4 => Some(Self::Hash),
+            5 => Some(Self::String),
+            6 => Some(Self::BadString),
+            7 => Some(Self::Url),
+            8 => Some(Self::BadUrl),
+            9 => Some(Self::Delim),
+            10 => Some(Self::Number),
+            11 => Some(Self::Percentage),
+            12 => Some(Self::Dimension),
+            13 => Some(Self::WhiteSpace),
+            14 => Some(Self::Cdo),
+            15 => Some(Self::Cdc),
+            16 => Some(Self::Colon),
+            17 => Some(Self::Semicolon),
+            18 => Some(Self::Comma),
+            19 => Some(Self::LeftSquareBracket),
+            20 => Some(Self::RightSquareBracket),
+            21 => Some(Self::LeftParenthesis),
+            22 => Some(Self::RightParenthesis),
+            23 => Some(Self::LeftCurlyBracket),
+            24 => Some(Self::RightCurlyBracket),
+            25 => Some(Self::Comment),
+            _ => None,
+        }
     }
 
     /// Returns the CSS spec name for this token type (e.g. `"ident-token"`).

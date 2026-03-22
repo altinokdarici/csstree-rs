@@ -7,10 +7,10 @@ license = "MIT"
 rust-version = "1.85"
 
 [lints.rust]
+unsafe_code = "deny"
 missing_debug_implementations = "warn"
 redundant_imports = "warn"
 trivial_numeric_casts = "warn"
-unsafe_op_in_unsafe_fn = "warn"
 unused_lifetimes = "warn"
 
 [lints.clippy]

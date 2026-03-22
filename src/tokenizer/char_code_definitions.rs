@@ -184,14 +184,16 @@ pub fn is_valid_escape(first: u8, second: u8) -> bool {
 }
 
 /// Check if three code points would start an identifier (§4.3.9).
+///
+/// Note: bytes >= 0x80 are non-ASCII and always qualify as name-start.
 pub fn is_identifier_start(first: u8, second: u8, third: u8) -> bool {
     match first {
         // U+002D HYPHEN-MINUS
-        0x2D => is_name_start(second) || second == 0x2D || is_valid_escape(second, third),
+        0x2D => is_name_start(second) || second == 0x2D || second >= 0x80 || is_valid_escape(second, third),
         // U+005C REVERSE SOLIDUS
         0x5C => is_valid_escape(first, second),
-        // name-start code point
-        _ => is_name_start(first),
+        // name-start code point (letters, _, or non-ASCII >= 0x80)
+        _ => is_name_start(first) || first >= 0x80,
     }
 }
 

@@ -112,11 +112,8 @@ impl OffsetToLocation {
         let bytes = self.source.as_bytes();
         let source_length = bytes.len();
 
-        let start_offset = if source_length > 0 {
-            is_bom(u32::from(bytes[0]))
-        } else {
-            0
-        };
+        let start_offset = self.source.chars().next()
+            .map_or(0, |ch| is_bom(u32::from(ch)) * ch.len_utf8());
 
         self.lines.resize(source_length + 1, 0);
         self.columns.resize(source_length + 1, 0);

@@ -133,6 +133,8 @@ impl Parser {
         let mut has_space = false;
 
         while !self.stream.eof {
+            let before = self.stream.token_index();
+
             match self.token_type() {
                 TokenType::WhiteSpace => {
                     has_space = true;
@@ -152,6 +154,11 @@ impl Parser {
                     has_space = false;
                 }
                 children.push(child);
+
+                // Safety: if get_node returned a node but didn't advance, break
+                if self.stream.token_index() == before {
+                    break;
+                }
             } else {
                 break;
             }
@@ -169,19 +176,29 @@ impl Parser {
     fn parse_with_fallback(&mut self, consumer: impl FnOnce(&mut Self) -> Result<Node, CssSyntaxError>, fallback: impl FnOnce(&mut Self) -> Node) -> Node {
         let start_index = self.stream.token_index();
         match consumer(self) {
-            Ok(node) => node,
+            Ok(node) => {
+                // Safety: if consumer succeeded but didn't advance, force advance
+                if self.stream.token_index() == start_index && !self.stream.eof {
+                    self.next();
+                }
+                node
+            }
             Err(_) => {
                 // Rewind to start
                 let current = self.stream.token_index();
                 if current > start_index {
-                    // Reset by re-creating navigation state
                     self.stream.reset();
                     self.stream.next();
                     for _ in 0..start_index {
                         self.stream.next();
                     }
                 }
-                fallback(self)
+                let node = fallback(self);
+                // Safety: if fallback didn't advance either, force advance
+                if self.stream.token_index() == start_index && !self.stream.eof {
+                    self.next();
+                }
+                node
             }
         }
     }
@@ -193,7 +210,12 @@ impl Parser {
         let start_offset = self.stream.token_start;
         let start_token = self.stream.token_index();
 
-        self.stream.skip_until_balanced(start_token, stop);
+        self.stream.skip_until_balanced(start_token, &stop);
+
+        // Safety: if we didn't advance at all, consume at least one token
+        if self.stream.token_start == start_offset && !self.stream.eof {
+            self.next();
+        }
 
         let value = self.source()[start_offset..self.stream.token_start].to_string();
         Node::Raw(Raw {
@@ -210,6 +232,8 @@ impl Parser {
         let mut children = Vec::new();
 
         while !self.stream.eof {
+            let before = self.stream.token_index();
+
             match self.token_type() {
                 TokenType::WhiteSpace | TokenType::Comment => {
                     self.next();
@@ -234,6 +258,11 @@ impl Parser {
                     );
                     children.push(node);
                 }
+            }
+
+            // Safety: guarantee forward progress to prevent infinite loops
+            if self.stream.token_index() == before && !self.stream.eof {
+                self.next();
             }
         }
 
@@ -391,6 +420,8 @@ impl Parser {
         let mut children = Vec::new();
 
         while !self.stream.eof && self.token_type() != TokenType::RightCurlyBracket {
+            let before = self.stream.token_index();
+
             match self.token_type() {
                 TokenType::WhiteSpace | TokenType::Comment => {
                     self.next();
@@ -420,6 +451,11 @@ impl Parser {
                         children.push(node);
                     }
                 }
+            }
+
+            // Safety: guarantee forward progress
+            if self.stream.token_index() == before && !self.stream.eof {
+                self.next();
             }
         }
 
@@ -572,6 +608,7 @@ impl Parser {
             && self.token_type() != TokenType::Semicolon
             && self.token_type() != TokenType::RightParenthesis
         {
+            let before = self.stream.token_index();
             match self.token_type() {
                 TokenType::WhiteSpace | TokenType::Comment => {
                     self.next();
@@ -586,6 +623,9 @@ impl Parser {
                     children.push(self.parse_function());
                 }
                 _ => break,
+            }
+            if self.stream.token_index() == before {
+                break;
             }
         }
 
@@ -1106,6 +1146,7 @@ pub fn parse(source: &str, options: ParseOptions) -> Node {
             let start = parser.loc_start();
             let mut children = Vec::new();
             while !parser.stream.eof {
+                let before = parser.stream.token_index();
                 match parser.token_type() {
                     TokenType::WhiteSpace | TokenType::Comment | TokenType::Semicolon => {
                         parser.next();
@@ -1117,6 +1158,9 @@ pub fn parse(source: &str, options: ParseOptions) -> Node {
                         );
                         children.push(node);
                     }
+                }
+                if parser.stream.token_index() == before && !parser.stream.eof {
+                    parser.next();
                 }
             }
             Node::DeclarationList(DeclarationList { loc: parser.make_loc(start), children })

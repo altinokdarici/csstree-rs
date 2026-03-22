@@ -76,13 +76,8 @@ pub fn tokenize(source: &str, mut on_token: impl FnMut(TokenType, usize, usize))
     let bytes = source.as_bytes();
     let source_length = bytes.len();
 
-    // Skip BOM if present
-    let first_char = if source_length > 0 {
-        u32::from(bytes[0])
-    } else {
-        0
-    };
-    let bom_offset = is_bom(first_char);
+    // Skip BOM if present (BOM is a Unicode code point, need to decode from UTF-8)
+    let bom_offset = source.chars().next().map_or(0, |ch| is_bom(u32::from(ch)) * ch.len_utf8());
     let mut start = bom_offset;
     let mut offset = start;
 

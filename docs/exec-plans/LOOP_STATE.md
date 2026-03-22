@@ -7,13 +7,13 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 3
 phase_name: parser
-step: 5
-step_name: port_fixture_tests
+step: 6
+step_name: port_inline_tests
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 2
-last_commit: 3460916
+last_commit: pending
 ```
 
 ## Phase / Step Matrix
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P3S5** port_fixture_tests — Fixed critical tokenizer bug: non-ASCII multi-byte UTF-8 chars (e.g. U+FFFD) caused infinite loop because consume_name and is_identifier_start didn't handle bytes >= 0x80. Fixed both. 12 parser fixture tests (74 JSON files, ~500+ CSS inputs) all pass. Cleaned up debugging test files. 112 tests total, clippy clean.
 - **2026-03-21 P1S1** read_js_source — Read all 7 JS tokenizer files (types, char-code-definitions, names, utils, index, TokenStream, OffsetToLocation). Wrote architecture summary to src/tokenizer/mod.rs.
 - **2026-03-21 P3S4** implement_remaining — Added MediaQueryList, MediaQuery, Condition, LayerList, Layer, Comment, WhiteSpace parse functions. Improved at-rule prelude dispatch. All 11 parse contexts now have real implementations. 100 tests, clippy clean.
 - **2026-03-21 P3S3** implement_core — Parser struct with TokenStream + OffsetToLocation. Core: parse(), read_sequence(), parse_with_fallback() error recovery. Node parsers: StyleSheet, Rule, Declaration, SelectorList, Selector (with scope recognizer + implicit combinators), Value (with scope recognizer), Block, Atrule, Function, plus all simple nodes (Hash, String, Number, Dimension, Percentage, Url, Identifier, Operator, Parentheses, Brackets, TypeSelector, ClassSelector, IdSelector, Combinator, NestingSelector, AttributeSelector, PseudoClassSelector, PseudoElementSelector, CDO, CDC). 100 tests, clippy clean.
