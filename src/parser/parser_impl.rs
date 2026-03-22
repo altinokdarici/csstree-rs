@@ -212,9 +212,13 @@ impl Parser {
 
         self.stream.skip_until_balanced(start_token, &stop);
 
-        // Safety: if we didn't advance at all, consume at least one token
+        // Safety: if we didn't advance at all, only consume if current token
+        // is NOT a stop character (avoid eating } or ; that belong to parent)
         if self.stream.token_start == start_offset && !self.stream.eof {
-            self.next();
+            let code = self.source().as_bytes().get(self.stream.token_start).copied().unwrap_or(0);
+            if stop(code) == 0 {
+                self.next();
+            }
         }
 
         let value = self.source()[start_offset..self.stream.token_start].to_string();
@@ -317,8 +321,9 @@ impl Parser {
         let value = if self.flags.parse_value && !is_custom {
             self.parse_value()
         } else {
+            // Custom property: consume raw until ; or } or !
             self.consume_raw(|code| {
-                if code == 0x21 || code == 0x3B { 1 } else { 0 }
+                if code == 0x21 || code == 0x3B || code == 0x7D { 1 } else { 0 }
             })
         };
 
