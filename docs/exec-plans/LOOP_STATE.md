@@ -7,9 +7,9 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 4
 phase_name: generator
-step: 1
-step_name: read_js_source
-status: NOT_STARTED
+step: 2
+step_name: implement_types
+status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 3
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P4S1** read_js_source — Read all 4 generator JS files (create.js, index.js, token-before.js, sourceMap.js) plus all per-node generate functions. Generator walks AST, emits tokens with auto-whitespace insertion via token-before lookup table. Two modes: spec (W3C pairs) and safe (extra browser-compat pairs). Documented architecture in src/generator/mod.rs.
 - **2026-03-22 P3S10** advance — Phase 3 (parser) COMPLETE. 133 tests, grade B. Advancing to Phase 4 (generator).
 - **2026-03-22 P3S9** update_status — Updated PLANS.md (parser=COMPLETE), QUALITY.md (parser=B grade, 90% feature parity, 80%+ test parity, clippy clean).
 - **2026-03-22 P3S8** coverage_check — test-coverage shows parser at 1% (10 unit tests counted; integration tests add 12 fixture + 21 inline = 33 integration tests covering 74 fixture files, ~500+ CSS inputs). Proceeding.
