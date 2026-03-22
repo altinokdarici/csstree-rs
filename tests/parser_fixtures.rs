@@ -15,12 +15,23 @@ fn round_trip(css: &str) -> String {
     generate(&ast, &GenerateOptions::default())
 }
 
-/// Parse CSS in a wrapped context and generate output.
-fn round_trip_wrapped(css: &str) -> String {
+/// Parse CSS in a declaration-wrapped context and generate output.
+fn round_trip_in_decl(css: &str) -> String {
     let wrapped = format!("x{{{css}}}");
     let full = round_trip(&wrapped);
-    // Strip the wrapping "x{" and "}"
     if let Some(inner) = full.strip_prefix("x{").and_then(|s| s.strip_suffix('}')) {
+        inner.to_string()
+    } else {
+        full
+    }
+}
+
+/// Parse CSS in a selector-wrapped context and generate output.
+fn round_trip_in_selector(css: &str) -> String {
+    let wrapped = format!("{css}{{}}");
+    let full = round_trip(&wrapped);
+    // Strip the trailing "{}"
+    if let Some(inner) = full.strip_suffix("{}") {
         inner.to_string()
     } else {
         full
@@ -45,6 +56,11 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
     let tests = fixture.as_object().unwrap();
     let is_stylesheet = fixture_path.contains("stylesheet/") || fixture_path.contains("atrule/");
     let is_rule = fixture_path.contains("rule/");
+    let is_selector = fixture_path.contains("selector/") || fixture_path.contains("selectorList/");
+    let is_value = fixture_path.contains("value/");
+    let is_declaration = fixture_path.contains("declaration/") || fixture_path.contains("declarationList/");
+    let is_block = fixture_path.contains("block/");
+    let is_media_query = fixture_path.contains("mediaQuery/");
 
     let mut results = FixtureResults {
         pass: 0,
@@ -73,11 +89,15 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
             .and_then(|g| g.as_str())
             .unwrap_or(source);
 
-        // Parse and generate
-        let actual = if is_stylesheet || is_rule {
+        // Parse and generate using appropriate context
+        let actual = if is_stylesheet || is_rule || is_block {
             round_trip(source)
+        } else if is_selector {
+            round_trip_in_selector(source)
+        } else if is_value || is_declaration || is_media_query {
+            round_trip_in_decl(source)
         } else {
-            round_trip_wrapped(source)
+            round_trip_in_decl(source)
         };
 
         if actual == expected {
