@@ -56,8 +56,11 @@
 
 pub mod types;
 pub mod error;
+pub mod scanner;
+pub mod parse;
 
 pub use error::DefinitionSyntaxError;
+pub use parse::parse as parse_definition_syntax;
 pub use types::{
     Combinator, DefinitionSyntaxNode, GroupNode, MultiplierNode,
     BooleanNode, TypeNode, RangeNode, PropertyNode, KeywordNode,

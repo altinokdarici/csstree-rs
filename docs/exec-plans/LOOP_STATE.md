@@ -9,13 +9,13 @@ phase: 5
 phase_name: walker
 phase: 6
 phase_name: definition_syntax
-step: 3
-step_name: implement_core
+step: 4
+step_name: implement_remaining
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 5
-last_commit: feat(definition_syntax): implement types (phase 6, step 2)
+last_commit: feat(definition_syntax): implement scanner + parser (phase 6, step 3)
 ```
 
 ## Phase / Step Matrix
@@ -51,6 +51,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P6S3** implement_core — Scanner (char_code, skip_ws, scan_word/number/string, eat, peek_char) + Parser (parse entry point, readImplicitGroup with regroupTerms for operator precedence, readType with range/boolean-expr, readProperty, readKeywordOrFunction, readGroup with ! suffix, readMultiplier with all forms + stacking, peek dispatch). 20 parser tests + 7 scanner tests. 38 total definition_syntax tests, clippy clean.
 - **2026-03-22 P6S2** implement_types — Defined DefinitionSyntaxNode enum (11 variants), Combinator enum (Space/DoubleAmpersand/DoubleBar/Bar with precedence), GroupNode, MultiplierNode, BooleanNode, TypeNode, RangeNode, PropertyNode, KeywordNode, AtKeywordNode, FunctionNode, StringValueNode, TokenNode. DefinitionSyntaxError with formatted error display. 15 tests (13 types + 2 error), clippy clean.
 - **2026-03-22 P6S1** read_js_source — Read all 6 definition-syntax JS files (scanner.js, parse.js, generate.js, walk.js, SyntaxError.js, index.js). Module parses W3C CSS Value Definition Syntax into AST with 11 node types (Group, Multiplier, Boolean, Type, Property, Keyword, AtKeyword, Function, StringNode, Token, Comma). 4 combinators with precedence (space > && > || > |). Scanner + recursive descent parser + generator + walker. Documented architecture in src/definition_syntax/mod.rs.
 - **2026-03-22 P5S10** advance — Phase 5 (walker) COMPLETE. 234 tests, grade A. Advancing to Phase 6 (definition_syntax).
