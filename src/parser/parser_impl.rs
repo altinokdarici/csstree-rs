@@ -317,8 +317,11 @@ impl Parser {
         self.skip_sc();
 
         let is_custom = property.starts_with("--");
+        // Check for progid: IE filter hack — treat entire value as raw
+        let is_progid = self.token_type() == TokenType::Ident
+            && self.token_value().eq_ignore_ascii_case("progid");
 
-        let value = if self.flags.parse_value && !is_custom {
+        let value = if self.flags.parse_value && !is_custom && !is_progid {
             self.parse_value()
         } else {
             // Custom property: consume raw until ; or } or !
