@@ -7,13 +7,13 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 5
 phase_name: walker
-step: 5
-step_name: port_fixture_tests
+step: 6
+step_name: port_inline_tests
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 4
-last_commit: feat(walker): add fast traversal optimization (phase 5, step 4)
+last_commit: test(walker): port fixture tests (phase 5, step 5)
 ```
 
 ## Phase / Step Matrix
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P5S5** port_fixture_tests — 20 integration tests: 7 smoke tests across AST fixture dirs (atrule/rule/stylesheet/block/declaration/value/selector), enter/leave ordering, natural/reverse traversal, break/skip behavior, visit filters (Rule/Declaration/Atrule), find/find_all helpers. 223 total tests, clippy clean.
 - **2026-03-22 P5S4** implement_remaining — Added fast traversal optimization for Atrule/Rule/Declaration visit filters (only descend into container nodes). 5 new tests (atrule filter, rule filter, declaration filter, atrule children, leave break). 27 walker tests, 203 total, clippy clean.
 - **2026-03-22 P5S3** implement_core — Implemented walk(), walk_full(), find(), find_last(), find_all(). Exhaustive child iteration for all 49 node types. WalkContext save/restore via ContextField enum. 22 unit tests covering: traversal order, break/skip control flow, context tracking, reverse walk, visit filter, enter/leave callbacks. 198 total tests, clippy clean.
 - **2026-03-22 P5S2** implement_types — Defined WalkAction enum (Continue/Skip/Break), WalkContext struct (tracks stylesheet/atrule/rule/selector/block/declaration/function positions), VisitFilter enum (All/Atrule/Rule/Declaration/NodeType), WalkOptions struct (reverse, visit). 8 tests, clippy clean.
