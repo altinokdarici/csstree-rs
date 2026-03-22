@@ -26,6 +26,20 @@ fn round_trip_in_decl(css: &str) -> String {
     }
 }
 
+/// Parse CSS as a media query inside @media and generate output.
+fn round_trip_as_media_query(css: &str) -> String {
+    let wrapped = format!("@media {css}{{}}");
+    let full = round_trip(&wrapped);
+    // Extract: strip "@media " prefix and "{}" suffix
+    if let Some(inner) = full.strip_prefix("@media ").and_then(|s| s.strip_suffix("{}")) {
+        inner.to_string()
+    } else if let Some(inner) = full.strip_prefix("@media").and_then(|s| s.strip_suffix("{}")) {
+        inner.trim_start().to_string()
+    } else {
+        full
+    }
+}
+
 /// Parse CSS as a value inside a declaration and generate output.
 fn round_trip_as_value(css: &str) -> String {
     let wrapped = format!("x{{p:{css}}}");

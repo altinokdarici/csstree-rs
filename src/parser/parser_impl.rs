@@ -910,8 +910,14 @@ impl Parser {
         let start = self.loc_start();
         self.next(); // (
 
+        // Inside parentheses, allow colons (for @supports(foo:1) etc.)
         let children = self.read_sequence(
-            |p| p.value_get_node(),
+            |p| {
+                if p.token_type() == TokenType::Colon {
+                    return Some(p.parse_operator());
+                }
+                p.value_get_node()
+            },
             |_p, _next, _children| {},
         );
 
