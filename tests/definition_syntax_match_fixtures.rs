@@ -114,56 +114,67 @@ fn report_results(label: &str, r: &MatchResults) {
     }
 }
 
+/// Assert minimum pass rate for a match fixture.
+fn assert_min_pass(label: &str, r: &MatchResults, min_pct: f64) {
+    let total = r.valid_pass + r.valid_fail + r.invalid_pass + r.invalid_fail;
+    let pass = r.valid_pass + r.invalid_pass;
+    report_results(label, r);
+    if total > 0 {
+        let pct = pass as f64 / total as f64 * 100.0;
+        assert!(
+            pct >= min_pct,
+            "{label}: pass rate {pct:.0}% < minimum {min_pct:.0}% ({pass}/{total})"
+        );
+    }
+}
+
 #[test]
 fn strict_match_core_combinators() {
     let r = run_strict_match_fixture("core-combinators.json");
-    report_results("core-combinators", &r);
-    assert!(r.valid_pass + r.invalid_pass > 0, "No tests passed");
+    assert_min_pass("core-combinators", &r, 80.0); // current: 84%
 }
 
 #[test]
 fn strict_match_core_multipliers() {
     let r = run_strict_match_fixture("core-multipliers.json");
-    report_results("core-multipliers", &r);
-    assert!(r.valid_pass + r.invalid_pass > 0, "No tests passed");
+    assert_min_pass("core-multipliers", &r, 75.0); // current: 78%
 }
 
 #[test]
 fn strict_match_core_comma() {
     let r = run_strict_match_fixture("core-comma.json");
-    report_results("core-comma", &r);
-    assert!(r.valid_pass + r.invalid_pass > 0, "No tests passed");
+    assert_min_pass("core-comma", &r, 50.0); // current: 53%
 }
 
 #[test]
 fn strict_match_core_function() {
     let r = run_strict_match_fixture("core-function.json");
-    report_results("core-function", &r);
-    assert!(r.valid_pass + r.invalid_pass > 0, "No tests passed");
+    assert_min_pass("core-function", &r, 60.0); // current: 63%
 }
 
 #[test]
 fn strict_match_core_parentheses() {
     let r = run_strict_match_fixture("core-parentheses.json");
-    report_results("core-parentheses", &r);
+    assert_min_pass("core-parentheses", &r, 70.0); // current: 75%
 }
 
 #[test]
 fn strict_match_core_string() {
     let r = run_strict_match_fixture("core-string.json");
-    report_results("core-string", &r);
+    assert_min_pass("core-string", &r, 60.0); // current: 64%
 }
 
 #[test]
 fn strict_match_complex_cases() {
     let r = run_strict_match_fixture("complex-cases.json");
-    report_results("complex-cases", &r);
+    assert_min_pass("complex-cases", &r, 40.0); // current: 46%
 }
 
 #[test]
 fn strict_match_component_matching() {
     let r = run_strict_match_fixture("component-matching.json");
     report_results("component-matching", &r);
+    // 0 cases — no assertions needed
 }
 
 #[test]
@@ -172,21 +183,21 @@ fn strict_match_default_properties() {
     report_results("default-properties", &r);
 }
 
-// Also test the generic.json, custom-ident.json, length.json fixtures
 #[test]
 fn strict_match_generic() {
     let r = run_strict_match_fixture("generic.json");
-    report_results("generic", &r);
+    assert_min_pass("generic", &r, 60.0); // current: 62%
 }
 
 #[test]
 fn strict_match_custom_ident() {
     let r = run_strict_match_fixture("custom-ident.json");
-    report_results("custom-ident", &r);
+    assert_min_pass("custom-ident", &r, 35.0); // current: 38%
 }
 
 #[test]
 fn strict_match_length() {
     let r = run_strict_match_fixture("length.json");
     report_results("length", &r);
+    // 0 cases with our current config
 }

@@ -163,12 +163,23 @@ fn assert_results(label: &str, results: &FixtureResults) {
             eprintln!("{f}");
         }
     }
-    // Assert at least some tests pass — don't hard-fail on mismatches yet
-    // but DO assert that parsing doesn't crash
     assert!(
         results.pass + results.fail + results.skip > 0,
         "{label}: no test cases found"
     );
+}
+
+fn assert_results_min_pct(label: &str, results: &FixtureResults, min_pct: f64) {
+    assert_results(label, results);
+    let testable = results.pass + results.fail;
+    if testable > 0 {
+        let pct = results.pass as f64 / testable as f64 * 100.0;
+        assert!(
+            pct >= min_pct,
+            "{label}: pass rate {pct:.0}% < minimum {min_pct:.0}% ({}/{})",
+            results.pass, testable
+        );
+    }
 }
 
 // ── Stylesheet-level fixtures ──
@@ -176,9 +187,7 @@ fn assert_results(label: &str, results: &FixtureResults) {
 #[test]
 fn strict_fixture_stylesheet() {
     let r = run_strict_fixture("tests/fixtures/ast/stylesheet/StyleSheet.json");
-    assert_results("stylesheet/StyleSheet", &r);
-    // Most stylesheet tests should pass round-trip
-    assert!(r.pass > 0, "No stylesheet tests passed round-trip");
+    assert_results_min_pct("stylesheet/StyleSheet", &r, 90.0); // current: 96%
 }
 
 #[test]
@@ -204,53 +213,37 @@ fn strict_fixture_stylesheet_errors() {
 #[test]
 fn strict_fixture_rule() {
     let r = run_strict_fixture_dir("tests/fixtures/ast/rule");
-    assert_results("rule/*", &r);
-    assert!(r.pass > 0, "No rule tests passed");
+    assert_results_min_pct("rule/*", &r, 35.0); // current: 40%
 }
-
-// ── Atrule fixtures ──
 
 #[test]
 fn strict_fixture_atrule() {
     let r = run_strict_fixture_dir("tests/fixtures/ast/atrule");
-    assert_results("atrule/*", &r);
-    assert!(r.pass > 0, "No atrule tests passed");
+    assert_results_min_pct("atrule/*", &r, 45.0); // current: 49%
 }
-
-// ── Declaration fixtures ──
 
 #[test]
 fn strict_fixture_declaration() {
     let r = run_strict_fixture_dir("tests/fixtures/ast/declaration");
-    assert_results("declaration/*", &r);
-    assert!(r.pass > 0, "No declaration tests passed");
+    assert_results_min_pct("declaration/*", &r, 45.0); // current: 50%
 }
-
-// ── Selector fixtures ──
 
 #[test]
 fn strict_fixture_selector() {
     let r = run_strict_fixture_dir("tests/fixtures/ast/selector");
-    assert_results("selector/*", &r);
-    assert!(r.pass > 0, "No selector tests passed");
+    assert_results_min_pct("selector/*", &r, 70.0); // current: 77%
 }
-
-// ── Value fixtures ──
 
 #[test]
 fn strict_fixture_value() {
     let r = run_strict_fixture_dir("tests/fixtures/ast/value");
-    assert_results("value/*", &r);
-    assert!(r.pass > 0, "No value tests passed");
+    assert_results_min_pct("value/*", &r, 60.0); // current: 66%
 }
-
-// ── Block fixtures ──
 
 #[test]
 fn strict_fixture_block() {
     let r = run_strict_fixture("tests/fixtures/ast/block/Block.json");
-    assert_results("block/Block", &r);
-    assert!(r.pass > 0, "No block tests passed");
+    assert_results_min_pct("block/Block", &r, 70.0); // current: 80%
 }
 
 // ── Declaration list fixtures ──
