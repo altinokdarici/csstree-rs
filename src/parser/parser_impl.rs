@@ -1051,10 +1051,18 @@ impl Parser {
         let mut value = None;
         let mut flags = None;
 
-        // Check for matcher (=, ~=, |=, ^=, $=, *=)
+        // Check for matcher (=, ~=, |=, ^=, $=, *=) or flag-only (e.g., [b i])
         if self.token_type() != TokenType::RightSquareBracket && !self.stream.eof {
             let m = self.token_value().to_string();
-            if m.contains('=') || self.token_type() == TokenType::Delim {
+            // Check if this is just a flag (single ident before ])
+            let is_flag_only = self.token_type() == TokenType::Ident && {
+                let next_non_ws = self.stream.lookup_type_non_sc(self.stream.token_index() + 1);
+                next_non_ws == TokenType::RightSquareBracket
+            };
+            if is_flag_only {
+                flags = Some(m);
+                self.next();
+            } else if m.contains('=') || self.token_type() == TokenType::Delim {
                 // Read full matcher (skip whitespace/comments)
                 let mut matcher_str = String::new();
                 while self.token_type() != TokenType::RightSquareBracket
