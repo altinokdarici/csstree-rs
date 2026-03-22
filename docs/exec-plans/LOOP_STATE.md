@@ -9,13 +9,13 @@ phase: 7
 phase_name: lexer
 phase: 9
 phase_name: integration
-step: 1
-step_name: read_js_source
-status: NOT_STARTED
+step: 10
+step_name: advance
+status: ALL_COMPLETE
 blocked: false
 blocker: null
-last_completed_phase: 8
-last_commit: chore: advance to phase 9 — integration
+last_completed_phase: 9
+last_commit: feat(integration): complete phase 9 — all phases done
 ```
 
 ## Phase / Step Matrix
@@ -51,6 +51,8 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P9S10** ALL_COMPLETE — All 9 phases done. 424 tests, all passing, clippy clean. CssSyntax top-level API with parse/generate/walk/find/findAll/matchProperty/fork.
+- **2026-03-22 P9S1-9** integration — CssSyntax struct tying all modules together: parse(), generate(), walk(), find(), find_all(), match_property(), fork(). 7 integration tests. 424 total tests.
 - **2026-03-22 P8S10** advance — Phase 8 (utils) COMPLETE. 417 tests, grade A. Advancing to Phase 9 (integration).
 - **2026-03-22 P8S1-9** read+implement+verify — Utils module: names (property/keyword descriptors, vendor prefix extraction, hack detection, custom property detection), ident (CSS identifier encode/decode with hex escapes). 37 unit tests, clippy clean.
 - **2026-03-22 P7S10** advance — Phase 7 (lexer) COMPLETE. 397 tests, grade B. Advancing to Phase 8 (utils).
