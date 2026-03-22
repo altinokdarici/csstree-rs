@@ -7,8 +7,8 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 4
 phase_name: generator
-step: 5
-step_name: port_fixture_tests
+step: 6
+step_name: port_inline_tests
 status: IN_PROGRESS
 blocked: false
 blocker: null
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P4S5** port_fixture_tests — 11 generator fixture integration tests covering all AST fixture directories (74 JSON files, ~960 test cases). Parse→generate round-trip for each. 171 tests total, clippy clean.
 - **2026-03-22 P4S4** implement_remaining — Added 13 round-trip tests (parse→generate), verified all edge cases. Generator fully functional for all 49 node types. 160 tests total, clippy clean.
 - **2026-03-22 P4S3** implement_core — Full generate() implementation: node dispatch for all 49 AST node types, token() with auto-whitespace via token_before, tokenize_chunk() for raw/type-selector re-tokenization, children/children_delimited/children_with_decl_semicolons helpers. 9 new unit tests (147 total), clippy clean.
 - **2026-03-22 P4S2** implement_types — Defined GenerateMode (Safe/Spec), GenerateOptions, Generator struct (buffer + prev_code + ws_pairs), token_before module with encode_token, build_pairs (spec + safe pair tables), and token_before whitespace check function. 7 new tests, 140 total, clippy clean.
