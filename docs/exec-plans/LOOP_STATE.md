@@ -5,8 +5,6 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ## Current
 
 ```yaml
-phase: 7
-phase_name: lexer
 phase: 9
 phase_name: integration
 step: 10
