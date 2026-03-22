@@ -235,8 +235,11 @@ impl Parser {
             let before = self.stream.token_index();
 
             match self.token_type() {
-                TokenType::WhiteSpace | TokenType::Comment => {
+                TokenType::WhiteSpace => {
                     self.next();
+                }
+                TokenType::Comment => {
+                    children.push(self.parse_comment());
                 }
                 TokenType::Cdo => {
                     children.push(self.parse_cdo());

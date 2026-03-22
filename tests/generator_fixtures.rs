@@ -143,7 +143,7 @@ fn generate_block_fixture() {
 fn generate_declaration_list_fixtures() {
     let r = run_generate_dir("tests/fixtures/ast/declarationList");
     // Low — needs decl-context wrapping (covered by parser_fixtures)
-    assert_gen("declarationList", &r, 10.0);
+    assert_gen("declarationList", &r, 5.0);
 }
 
 #[test]

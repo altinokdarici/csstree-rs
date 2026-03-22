@@ -410,7 +410,10 @@ impl Generator {
             }
             Node::WhiteSpace(n) => self.token(TokenType::WhiteSpace, &n.value),
             Node::Comment(n) => {
-                self.token(TokenType::Comment, &format!("/*{}*/", n.value));
+                // Only emit important comments (/*! ... */) — strip regular comments
+                if n.value.starts_with('!') {
+                    self.token(TokenType::Comment, &format!("/*{}*/", n.value));
+                }
             }
             Node::Cdo(_) => self.token(TokenType::Cdo, "<!--"),
             Node::Cdc(_) => self.token(TokenType::Cdc, "-->"),
