@@ -11,7 +11,7 @@
 | 5 | Walker | COMPLETE | Phase 2 |
 | 6 | Definition Syntax | COMPLETE | — |
 | 7 | Lexer | COMPLETE | Phase 1, 2, 6 |
-| 8 | Utils | NOT STARTED | Phase 1 |
+| 8 | Utils | COMPLETE | Phase 1 |
 | 9 | Syntax Config / Fork | NOT STARTED | All above |
 
 ## Completed
@@ -23,6 +23,7 @@
 | 5 | Walker | 2026-03-22 | 58 tests (27 unit + 20 fixture + 11 inline), fast traversal, clippy clean |
 | 6 | Definition Syntax | 2026-03-22 | 92 tests (50 unit + 19 fixture + 23 inline), parse/generate/walk, clippy clean |
 | 7 | Lexer | 2026-03-22 | 71 tests (43 unit + 10 fixture + 18 inline), match graph, generic matchers, Lexer API, clippy clean |
+| 8 | Utils | 2026-03-22 | 37 tests, names/ident modules, clippy clean |
 
 ## Tech Debt Tracker
 

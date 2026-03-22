@@ -11,7 +11,7 @@ Each module is graded on completeness and test coverage relative to the JS refer
 | walker | 95% | 123% | Yes | A |
 | definition_syntax | 95% | 90%+ | Yes | A |
 | lexer | 70% | 50%+ | Yes | B |
-| utils | 0% | 0% | N/A | F |
+| utils | 80% | 80%+ | Yes | A |
 
 ## Grading Scale
 
