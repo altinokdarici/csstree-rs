@@ -1001,7 +1001,46 @@ impl Parser {
         self.next(); // [
 
         self.skip_sc();
-        let name_node = self.parse_identifier();
+
+        // Read attribute name, possibly with namespace prefix (ns|name or *|name or |name)
+        let mut name_str = String::new();
+        // Handle *| or | prefix
+        if self.token_type() == TokenType::Delim {
+            let ch = self.source().as_bytes().get(self.stream.token_start).copied().unwrap_or(0);
+            if ch == b'*' || ch == b'|' {
+                name_str.push(ch as char);
+                self.next();
+                if ch == b'*' && self.token_type() == TokenType::Delim {
+                    // *|
+                    name_str.push('|');
+                    self.next();
+                }
+            }
+        }
+        if self.token_type() == TokenType::Ident {
+            name_str.push_str(self.token_value());
+            self.next();
+        }
+        // Check for namespace pipe: ident|ident
+        if self.token_type() == TokenType::Delim {
+            let ch = self.source().as_bytes().get(self.stream.token_start).copied().unwrap_or(0);
+            if ch == b'|' {
+                // Peek: is next token after | an Ident? If so, it's namespace|name
+                let next_idx = self.stream.token_index() + 1;
+                let next_is_ident = next_idx < self.stream.token_count()
+                    && self.stream.get_token_type(next_idx) == TokenType::Ident;
+                if next_is_ident {
+                    name_str.push('|');
+                    self.next(); // consume |
+                    name_str.push_str(self.token_value());
+                    self.next(); // consume name
+                }
+            }
+        }
+        let name_node = Node::Identifier(Identifier {
+            loc: self.make_loc(start.clone()),
+            name: name_str,
+        });
 
         self.skip_sc();
 
