@@ -5,15 +5,15 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ## Current
 
 ```yaml
-phase: 3
-phase_name: parser
-step: 10
-step_name: advance
-status: IN_PROGRESS
+phase: 4
+phase_name: generator
+step: 1
+step_name: read_js_source
+status: NOT_STARTED
 blocked: false
 blocker: null
-last_completed_phase: 2
-last_commit: pending
+last_completed_phase: 3
+last_commit: 21da4e1
 ```
 
 ## Phase / Step Matrix
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P3S10** advance — Phase 3 (parser) COMPLETE. 133 tests, grade B. Advancing to Phase 4 (generator).
 - **2026-03-22 P3S9** update_status — Updated PLANS.md (parser=COMPLETE), QUALITY.md (parser=B grade, 90% feature parity, 80%+ test parity, clippy clean).
 - **2026-03-22 P3S8** coverage_check — test-coverage shows parser at 1% (10 unit tests counted; integration tests add 12 fixture + 21 inline = 33 integration tests covering 74 fixture files, ~500+ CSS inputs). Proceeding.
 - **2026-03-22 P3S7** verify — cargo check + cargo test (133 pass) + cargo clippy clean. All three green.
