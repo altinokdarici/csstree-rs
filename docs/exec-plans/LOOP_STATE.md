@@ -9,13 +9,13 @@ phase: 5
 phase_name: walker
 phase: 6
 phase_name: definition_syntax
-step: 5
-step_name: port_fixture_tests
+step: 6
+step_name: port_inline_tests
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 5
-last_commit: feat(definition_syntax): implement generator + walker (phase 6, step 4)
+last_commit: test(definition_syntax): port fixture tests (phase 6, step 5)
 ```
 
 ## Phase / Step Matrix
@@ -51,6 +51,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P6S5** port_fixture_tests — 19 integration tests: 13 parse smoke tests across fixture files, 4 round-trip tests, common definition syntax parsing, walker integration. 303 total tests, clippy clean.
 - **2026-03-22 P6S4** implement_remaining — Generator (generate with force_braces/compact options, multiplier rendering, type range, group sequence) + Walker (enter/leave callbacks, pre-order traversal). 8 generator tests + 4 walker tests. 50 total definition_syntax tests, clippy clean.
 - **2026-03-22 P6S3** implement_core — Scanner (char_code, skip_ws, scan_word/number/string, eat, peek_char) + Parser (parse entry point, readImplicitGroup with regroupTerms for operator precedence, readType with range/boolean-expr, readProperty, readKeywordOrFunction, readGroup with ! suffix, readMultiplier with all forms + stacking, peek dispatch). 20 parser tests + 7 scanner tests. 38 total definition_syntax tests, clippy clean.
 - **2026-03-22 P6S2** implement_types — Defined DefinitionSyntaxNode enum (11 variants), Combinator enum (Space/DoubleAmpersand/DoubleBar/Bar with precedence), GroupNode, MultiplierNode, BooleanNode, TypeNode, RangeNode, PropertyNode, KeywordNode, AtKeywordNode, FunctionNode, StringValueNode, TokenNode. DefinitionSyntaxError with formatted error display. 15 tests (13 types + 2 error), clippy clean.
