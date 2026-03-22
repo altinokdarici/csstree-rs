@@ -522,13 +522,27 @@ impl Parser {
     fn parse_atrule_prelude(&mut self) -> Node {
         let start = self.loc_start();
         let children = self.read_sequence(
-            |p| p.value_get_node(),
+            |p| p.atrule_prelude_get_node(),
             |_p, _next, _children| {},
         );
         Node::AtrulePrelude(AtrulePrelude {
             loc: self.make_loc(start),
             children,
         })
+    }
+
+    /// Get a node in at-rule prelude context (like value but includes Colon/AtKeyword).
+    fn atrule_prelude_get_node(&mut self) -> Option<Node> {
+        match self.token_type() {
+            TokenType::Colon => Some(self.parse_operator()),
+            TokenType::AtKeyword => {
+                let start = self.loc_start();
+                let value = self.token_value().to_string();
+                self.next();
+                Some(Node::Identifier(Identifier { loc: self.make_loc(start), name: value }))
+            }
+            _ => self.value_get_node(),
+        }
     }
 
     /// Parse a `MediaQueryList` node (comma-separated media queries).
