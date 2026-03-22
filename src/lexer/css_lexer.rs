@@ -423,6 +423,26 @@ impl Lexer {
             }
         }
     }
+
+    /// Register a new property definition.
+    pub fn add_property(&mut self, name: &str, syntax: &str) {
+        self.properties.insert(name.to_string(), SyntaxDescriptor::new(syntax));
+    }
+
+    /// Register a new type definition.
+    pub fn add_type(&mut self, name: &str, syntax: &str) {
+        self.types.insert(name.to_string(), SyntaxDescriptor::new(syntax));
+    }
+
+    /// Get all registered property names.
+    pub fn property_names(&self) -> Vec<&str> {
+        self.properties.keys().map(String::as_str).collect()
+    }
+
+    /// Get all registered type names.
+    pub fn type_names(&self) -> Vec<&str> {
+        self.types.keys().map(String::as_str).collect()
+    }
 }
 
 /// Strip vendor prefix from a property name (e.g., `-webkit-transform` → `transform`).

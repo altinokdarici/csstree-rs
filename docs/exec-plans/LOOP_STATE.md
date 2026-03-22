@@ -7,13 +7,13 @@ Machine-readable state for the autonomous build loop. Updated after every iterat
 ```yaml
 phase: 7
 phase_name: lexer
-step: 4
-step_name: implement_remaining
+step: 5
+step_name: port_fixture_tests
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 6
-last_commit: feat(lexer): implement core matching + Lexer struct (phase 7, step 3)
+last_commit: feat(lexer): implement remaining methods (phase 7, step 4)
 ```
 
 ## Phase / Step Matrix
@@ -49,6 +49,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P7S4** implement_remaining — Added add_property/add_type dynamic registration, property_names/type_names getters. 43 lexer tests, clippy clean.
 - **2026-03-22 P7S3** implement_core — Match graph builder, 23 generic type matchers (ident, custom-ident, string, number, integer, hex-color, length, angle, time, frequency, resolution, flex, dimension, etc.), token preparation (CSS string → token array), Lexer struct with match_property/match_type/check_property_name, recursive matching algorithm with backtracking, CSS-wide keyword support, vendor prefix normalization. 43 lexer tests, 369 total, clippy clean.
 - **2026-03-22 P7S3a** implement_core (partial) — Match graph builder: converts definition syntax ASTs to matching automata. Handles all 4 combinators (space/&&/||/|), Enum optimization for keyword sequences, MatchOnce for large && groups, multipliers (*/+/?/{n,m}/#), conditional branching with optimization. 7 match_graph tests, 22 total lexer tests, clippy clean.
 - **2026-03-22 P7S2** implement_types — Defined MatchNode enum (16 variants: Match/Mismatch/DisallowEmpty/If/Enum/MatchOnce/Generic/Type/Property/Keyword/AtKeyword/Function/Token/Comma/StringMatch/MatchGraph), MatchToken, MatchResult, MatchedItem, SyntaxKind, LexerConfig, AtruleConfig, CSS_WIDE_KEYWORDS, SyntaxMatchError, SyntaxReferenceError, unit groups (8 categories). 15 tests, clippy clean.
