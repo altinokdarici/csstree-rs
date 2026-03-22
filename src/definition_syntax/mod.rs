@@ -40,21 +40,26 @@
 //! ## AST Node Types (11 types)
 //!
 //! **Compound nodes:**
-//! - `Group` — terms: Vec, combinator: ` `|`&&`|`||`|`|`, explicit: bool, disallowEmpty: bool
-//! - `Multiplier` — term: Node, min: u32, max: u32 (0=unlimited), comma: bool
-//!   - `*` = {0,0,false}, `+` = {1,0,false}, `?` = {0,1,false}
-//!   - `#` = {1,0,true}, `#?` = {0,0,true}, `{n,m}` = {n,m,false}
-//! - `Boolean` — term: Node (modern `<boolean-expr[...]>`)
+//! - `Group` — terms, combinator, explicit, `disallow_empty`
+//! - `Multiplier` — term, min, max (0=unlimited), comma
+//! - `Boolean` — term (modern `<boolean-expr[...]>`)
 //!
 //! **Leaf nodes:**
-//! - `Type` — name: String, opts: Option<Range> (e.g. `<length>`, `<integer[-10,10]>`)
-//! - `Property` — name: String (e.g. `<'color'>`)
-//! - `Keyword` — name: String (e.g. `auto`, `none`)
-//! - `AtKeyword` — name: String (e.g. `@media`)
-//! - `Function` — name: String (e.g. `rgb(`)
-//! - `StringNode` — value: String (single-quoted)
-//! - `Token` — value: String (single character: `/`, `:`, etc.)
+//! - `Type` — name, opts (optional Range)
+//! - `Property` — name
+//! - `Keyword` — name
+//! - `AtKeyword` — name
+//! - `Function` — name
+//! - `StringNode` — value
+//! - `Token` — value (single character)
 //! - `Comma` — (no fields)
-//!
-//! **Nested in Type:**
-//! - `Range` — min: Option<f64>, max: Option<f64>
+
+pub mod types;
+pub mod error;
+
+pub use error::DefinitionSyntaxError;
+pub use types::{
+    Combinator, DefinitionSyntaxNode, GroupNode, MultiplierNode,
+    BooleanNode, TypeNode, RangeNode, PropertyNode, KeywordNode,
+    AtKeywordNode, FunctionNode, StringValueNode, TokenNode,
+};
