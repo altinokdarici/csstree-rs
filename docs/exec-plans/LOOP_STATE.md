@@ -11,13 +11,13 @@ phase: 6
 phase_name: definition_syntax
 phase: 7
 phase_name: lexer
-step: 2
-step_name: implement_types
+step: 3
+step_name: implement_core
 status: IN_PROGRESS
 blocked: false
 blocker: null
 last_completed_phase: 6
-last_commit: feat(lexer): read JS source (phase 7, step 1)
+last_commit: feat(lexer): implement types (phase 7, step 2)
 ```
 
 ## Phase / Step Matrix
@@ -53,6 +53,7 @@ Each phase follows the same step sequence. The loop picks up at the current phas
 
 ## History
 
+- **2026-03-22 P7S2** implement_types — Defined MatchNode enum (16 variants: Match/Mismatch/DisallowEmpty/If/Enum/MatchOnce/Generic/Type/Property/Keyword/AtKeyword/Function/Token/Comma/StringMatch/MatchGraph), MatchToken, MatchResult, MatchedItem, SyntaxKind, LexerConfig, AtruleConfig, CSS_WIDE_KEYWORDS, SyntaxMatchError, SyntaxReferenceError, unit groups (8 categories). 15 tests, clippy clean.
 - **2026-03-22 P7S1** read_js_source — Read all 14 lexer JS files. Lexer validates CSS values against definition syntax using match graphs (automata). Key components: 65+ generic type matchers, match graph construction (If/Enum/MatchOnce/Generic nodes), state machine executor with backtracking stacks, token preparation, Lexer class with lazy syntax parsing. Documented architecture in src/lexer/mod.rs.
 - **2026-03-22 P6S10** advance — Phase 6 (definition_syntax) COMPLETE. 326 tests, grade A. Advancing to Phase 7 (lexer).
 - **2026-03-22 P6S6-9** port_inline+verify+coverage+update — 23 inline tests (walk types, enter/leave pairs, parse→generate round trips for all syntax elements). 326 total tests, clippy clean. Coverage adequate (50 unit + 19 fixture + 23 inline).
