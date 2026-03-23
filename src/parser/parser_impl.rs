@@ -852,7 +852,7 @@ impl Parser {
             TokenType::Delim => {
                 let code = self.source().as_bytes().get(self.stream.token_start).copied().unwrap_or(0);
                 match code {
-                    b'/' | b'*' | b'+' | b'-' | b'=' | b'!' | b'.' | b'>' | b'<' | b'~' | b'^' | b'$' => {
+                    b'/' | b'*' | b'+' | b'-' | b'=' | b'!' | b'.' | b'>' | b'<' | b'~' | b'^' | b'$' | b'?' | b'\\' | b'#' | b'@' | b'%' | b'&' => {
                         Some(self.parse_operator())
                     }
                     _ => None,
