@@ -309,6 +309,28 @@ impl Parser {
     }
 
     fn parse_rule_result(&mut self) -> Result<Node, CssSyntaxError> {
+        // A rule requires a { after the selector. Check if one exists.
+        // Use looks_like_nested_rule to see if there's a { ahead
+        let mut offset = 0;
+        let mut found_block = false;
+        loop {
+            let tt = self.stream.lookup_type(offset);
+            match tt {
+                TokenType::LeftCurlyBracket => { found_block = true; break; }
+                TokenType::Eof => break,
+                _ => { offset += 1; }
+            }
+            if offset > 200 { break; }
+        }
+        if !found_block {
+            return Err(CssSyntaxError {
+                message: "Expected {".into(),
+                source: String::new(),
+                offset: self.stream.token_start,
+                line: 0,
+                column: 0,
+            });
+        }
         Ok(self.parse_rule())
     }
 
