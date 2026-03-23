@@ -1139,12 +1139,14 @@ impl Parser {
             }
             let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
             if !raw_value.is_empty() {
-                // Strip leading whitespace if there's non-whitespace content after
+                // Strip leading whitespace only if content starts with alphanumeric
                 let trimmed = raw_value.trim_start();
                 let value = if trimmed.is_empty() {
                     raw_value // whitespace-only: preserve
+                } else if trimmed.starts_with(|c: char| c.is_alphanumeric() || c == '-' || c == '.' || c == '#') {
+                    trimmed.to_string() // starts with value: strip leading ws
                 } else {
-                    trimmed.to_string() // has content: strip leading ws
+                    raw_value // starts with punctuation: preserve leading ws
                 };
                 children.push(Node::Raw(Raw { loc: None, value }));
             }
