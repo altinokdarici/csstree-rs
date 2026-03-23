@@ -1028,6 +1028,22 @@ impl Parser {
             self.next();
         }
 
+        // Special case: url("string") → convert to Url node with unquoted value
+        if name.eq_ignore_ascii_case("url") && children.len() == 1 {
+            if let Node::StringNode(s) = &children[0] {
+                let url_val = &s.value;
+                // Strip quotes
+                let unquoted = if (url_val.starts_with('"') && url_val.ends_with('"'))
+                    || (url_val.starts_with('\'') && url_val.ends_with('\''))
+                {
+                    url_val[1..url_val.len() - 1].to_string()
+                } else {
+                    url_val.clone()
+                };
+                return Node::Url(Url { loc: self.make_loc(start), value: unquoted });
+            }
+        }
+
         Node::Function(Function { loc: self.make_loc(start), name, children })
     }
 

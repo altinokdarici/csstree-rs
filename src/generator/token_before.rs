@@ -154,10 +154,11 @@ fn add_spec_pairs(pairs: &mut HashSet<u32>) {
         pairs.insert(pair(dot, next));
     }
 
-    // '+' delim pairs
+    // '+' delim pairs (+ before number/percentage/dimension)
     for next in [number, percentage, dimension] {
         pairs.insert(pair(plus, next));
     }
+
 
     // '/' + '*'
     pairs.insert(pair(slash, star));
