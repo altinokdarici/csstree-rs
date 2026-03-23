@@ -5,9 +5,9 @@ Real-time tracking of parse→generate round-trip correctness vs JS csstree.
 ## Current Scores
 
 ```yaml
-parser_pass: 563
+parser_pass: 582
 parser_total: 662
-parser_pct: 85.0
+parser_pct: 87.9
 lexer_pass: 657
 lexer_total: 1027
 lexer_pct: 64.0
@@ -44,3 +44,5 @@ lexer_pct: 64.0
 - 2026-03-22: Pseudo-class/element args + pseudo-element — 531/662
 - 2026-03-22: CSS nesting detection heuristic — 554/662
 - 2026-03-22: Keyframe selectors + custom property whitespace + function colons — 563/662
+- 2026-03-22: Media query context + more delimiters — 571/662
+- 2026-03-22: Pseudo-class heuristic + comment stripping + An+B normalization — 582/662
