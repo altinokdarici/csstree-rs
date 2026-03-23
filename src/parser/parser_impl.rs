@@ -860,6 +860,8 @@ impl Parser {
                     b'*' | b'|' => Some(self.parse_type_selector()),
                     b'+' | b'>' | b'~' => Some(self.parse_combinator()),
                     b'&' => Some(self.parse_nesting_selector()),
+                    // ! in selector context (for tolerant parsing of boom!)
+                    b'!' => Some(self.parse_operator()),
                     b'/' => {
                         // Check for /deep/ combinator
                         if self.stream.lookup_type(1) == TokenType::Ident
