@@ -363,12 +363,15 @@ impl Parser {
 
     fn read_property(&mut self) -> String {
         let start = self.stream.token_start;
-        // Handle hack prefixes: *, $, +, #, &, /
+        // Handle hack prefixes: *, $, +, #, &, / (NOT !)
         if self.token_type() == TokenType::Delim {
-            self.next();
-            if self.token_type() == TokenType::Delim {
-                // // double slash hack
+            let code = self.source().as_bytes().get(self.stream.token_start).copied().unwrap_or(0);
+            if matches!(code, b'*' | b'$' | b'+' | b'#' | b'&' | b'/' | b'_') {
                 self.next();
+                if self.token_type() == TokenType::Delim {
+                    // // double slash hack
+                    self.next();
+                }
             }
         }
         if self.token_type() == TokenType::Ident || self.token_type() == TokenType::Hash {
