@@ -1006,11 +1006,23 @@ impl Parser {
         } else {
             raw
         };
-        // Strip quotes from url values: url("x") → url(x), url('x') → url(x)
+        // Strip quotes from url values and escape special chars for unquoted form
         if (value.starts_with('"') && value.ends_with('"'))
             || (value.starts_with('\'') && value.ends_with('\''))
         {
-            value = value[1..value.len() - 1].to_string();
+            let inner = &value[1..value.len() - 1];
+            // Escape chars that need escaping in unquoted URL: space, (, ), ', "
+            let mut escaped = String::new();
+            for ch in inner.chars() {
+                match ch {
+                    ' ' | '(' | ')' | '\'' | '"' => {
+                        escaped.push('\\');
+                        escaped.push(ch);
+                    }
+                    _ => escaped.push(ch),
+                }
+            }
+            value = escaped;
         }
         Node::Url(Url { loc: self.make_loc(start), value })
     }
@@ -1090,11 +1102,22 @@ impl Parser {
         if name.eq_ignore_ascii_case("url") && children.len() == 1 {
             if let Node::StringNode(s) = &children[0] {
                 let url_val = &s.value;
-                // Strip quotes
+                // Strip quotes and escape special chars
                 let unquoted = if (url_val.starts_with('"') && url_val.ends_with('"'))
                     || (url_val.starts_with('\'') && url_val.ends_with('\''))
                 {
-                    url_val[1..url_val.len() - 1].to_string()
+                    let inner = &url_val[1..url_val.len() - 1];
+                    let mut escaped = String::new();
+                    for ch in inner.chars() {
+                        match ch {
+                            ' ' | '(' | ')' | '\'' | '"' => {
+                                escaped.push('\\');
+                                escaped.push(ch);
+                            }
+                            _ => escaped.push(ch),
+                        }
+                    }
+                    escaped
                 } else {
                     url_val.clone()
                 };
