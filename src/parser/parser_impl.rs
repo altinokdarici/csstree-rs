@@ -1169,7 +1169,7 @@ impl Parser {
         let start = self.loc_start();
         self.next(); // (
 
-        // Inside parentheses, allow colons (for @supports(foo:1) etc.)
+        // Inside parentheses, allow colons and preserve whitespace around +/-
         let children = self.read_sequence(
             |p| {
                 if p.token_type() == TokenType::Colon {
@@ -1177,7 +1177,13 @@ impl Parser {
                 }
                 p.value_get_node()
             },
-            |_p, _next, _children| {},
+            |_p, next, children| {
+                let next_is_plus_minus = matches!(next, Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
+                let prev_is_plus_minus = matches!(children.last(), Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
+                if next_is_plus_minus || prev_is_plus_minus {
+                    children.push(Node::WhiteSpace(WhiteSpace { loc: None, value: " ".to_string() }));
+                }
+            },
         );
 
         if self.token_type() == TokenType::RightParenthesis {
