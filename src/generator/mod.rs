@@ -195,7 +195,7 @@ impl Generator {
     // ── Node dispatch ──
 
     /// Generate CSS for a single AST node.
-    #[expect(clippy::too_many_lines, reason = "single match dispatch — splitting would obscure the 1:1 node-type mapping")]
+    #[allow(clippy::too_many_lines)]
     fn node(&mut self, node: &Node) {
         match node {
             Node::StyleSheet(n) => self.children(&n.children),
@@ -283,7 +283,14 @@ impl Generator {
             Node::Operator(n) => self.tokenize_chunk(&n.value),
             Node::Raw(n) => {
                 let stripped = strip_css_comments(&n.value);
-                self.tokenize_chunk(&stripped);
+                // If stripping comments left only whitespace but original had content,
+                // collapse to a single space
+                let value = if stripped.trim().is_empty() && n.value.contains("/*") {
+                    if stripped.is_empty() { String::new() } else { " ".to_string() }
+                } else {
+                    stripped
+                };
+                self.tokenize_chunk(&value);
             }
             Node::UnicodeRange(n) => self.token(TokenType::Ident, &n.value),
             Node::Url(n) => self.token(TokenType::Url, &format!("url({})", n.value)),
