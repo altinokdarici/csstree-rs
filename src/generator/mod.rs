@@ -241,7 +241,7 @@ impl Generator {
                 self.token(TokenType::Function, &format!("{}(", n.name));
                 // For feature-like functions (style, supports), add space after colon
                 let lower = n.name.to_ascii_lowercase();
-                if matches!(lower.as_str(), "style" | "supports" | "func") {
+                if matches!(lower.as_str(), "style" | "func") {
                     self.children_with_feature_colon(&n.children);
                 } else {
                     self.children(&n.children);
