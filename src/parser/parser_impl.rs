@@ -612,7 +612,7 @@ impl Parser {
             "media" | "supports" | "container" | "document"
         );
         let prev = self.in_atrule_prelude;
-        self.in_atrule_prelude = has_features;
+        self.in_atrule_prelude = true;
         let children = self.read_sequence(
             |p| p.atrule_prelude_get_node(has_features),
             |_p, _next, _children| {},
@@ -1086,10 +1086,13 @@ impl Parser {
                     }
                     p.value_get_node()
                 },
-                |_p, next, children| {
-                    let next_is_plus_minus = matches!(next, Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
-                    let prev_is_plus_minus = matches!(children.last(), Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
-                    if next_is_plus_minus || prev_is_plus_minus {
+                |p, next, children| {
+                    let in_prelude = p.in_atrule_prelude;
+                    let next_is_pm = matches!(next, Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
+                    let prev_is_pm = matches!(children.last(), Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
+                    // In value context: space both before AND after +/-
+                    // In prelude context: only space AFTER +/-
+                    if prev_is_pm || (!in_prelude && next_is_pm) {
                         children.push(Node::WhiteSpace(WhiteSpace { loc: None, value: " ".to_string() }));
                     }
                 },
