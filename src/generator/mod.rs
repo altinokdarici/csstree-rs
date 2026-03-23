@@ -155,6 +155,21 @@ impl Generator {
         }
     }
 
+    /// Emit children with space after colon operators (for feature expressions).
+    fn children_with_feature_colon(&mut self, children: &[Node]) {
+        for child in children {
+            if let Node::Operator(op) = child {
+                if op.value == ":" {
+                    // Emit ": " with space for feature expressions
+                    self.buffer.push_str(": ");
+                    self.prev_code = token_before::encode_token(TokenType::Colon, ":");
+                    continue;
+                }
+            }
+            self.node(child);
+        }
+    }
+
     /// Emit children with a delimiter between them.
     fn children_delimited(&mut self, children: &[Node], delim_type: TokenType, delim: &str) {
         for (i, child) in children.iter().enumerate() {
@@ -224,7 +239,13 @@ impl Generator {
             Node::Value(n) => self.children(&n.children),
             Node::Function(n) => {
                 self.token(TokenType::Function, &format!("{}(", n.name));
-                self.children(&n.children);
+                // For feature-like functions (style, supports), add space after colon
+                let lower = n.name.to_ascii_lowercase();
+                if matches!(lower.as_str(), "style" | "supports" | "func") {
+                    self.children_with_feature_colon(&n.children);
+                } else {
+                    self.children(&n.children);
+                }
                 self.token(TokenType::RightParenthesis, ")");
             }
             Node::Parentheses(n) => {
