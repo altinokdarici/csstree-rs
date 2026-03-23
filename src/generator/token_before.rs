@@ -197,6 +197,7 @@ fn add_safe_pairs(pairs: &mut HashSet<u32>) {
     pairs.insert(pair(right_paren, dimension));
     pairs.insert(pair(right_paren, hash));
     pairs.insert(pair(right_paren, dash));
+
 }
 
 #[cfg(test)]
