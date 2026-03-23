@@ -333,10 +333,21 @@ impl Parser {
         let value = if self.flags.parse_value && !is_custom && !is_progid {
             self.parse_value()
         } else {
-            // Custom property: consume raw until ; or } or !
-            self.consume_raw(|code| {
+            // Custom/progid property: consume raw until ; or } or !
+            let raw = self.consume_raw(|code| {
                 if code == 0x21 || code == 0x3B || code == 0x7D { 1 } else { 0 }
-            })
+            });
+            // For progid values, trim trailing whitespace
+            if is_progid {
+                if let Node::Raw(r) = &raw {
+                    let trimmed = r.value.trim_end().to_string();
+                    Node::Raw(Raw { loc: r.loc.clone(), value: trimmed })
+                } else {
+                    raw
+                }
+            } else {
+                raw
+            }
         };
 
         let important = self.parse_important();
