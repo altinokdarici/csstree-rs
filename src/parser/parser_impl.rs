@@ -843,9 +843,12 @@ impl Parser {
     pub fn parse_comment(&mut self) -> Node {
         let start = self.loc_start();
         let raw = self.token_value();
-        // Strip /* and */
-        let value = if raw.len() >= 4 {
-            raw[2..raw.len() - 2].to_string()
+        // Strip /* prefix and */ suffix (if terminated)
+        let value = if let Some(inner) = raw.strip_prefix("/*").and_then(|s| s.strip_suffix("*/")) {
+            inner.to_string()
+        } else if let Some(inner) = raw.strip_prefix("/*") {
+            // Unterminated comment: strip /* only, keep rest
+            inner.to_string()
         } else {
             raw.to_string()
         };
