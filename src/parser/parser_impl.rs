@@ -985,24 +985,100 @@ impl Parser {
         let start = self.loc_start();
         let raw_name = self.token_value();
         let name = raw_name.strip_suffix('(').unwrap_or(raw_name).to_string();
+        let is_var = name.eq_ignore_ascii_case("var");
+        let is_expression = name.eq_ignore_ascii_case("expression");
         self.next();
 
-        let children = self.read_sequence(
-            |p| {
-                // Allow colons inside function args (e.g., supports(foo:1))
-                if p.token_type() == TokenType::Colon {
-                    return Some(p.parse_operator());
-                }
-                p.value_get_node()
-            },
-            |_p, _next, _children| {},
-        );
+        let children = if is_var {
+            self.parse_var_args()
+        } else if is_expression {
+            // expression() IE hack: consume everything as raw until matching )
+            self.parse_expression_args()
+        } else {
+            self.read_sequence(
+                |p| {
+                    if p.token_type() == TokenType::Colon {
+                        return Some(p.parse_operator());
+                    }
+                    p.value_get_node()
+                },
+                |_p, _next, _children| {},
+            )
+        };
 
         if self.token_type() == TokenType::RightParenthesis {
             self.next();
         }
 
         Node::Function(Function { loc: self.make_loc(start), name, children })
+    }
+
+    /// Parse var() function arguments: var(--name) or var(--name, fallback).
+    ///
+    /// The fallback value can contain balanced braces, so it needs special raw consumption.
+    fn parse_var_args(&mut self) -> Vec<Node> {
+        let mut children = Vec::new();
+        self.skip_sc();
+
+        // First arg: custom property name (--name)
+        if self.token_type() == TokenType::Ident {
+            children.push(self.parse_identifier());
+        }
+        self.skip_sc();
+
+        // Check for comma (fallback separator)
+        if self.token_type() == TokenType::Comma {
+            children.push(self.parse_operator()); // comma
+
+            // Fallback value: consume as balanced raw until matching )
+            // This allows {}, [], () inside the fallback
+            let raw_start = self.stream.token_start;
+            let mut depth: u32 = 1; // we're inside var(
+            while !self.stream.eof && depth > 0 {
+                match self.token_type() {
+                    TokenType::LeftParenthesis | TokenType::Function => depth += 1,
+                    TokenType::RightParenthesis => {
+                        depth -= 1;
+                        if depth == 0 {
+                            break; // don't consume the closing )
+                        }
+                    }
+                    _ => {}
+                }
+                self.next();
+            }
+            let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
+            if !raw_value.is_empty() {
+                children.push(Node::Raw(Raw { loc: None, value: raw_value }));
+            }
+        }
+
+        children
+    }
+
+    /// Parse expression() IE hack arguments as raw balanced content.
+    fn parse_expression_args(&mut self) -> Vec<Node> {
+        let raw_start = self.stream.token_start;
+        let mut depth: u32 = 1;
+        while !self.stream.eof && depth > 0 {
+            match self.token_type() {
+                TokenType::LeftParenthesis | TokenType::Function => depth += 1,
+                TokenType::RightParenthesis => {
+                    depth -= 1;
+                    if depth == 0 {
+                        break;
+                    }
+                }
+                _ => {}
+            }
+            self.next();
+        }
+        let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
+        if raw_value.is_empty() {
+            Vec::new()
+        } else {
+            vec![Node::Raw(Raw { loc: None, value: raw_value })]
+        }
     }
 
     fn parse_parentheses(&mut self) -> Node {
