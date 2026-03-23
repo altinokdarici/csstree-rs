@@ -840,6 +840,24 @@ impl Parser {
                     b'*' | b'|' => Some(self.parse_type_selector()),
                     b'+' | b'>' | b'~' => Some(self.parse_combinator()),
                     b'&' => Some(self.parse_nesting_selector()),
+                    b'/' => {
+                        // Check for /deep/ combinator
+                        if self.stream.lookup_type(1) == TokenType::Ident
+                            && self.stream.lookup_type(2) == TokenType::Delim
+                        {
+                            let start = self.loc_start();
+                            self.next(); // /
+                            let word = self.token_value().to_string();
+                            self.next(); // deep
+                            self.next(); // /
+                            Some(Node::Combinator(Combinator {
+                                loc: self.make_loc(start),
+                                name: format!("/{word}/"),
+                            }))
+                        } else {
+                            None
+                        }
+                    }
                     _ => None,
                 }
             }
