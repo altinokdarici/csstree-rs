@@ -1139,7 +1139,14 @@ impl Parser {
             }
             let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
             if !raw_value.is_empty() {
-                children.push(Node::Raw(Raw { loc: None, value: raw_value }));
+                // Strip leading whitespace if there's non-whitespace content after
+                let trimmed = raw_value.trim_start();
+                let value = if trimmed.is_empty() {
+                    raw_value // whitespace-only: preserve
+                } else {
+                    trimmed.to_string() // has content: strip leading ws
+                };
+                children.push(Node::Raw(Raw { loc: None, value }));
             }
         }
 
