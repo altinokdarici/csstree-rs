@@ -1111,7 +1111,6 @@ impl Parser {
             children.push(self.parse_operator()); // comma
 
             // Fallback value: consume as balanced raw until matching )
-            // This allows {}, [], () inside the fallback
             let raw_start = self.stream.token_start;
             let mut depth: u32 = 1; // we're inside var(
             while !self.stream.eof && depth > 0 {
