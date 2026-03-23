@@ -159,7 +159,6 @@ fn add_spec_pairs(pairs: &mut HashSet<u32>) {
         pairs.insert(pair(plus, next));
     }
 
-
     // '/' + '*'
     pairs.insert(pair(slash, star));
 }

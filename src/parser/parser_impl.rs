@@ -1035,7 +1035,7 @@ impl Parser {
         } else if is_expression {
             self.parse_expression_args()
         } else if is_math {
-            // Math functions: add whitespace around + and - operators
+            // Math functions: preserve whitespace around + and - operators
             self.read_sequence(
                 |p| {
                     if p.token_type() == TokenType::Colon {
