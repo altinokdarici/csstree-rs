@@ -1002,7 +1002,9 @@ impl Parser {
         self.next();
         // Strip the url(...) wrapper — the generator adds it back
         let mut value = if raw.starts_with("url(") && raw.ends_with(')') {
-            raw[4..raw.len() - 1].trim().to_string()
+            let inner = raw[4..raw.len() - 1].trim();
+            // Decode CSS hex escapes: \31 → 1, \2e → .
+            decode_css_escapes(inner)
         } else {
             raw
         };
@@ -1614,6 +1616,54 @@ impl PipeOk for Node {
 }
 
 /// Check if an at-rule name uses a style block (declarations rather than rules).
+/// Decode CSS escape sequences in a string (e.g., `\31 ` → `1`, `\2e` → `.`).
+fn decode_css_escapes(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let bytes = s.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'\\' && i + 1 < bytes.len() {
+            i += 1;
+            // Check for hex escape
+            let hex_start = i;
+            let mut hex_end = i;
+            while hex_end < bytes.len()
+                && hex_end - hex_start < 6
+                && bytes[hex_end].is_ascii_hexdigit()
+            {
+                hex_end += 1;
+            }
+            if hex_end > hex_start {
+                let hex = &s[hex_start..hex_end];
+                if let Ok(code) = u32::from_str_radix(hex, 16) {
+                    if let Some(ch) = char::from_u32(code) {
+                        result.push(ch);
+                    } else {
+                        result.push('\u{FFFD}');
+                    }
+                }
+                // Skip optional whitespace after hex escape
+                if hex_end < bytes.len() && bytes[hex_end].is_ascii_whitespace() {
+                    hex_end += 1;
+                }
+                i = hex_end;
+            } else {
+                // Non-hex escape: only keep backslash for chars that need it
+                let ch = bytes[i] as char;
+                if matches!(ch, ' ' | '(' | ')' | '\'' | '"' | '\\') {
+                    result.push('\\');
+                }
+                result.push(ch);
+                i += 1;
+            }
+        } else {
+            result.push(bytes[i] as char);
+            i += 1;
+        }
+    }
+    result
+}
+
 /// Normalize a CSS string value: remove backslash-newline continuations.
 fn normalize_css_string(s: &str) -> String {
     let mut result = String::with_capacity(s.len());
