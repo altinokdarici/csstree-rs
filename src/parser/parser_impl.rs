@@ -555,7 +555,7 @@ impl Parser {
             && !self.stream.eof
         {
             Some(Box::new(if self.flags.parse_atrule_prelude {
-                self.parse_atrule_prelude()
+                self.parse_atrule_prelude(&name)
             } else {
                 self.consume_raw(|code| if code == 0x7B || code == 0x3B { 1 } else { 0 })
             }))
@@ -587,10 +587,14 @@ impl Parser {
         Ok(self.parse_atrule())
     }
 
-    fn parse_atrule_prelude(&mut self) -> Node {
+    fn parse_atrule_prelude(&mut self, atrule_name: &str) -> Node {
         let start = self.loc_start();
+        let has_features = matches!(
+            atrule_name.to_ascii_lowercase().as_str(),
+            "media" | "supports" | "container" | "document"
+        );
         let children = self.read_sequence(
-            |p| p.atrule_prelude_get_node(),
+            |p| p.atrule_prelude_get_node(has_features),
             |_p, _next, _children| {},
         );
         Node::AtrulePrelude(AtrulePrelude {
@@ -599,8 +603,8 @@ impl Parser {
         })
     }
 
-    /// Get a node in at-rule prelude context (like value but includes Colon/AtKeyword).
-    fn atrule_prelude_get_node(&mut self) -> Option<Node> {
+    /// Get a node in at-rule prelude context.
+    fn atrule_prelude_get_node(&mut self, _feature_space: bool) -> Option<Node> {
         match self.token_type() {
             TokenType::Colon => Some(self.parse_operator()),
             TokenType::AtKeyword => {
@@ -1543,7 +1547,7 @@ pub fn parse(source: &str, options: ParseOptions) -> Node {
         }
         super::options::ParseContext::Block => parser.parse_block(true),
         super::options::ParseContext::Atrule => parser.parse_atrule(),
-        super::options::ParseContext::AtrulePrelude => parser.parse_atrule_prelude(),
+        super::options::ParseContext::AtrulePrelude => parser.parse_atrule_prelude(""),
         super::options::ParseContext::MediaQueryList => parser.parse_media_query_list(),
         super::options::ParseContext::MediaQuery => parser.parse_media_query(),
     }
