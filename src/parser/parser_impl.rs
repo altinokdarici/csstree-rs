@@ -1324,7 +1324,7 @@ impl Parser {
             let m = self.token_value().to_string();
             // Check if this is just a flag (single ident before ])
             let is_flag_only = self.token_type() == TokenType::Ident && {
-                let next_non_ws = self.stream.lookup_type_non_sc(self.stream.token_index() + 1);
+                let next_non_ws = self.stream.lookup_type_non_sc(1);
                 next_non_ws == TokenType::RightSquareBracket
             };
             if is_flag_only {
