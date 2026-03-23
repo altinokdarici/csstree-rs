@@ -282,7 +282,6 @@ impl Generator {
             }
             Node::Operator(n) => self.tokenize_chunk(&n.value),
             Node::Raw(n) => {
-                // Strip CSS comments from raw values (matching JS csstree behavior)
                 let stripped = strip_css_comments(&n.value);
                 self.tokenize_chunk(&stripped);
             }
