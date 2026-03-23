@@ -1202,18 +1202,23 @@ impl Parser {
             let fn_name = name.strip_suffix('(').unwrap_or(&name).to_string();
             self.next();
 
-            // Parse arguments properly (like function arguments)
-            let children = self.read_sequence(
-                |p| {
-                    // Allow colons inside pseudo-class args (e.g., :lang(en))
-                    if p.token_type() == TokenType::Colon {
-                        return Some(p.parse_operator());
-                    }
-                    p.selector_get_node()
-                        .or_else(|| p.value_get_node())
-                },
-                |_p, _next, _children| {},
-            );
+            // Check if this is an nth pseudo-class (needs An+B parsing)
+            let is_nth = fn_name.starts_with("nth-") || fn_name == "nth";
+
+            let children = if is_nth {
+                self.parse_nth_args()
+            } else {
+                self.read_sequence(
+                    |p| {
+                        if p.token_type() == TokenType::Colon {
+                            return Some(p.parse_operator());
+                        }
+                        p.selector_get_node()
+                            .or_else(|| p.value_get_node())
+                    },
+                    |_p, _next, _children| {},
+                )
+            };
 
             if self.token_type() == TokenType::RightParenthesis {
                 self.next();
@@ -1231,6 +1236,55 @@ impl Parser {
                 name,
                 children: None,
             })
+        }
+    }
+
+    /// Parse An+B arguments for nth pseudo-classes.
+    ///
+    /// Collects raw text, then normalizes: lowercase n, strip leading +,
+    /// compact spacing around + and -.
+    fn parse_nth_args(&mut self) -> Vec<Node> {
+        // Collect all tokens until ) as raw text
+        let mut raw = String::new();
+        while self.token_type() != TokenType::RightParenthesis && !self.stream.eof {
+            if self.token_type() == TokenType::WhiteSpace || self.token_type() == TokenType::Comment {
+                // Preserve a single space for whitespace
+                if !raw.is_empty() && !raw.ends_with(' ') {
+                    raw.push(' ');
+                }
+                self.next();
+                continue;
+            }
+            raw.push_str(self.token_value());
+            self.next();
+        }
+
+        // Normalize the An+B expression
+        let normalized = normalize_an_plus_b(&raw);
+
+        if normalized.is_empty() {
+            return Vec::new();
+        }
+
+        // Check if there's an "of <selector>" part
+        if let Some(pos) = normalized.find(" of ") {
+            let an_plus_b = &normalized[..pos];
+            let of_selector = &normalized[pos + 4..];
+            vec![
+                Node::Nth(Nth {
+                    loc: None,
+                    nth: Box::new(Node::AnPlusB(AnPlusB {
+                        loc: None,
+                        a: None,
+                        b: None,
+                    })),
+                    selector: None,
+                }),
+                // For now, emit as raw since we'd need full Nth node support
+                Node::Raw(Raw { loc: None, value: format!("{an_plus_b} of {of_selector}") }),
+            ]
+        } else {
+            vec![Node::Raw(Raw { loc: None, value: normalized })]
         }
     }
 
@@ -1289,6 +1343,104 @@ impl PipeOk for Node {
 }
 
 /// Check if an at-rule name uses a style block (declarations rather than rules).
+/// Normalize An+B expression: lowercase, strip leading +, compact spacing.
+fn normalize_an_plus_b(raw: &str) -> String {
+    let s = raw.trim().to_ascii_lowercase();
+
+    // Handle keywords
+    if s == "odd" || s == "even" {
+        return s;
+    }
+
+    // Parse: optional sign, optional number, optional n, optional sign, optional number
+    let mut result = String::new();
+    let chars: Vec<char> = s.chars().collect();
+    let mut i = 0;
+
+    // Skip leading whitespace
+    while i < chars.len() && chars[i].is_ascii_whitespace() {
+        i += 1;
+    }
+
+    // Read 'a' part (optional sign + optional digits + optional n)
+    let mut a_sign = '+';
+    if i < chars.len() && (chars[i] == '+' || chars[i] == '-') {
+        a_sign = chars[i];
+        i += 1;
+    }
+
+    let mut a_digits = String::new();
+    while i < chars.len() && chars[i].is_ascii_digit() {
+        a_digits.push(chars[i]);
+        i += 1;
+    }
+
+    let has_n = i < chars.len() && chars[i] == 'n';
+    if has_n {
+        i += 1;
+    }
+
+    if has_n {
+        // Emit 'a' part
+        if a_sign == '-' {
+            result.push('-');
+        }
+        if a_digits != "1" && !a_digits.is_empty() {
+            result.push_str(&a_digits);
+        }
+        if a_digits.is_empty() && a_sign == '+' {
+            // Just 'n'
+        }
+        result.push('n');
+
+        // Skip whitespace
+        while i < chars.len() && chars[i].is_ascii_whitespace() {
+            i += 1;
+        }
+
+        // Read 'b' part (optional sign + digits)
+        if i < chars.len() && (chars[i] == '+' || chars[i] == '-') {
+            let b_sign = chars[i];
+            i += 1;
+
+            while i < chars.len() && chars[i].is_ascii_whitespace() {
+                i += 1;
+            }
+
+            let mut b_digits = String::new();
+            while i < chars.len() && chars[i].is_ascii_digit() {
+                b_digits.push(chars[i]);
+                i += 1;
+            }
+
+            if !b_digits.is_empty() {
+                result.push(b_sign);
+                result.push_str(&b_digits);
+            }
+        }
+    } else {
+        // No 'n' — just a number (b only)
+        if a_sign == '-' {
+            result.push('-');
+        }
+        result.push_str(&a_digits);
+    }
+
+    // Append any remaining content (e.g., " of .selector")
+    while i < chars.len() && chars[i].is_ascii_whitespace() {
+        i += 1;
+    }
+    if i < chars.len() {
+        if !result.is_empty() {
+            result.push(' ');
+        }
+        let rest: String = chars[i..].iter().collect();
+        result.push_str(rest.trim());
+    }
+
+    result
+}
+
 fn is_style_atrule(name: &str) -> bool {
     let lower = name.to_ascii_lowercase();
     // At-rules with rule-list blocks (not declaration blocks)
