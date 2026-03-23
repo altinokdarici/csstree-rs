@@ -30,14 +30,18 @@ fn round_trip_in_decl(css: &str) -> String {
 fn round_trip_as_media_query(css: &str) -> String {
     let wrapped = format!("@media {css}{{}}");
     let full = round_trip(&wrapped);
-    // Extract: strip "@media " prefix and "{}" suffix
-    if let Some(inner) = full.strip_prefix("@media ").and_then(|s| s.strip_suffix("{}")) {
-        inner.to_string()
-    } else if let Some(inner) = full.strip_prefix("@media").and_then(|s| s.strip_suffix("{}")) {
-        inner.trim_start().to_string()
-    } else {
-        full
+    // Extract: strip "@media " or "@media" prefix and "{}" suffix
+    let stripped = full.strip_prefix("@media ").or_else(|| full.strip_prefix("@media"));
+    if let Some(inner) = stripped {
+        if let Some(body) = inner.strip_suffix("{}") {
+            return body.to_string();
+        }
+        // Maybe the {} got merged with content
+        if let Some(pos) = inner.rfind("{}") {
+            return inner[..pos].to_string();
+        }
     }
+    full
 }
 
 /// Parse CSS as a value inside a declaration and generate output.
@@ -122,7 +126,9 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
             round_trip_in_selector(source)
         } else if is_value {
             round_trip_as_value(source)
-        } else if is_declaration || is_media_query {
+        } else if is_media_query {
+            round_trip_as_media_query(source)
+        } else if is_declaration {
             round_trip_in_decl(source)
         } else {
             round_trip_in_decl(source)
