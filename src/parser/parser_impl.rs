@@ -1384,8 +1384,31 @@ impl Parser {
             // Check if this is an nth pseudo-class (needs An+B parsing)
             let is_nth = fn_name.starts_with("nth-") || fn_name == "nth";
 
+            let lower = fn_name.to_ascii_lowercase();
+            let is_known = is_nth || matches!(lower.as_str(),
+                "is" | "not" | "where" | "has" | "matches" | "any"
+                | "-webkit-any" | "-moz-any" | "host" | "host-context"
+                | "slotted" | "lang" | "dir" | "current" | "past" | "future"
+            );
+
             let children = if is_nth {
                 self.parse_nth_args()
+            } else if !is_known {
+                // Unknown pseudo-class: consume raw balanced content preserving everything
+                let raw_start = self.stream.token_start;
+                let mut depth: i32 = 1;
+                while !self.stream.eof && depth > 0 {
+                    match self.token_type() {
+                        TokenType::LeftParenthesis | TokenType::Function => depth += 1,
+                        TokenType::RightParenthesis => depth -= 1,
+                        _ => {}
+                    }
+                    if depth <= 0 { break; }
+                    self.next();
+                }
+                let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
+                if raw_value.is_empty() { Vec::new() }
+                else { vec![Node::Raw(Raw { loc: None, value: raw_value })] }
             } else {
                 self.read_sequence(
                     |p| {
@@ -1477,18 +1500,38 @@ impl Parser {
 
         if has_args {
             let fn_name = name.strip_suffix('(').unwrap_or(&name).to_string();
+            let pe_lower = fn_name.to_ascii_lowercase();
+            let pe_known = matches!(pe_lower.as_str(), "slotted" | "part" | "cue" | "cue-region");
             self.next();
 
-            let children = self.read_sequence(
-                |p| {
-                    if p.token_type() == TokenType::Colon {
-                        return Some(p.parse_operator());
+            let children = if pe_known {
+                self.read_sequence(
+                    |p| {
+                        if p.token_type() == TokenType::Colon {
+                            return Some(p.parse_operator());
+                        }
+                        p.selector_get_node()
+                            .or_else(|| p.value_get_node())
+                    },
+                    |_p, _next, _children| {},
+                )
+            } else {
+                // Unknown pseudo-element: consume raw balanced
+                let raw_start = self.stream.token_start;
+                let mut depth: i32 = 1;
+                while !self.stream.eof && depth > 0 {
+                    match self.token_type() {
+                        TokenType::LeftParenthesis | TokenType::Function => depth += 1,
+                        TokenType::RightParenthesis => depth -= 1,
+                        _ => {}
                     }
-                    p.selector_get_node()
-                        .or_else(|| p.value_get_node())
-                },
-                |_p, _next, _children| {},
-            );
+                    if depth <= 0 { break; }
+                    self.next();
+                }
+                let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
+                if raw_value.is_empty() { Vec::new() }
+                else { vec![Node::Raw(Raw { loc: None, value: raw_value })] }
+            };
 
             if self.token_type() == TokenType::RightParenthesis {
                 self.next();
