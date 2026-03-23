@@ -36,6 +36,8 @@ pub struct Parser {
     pub filename: Option<String>,
     /// Offset-to-location mapper (lazy).
     pub locator: OffsetToLocation,
+    /// Whether we're currently inside a style block (declaration context).
+    pub in_style_block: bool,
 }
 
 impl Parser {
@@ -47,6 +49,7 @@ impl Parser {
             flags: options.flags.clone(),
             filename: options.filename.clone(),
             locator,
+            in_style_block: false,
         }
     }
 
@@ -432,6 +435,10 @@ impl Parser {
         let start = self.loc_start();
         let _ = self.eat(TokenType::LeftCurlyBracket);
         let mut children = Vec::new();
+        let prev_in_style = self.in_style_block;
+        if is_style_block {
+            self.in_style_block = true;
+        }
 
         while !self.stream.eof && self.token_type() != TokenType::RightCurlyBracket {
             let before = self.stream.token_index();
@@ -485,6 +492,8 @@ impl Parser {
         if self.token_type() == TokenType::RightCurlyBracket {
             self.next();
         }
+
+        self.in_style_block = prev_in_style;
 
         Node::Block(Block {
             loc: self.make_loc(start),
@@ -555,8 +564,10 @@ impl Parser {
         };
 
         // Parse block or consume semicolon
+        // When nested inside a style block, @media/@supports blocks contain declarations
+        let block_is_style = is_style_atrule(&name) || self.in_style_block;
         let block = if self.token_type() == TokenType::LeftCurlyBracket {
-            Some(Box::new(self.parse_block(is_style_atrule(&name))))
+            Some(Box::new(self.parse_block(block_is_style)))
         } else {
             if self.token_type() == TokenType::Semicolon {
                 self.next();
