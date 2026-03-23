@@ -375,6 +375,25 @@ impl Parser {
 
         let important = self.parse_important();
 
+        // Check for trailing ! without important — this is an error
+        if !important {
+            let has_trailing_bang = match &value {
+                Node::Value(v) => v.children.last().is_some_and(|c| {
+                    matches!(c, Node::Operator(op) if op.value == "!")
+                }),
+                _ => false,
+            };
+            if has_trailing_bang {
+                return Err(CssSyntaxError {
+                    message: "Unexpected !".into(),
+                    source: String::new(),
+                    offset: self.stream.token_start,
+                    line: 0,
+                    column: 0,
+                });
+            }
+        }
+
         Node::Declaration(Declaration {
             loc: self.make_loc(start),
             important,
