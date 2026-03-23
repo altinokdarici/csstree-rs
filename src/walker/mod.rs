@@ -517,7 +517,7 @@ mod tests {
     fn walk_context_tracks_references() {
         let node = Node::Rule(Rule {
             loc: None,
-            prelude: Box::new(Node::Raw(Raw { loc: None, value: "div".into() })),
+            prelude: Box::new(Node::Raw(Raw { loc: None, value: "div".into(), verbatim: false })),
             block: Box::new(Node::Block(Block { loc: None, children: vec![] })),
         });
         let mut ctx = WalkContext::default();

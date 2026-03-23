@@ -231,6 +231,7 @@ impl Parser {
         Node::Raw(Raw {
             loc: self.make_loc(start),
             value,
+            verbatim: false,
         })
     }
 
@@ -341,7 +342,7 @@ impl Parser {
             if is_progid {
                 if let Node::Raw(r) = &raw {
                     let trimmed = r.value.trim_end().to_string();
-                    Node::Raw(Raw { loc: r.loc.clone(), value: trimmed })
+                    Node::Raw(Raw { loc: r.loc.clone(), value: trimmed, verbatim: false })
                 } else {
                     raw
                 }
@@ -1148,7 +1149,7 @@ impl Parser {
                 } else {
                     raw_value // starts with punctuation: preserve leading ws
                 };
-                children.push(Node::Raw(Raw { loc: None, value }));
+                children.push(Node::Raw(Raw { loc: None, value, verbatim: false }));
             }
         }
 
@@ -1176,7 +1177,7 @@ impl Parser {
         if raw_value.is_empty() {
             Vec::new()
         } else {
-            vec![Node::Raw(Raw { loc: None, value: raw_value })]
+            vec![Node::Raw(Raw { loc: None, value: raw_value, verbatim: false })]
         }
     }
 
@@ -1433,7 +1434,7 @@ impl Parser {
                 }
                 let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
                 if raw_value.is_empty() { Vec::new() }
-                else { vec![Node::Raw(Raw { loc: None, value: raw_value })] }
+                else { vec![Node::Raw(Raw { loc: None, value: raw_value, verbatim: true })] }
             } else {
                 self.read_sequence(
                     |p| {
@@ -1508,10 +1509,10 @@ impl Parser {
                     selector: None,
                 }),
                 // For now, emit as raw since we'd need full Nth node support
-                Node::Raw(Raw { loc: None, value: format!("{an_plus_b} of {of_selector}") }),
+                Node::Raw(Raw { loc: None, value: format!("{an_plus_b} of {of_selector}"), verbatim: false }),
             ]
         } else {
-            vec![Node::Raw(Raw { loc: None, value: normalized })]
+            vec![Node::Raw(Raw { loc: None, value: normalized, verbatim: false })]
         }
     }
 
@@ -1555,7 +1556,7 @@ impl Parser {
                 }
                 let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
                 if raw_value.is_empty() { Vec::new() }
-                else { vec![Node::Raw(Raw { loc: None, value: raw_value })] }
+                else { vec![Node::Raw(Raw { loc: None, value: raw_value, verbatim: true })] }
             };
 
             if self.token_type() == TokenType::RightParenthesis {
@@ -1742,7 +1743,7 @@ pub fn parse(source: &str, options: ParseOptions) -> Node {
         super::options::ParseContext::Value => parser.parse_value(),
         super::options::ParseContext::Declaration => {
             parser.parse_declaration().unwrap_or_else(|_| {
-                Node::Raw(Raw { loc: None, value: source.to_string() })
+                Node::Raw(Raw { loc: None, value: source.to_string(), verbatim: false })
             })
         }
         super::options::ParseContext::DeclarationList => {

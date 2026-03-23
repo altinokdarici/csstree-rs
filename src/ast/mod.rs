@@ -479,6 +479,8 @@ pub struct Ratio {
 pub struct Raw {
     pub loc: Option<Loc>,
     pub value: String,
+    /// Emit value verbatim without processing.
+    pub verbatim: bool,
 }
 
 /// A CSS rule (selector + block).
@@ -651,11 +653,11 @@ mod tests {
             Node::Combinator(Combinator { loc: None, name: ">".into() }),
             Node::Comment(Comment { loc: None, value: "test".into() }),
             Node::Condition(Condition { loc: None, kind: "media".into(), children: vec![] }),
-            Node::Declaration(Declaration { loc: None, important: false, property: "color".into(), value: Box::new(Node::Raw(Raw { loc: None, value: "red".into() })) }),
+            Node::Declaration(Declaration { loc: None, important: false, property: "color".into(), value: Box::new(Node::Raw(Raw { loc: None, value: "red".into(), verbatim: false })) }),
             Node::DeclarationList(DeclarationList { loc: None, children: vec![] }),
             Node::Dimension(Dimension { loc: None, value: "10".into(), unit: "px".into() }),
             Node::Feature(Feature { loc: None, kind: "media".into(), name: "width".into(), value: None }),
-            Node::FeatureFunction(FeatureFunction { loc: None, kind: "container".into(), feature: "style".into(), value: Box::new(Node::Raw(Raw { loc: None, value: "".into() })) }),
+            Node::FeatureFunction(FeatureFunction { loc: None, kind: "container".into(), feature: "style".into(), value: Box::new(Node::Raw(Raw { loc: None, value: "".into(), verbatim: false })) }),
             Node::FeatureRange(FeatureRange { loc: None, kind: "media".into(), left: Box::new(Node::Number(Number { loc: None, value: "0".into() })), left_comparison: "<".into(), middle: Box::new(Node::Identifier(Identifier { loc: None, name: "width".into() })), right_comparison: None, right: None }),
             Node::Function(Function { loc: None, name: "rgb".into(), children: vec![] }),
             Node::GeneralEnclosed(GeneralEnclosed { loc: None, kind: "general".into(), function: None, children: vec![] }),
@@ -675,14 +677,14 @@ mod tests {
             Node::PseudoClassSelector(PseudoClassSelector { loc: None, name: "hover".into(), children: None }),
             Node::PseudoElementSelector(PseudoElementSelector { loc: None, name: "before".into(), children: None }),
             Node::Ratio(Ratio { loc: None, left: Box::new(Node::Number(Number { loc: None, value: "16".into() })), right: Some(Box::new(Node::Number(Number { loc: None, value: "9".into() }))) }),
-            Node::Raw(Raw { loc: None, value: "raw content".into() }),
-            Node::Rule(Rule { loc: None, prelude: Box::new(Node::Raw(Raw { loc: None, value: "div".into() })), block: Box::new(Node::Block(Block { loc: None, children: vec![] })) }),
+            Node::Raw(Raw { loc: None, value: "raw content".into(), verbatim: false }),
+            Node::Rule(Rule { loc: None, prelude: Box::new(Node::Raw(Raw { loc: None, value: "div".into(), verbatim: false })), block: Box::new(Node::Block(Block { loc: None, children: vec![] })) }),
             Node::Scope(Scope { loc: None, root: None, limit: None }),
             Node::Selector(Selector { loc: None, children: vec![] }),
             Node::SelectorList(SelectorList { loc: None, children: vec![] }),
             Node::StringNode(StringNode { loc: None, value: "hello".into() }),
             Node::StyleSheet(StyleSheet { loc: None, children: vec![] }),
-            Node::SupportsDeclaration(SupportsDeclaration { loc: None, declaration: Box::new(Node::Declaration(Declaration { loc: None, important: false, property: "display".into(), value: Box::new(Node::Raw(Raw { loc: None, value: "grid".into() })) })) }),
+            Node::SupportsDeclaration(SupportsDeclaration { loc: None, declaration: Box::new(Node::Declaration(Declaration { loc: None, important: false, property: "display".into(), value: Box::new(Node::Raw(Raw { loc: None, value: "grid".into(), verbatim: false })) })) }),
             Node::TypeSelector(TypeSelector { loc: None, name: "div".into() }),
             Node::UnicodeRange(UnicodeRange { loc: None, value: "U+0-7F".into() }),
             Node::Url(Url { loc: None, value: "foo.png".into() }),

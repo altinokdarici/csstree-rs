@@ -282,15 +282,18 @@ impl Generator {
             }
             Node::Operator(n) => self.tokenize_chunk(&n.value),
             Node::Raw(n) => {
-                let stripped = strip_css_comments(&n.value);
-                // If stripping comments left only whitespace but original had content,
-                // collapse to a single space
-                let value = if stripped.trim().is_empty() && n.value.contains("/*") {
-                    if stripped.is_empty() { String::new() } else { " ".to_string() }
+                if n.verbatim {
+                    // Emit verbatim (var() fallback, :unknown() args, etc.)
+                    self.tokenize_chunk(&n.value);
                 } else {
-                    stripped
-                };
-                self.tokenize_chunk(&value);
+                    let stripped = strip_css_comments(&n.value);
+                    let value = if stripped.trim().is_empty() && n.value.contains("/*") {
+                        if stripped.is_empty() { String::new() } else { " ".to_string() }
+                    } else {
+                        stripped
+                    };
+                    self.tokenize_chunk(&value);
+                }
             }
             Node::UnicodeRange(n) => self.token(TokenType::Ident, &n.value),
             Node::Url(n) => self.token(TokenType::Url, &format!("url({})", n.value)),
