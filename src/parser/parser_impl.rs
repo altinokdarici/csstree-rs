@@ -1022,13 +1022,42 @@ impl Parser {
         let name = raw_name.strip_suffix('(').unwrap_or(raw_name).to_string();
         let is_var = name.eq_ignore_ascii_case("var");
         let is_expression = name.eq_ignore_ascii_case("expression");
+        let lower = name.to_ascii_lowercase();
+        let is_math = matches!(lower.as_str(),
+            "calc" | "min" | "max" | "clamp" | "round" | "mod" | "rem"
+            | "sin" | "cos" | "tan" | "asin" | "acos" | "atan" | "atan2"
+            | "pow" | "sqrt" | "log" | "exp" | "abs" | "sign" | "hypot"
+        );
         self.next();
 
         let children = if is_var {
             self.parse_var_args()
         } else if is_expression {
-            // expression() IE hack: consume everything as raw until matching )
             self.parse_expression_args()
+        } else if is_math {
+            // Math functions: add whitespace around + and - operators
+            self.read_sequence(
+                |p| {
+                    if p.token_type() == TokenType::Colon {
+                        return Some(p.parse_operator());
+                    }
+                    p.value_get_node()
+                },
+                |_p, next, children| {
+                    // In math context, insert space when:
+                    // - Next token is + or - operator
+                    // - Previous token was + or - operator
+                    let next_is_plus_minus = matches!(next, Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
+                    let prev_is_plus_minus = matches!(children.last(), Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
+
+                    if next_is_plus_minus || prev_is_plus_minus {
+                        children.push(Node::WhiteSpace(WhiteSpace {
+                            loc: None,
+                            value: " ".to_string(),
+                        }));
+                    }
+                },
+            )
         } else {
             self.read_sequence(
                 |p| {
