@@ -113,11 +113,12 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
             continue;
         }
 
-        // Get expected output: use "generate" field if present, else source itself
-        let expected = test
-            .get("generate")
-            .and_then(|g| g.as_str())
-            .unwrap_or(source);
+        // Get expected output: use "generate" field if present, else source
+        let gen_field = test.get("generate").and_then(|g| g.as_str());
+        let expected = match gen_field {
+            Some(g) => g, // Use explicit generate field (even if empty)
+            None => source, // No generate field → expect source as output
+        };
 
         // Parse and generate using appropriate context
         let actual = if is_stylesheet || is_rule || is_block {

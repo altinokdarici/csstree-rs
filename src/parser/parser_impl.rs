@@ -943,11 +943,17 @@ impl Parser {
         let raw = self.token_value().to_string();
         self.next();
         // Strip the url(...) wrapper — the generator adds it back
-        let value = if raw.starts_with("url(") && raw.ends_with(')') {
+        let mut value = if raw.starts_with("url(") && raw.ends_with(')') {
             raw[4..raw.len() - 1].trim().to_string()
         } else {
             raw
         };
+        // Strip quotes from url values: url("x") → url(x), url('x') → url(x)
+        if (value.starts_with('"') && value.ends_with('"'))
+            || (value.starts_with('\'') && value.ends_with('\''))
+        {
+            value = value[1..value.len() - 1].to_string();
+        }
         Node::Url(Url { loc: self.make_loc(start), value })
     }
 
@@ -1345,11 +1351,12 @@ impl PipeOk for Node {
 /// Check if an at-rule name uses a style block (declarations rather than rules).
 /// Normalize An+B expression: lowercase, strip leading +, compact spacing.
 fn normalize_an_plus_b(raw: &str) -> String {
-    let s = raw.trim().to_ascii_lowercase();
+    let trimmed = raw.trim();
+    let s = trimmed.to_ascii_lowercase();
 
-    // Handle keywords
+    // Handle keywords — preserve original case
     if s == "odd" || s == "even" {
-        return s;
+        return trimmed.to_string();
     }
 
     // Parse: optional sign, optional number, optional n, optional sign, optional number
