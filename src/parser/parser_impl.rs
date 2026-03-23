@@ -503,21 +503,33 @@ impl Parser {
             let tt = self.stream.lookup_type(offset);
             match tt {
                 TokenType::LeftCurlyBracket => return paren_depth == 0,
-                TokenType::Colon if paren_depth == 0 => return false,
+                TokenType::Colon if paren_depth == 0 => {
+                    // Check if this colon is part of a pseudo-class (:hover, :not())
+                    // or a declaration separator (property: value)
+                    let next = self.stream.lookup_type(offset + 1);
+                    if next == TokenType::Ident || next == TokenType::Function || next == TokenType::Colon {
+                        // :ident or :func( or :: → likely pseudo-class, keep scanning
+                        offset += 1;
+                        continue;
+                    }
+                    // Colon followed by value-like token → declaration
+                    return false;
+                }
                 TokenType::Semicolon | TokenType::RightCurlyBracket => return false,
-                TokenType::LeftParenthesis | TokenType::LeftSquareBracket => paren_depth += 1,
+                TokenType::LeftParenthesis | TokenType::LeftSquareBracket | TokenType::Function => {
+                    paren_depth += 1;
+                }
                 TokenType::RightParenthesis | TokenType::RightSquareBracket => {
                     paren_depth = paren_depth.saturating_sub(1);
                 }
                 _ => {}
             }
-            // Reached end of stream with no conclusion
             if tt == TokenType::Eof {
                 return false;
             }
             offset += 1;
             if offset > 100 {
-                return false; // safety limit
+                return false;
             }
         }
     }
