@@ -909,8 +909,10 @@ impl Parser {
 
     fn parse_string(&mut self) -> Node {
         let start = self.loc_start();
-        let value = self.token_value().to_string();
+        let raw = self.token_value().to_string();
         self.next();
+        // Normalize string: remove backslash-newline continuations
+        let value = normalize_css_string(&raw);
         Node::StringNode(StringNode { loc: self.make_loc(start), value })
     }
 
@@ -1360,6 +1362,33 @@ impl PipeOk for Node {
 }
 
 /// Check if an at-rule name uses a style block (declarations rather than rules).
+/// Normalize a CSS string value: remove backslash-newline continuations.
+fn normalize_css_string(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let bytes = s.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'\\' && i + 1 < bytes.len() {
+            let next = bytes[i + 1];
+            if next == b'\n' {
+                // \<LF> — remove both
+                i += 2;
+                continue;
+            } else if next == b'\r' {
+                // \<CR> or \<CR><LF> — remove
+                i += 2;
+                if i < bytes.len() && bytes[i] == b'\n' {
+                    i += 1;
+                }
+                continue;
+            }
+        }
+        result.push(bytes[i] as char);
+        i += 1;
+    }
+    result
+}
+
 /// Normalize An+B expression: lowercase, strip leading +, compact spacing.
 fn normalize_an_plus_b(raw: &str) -> String {
     let trimmed = raw.trim();
