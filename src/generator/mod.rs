@@ -70,6 +70,29 @@ struct Generator {
 
 const REVERSE_SOLIDUS: u8 = 0x5C;
 
+/// Strip CSS comments (`/* ... */`) from a string.
+fn strip_css_comments(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let bytes = s.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if i + 1 < bytes.len() && bytes[i] == b'/' && bytes[i + 1] == b'*' {
+            // Skip to end of comment
+            i += 2;
+            while i + 1 < bytes.len() && !(bytes[i] == b'*' && bytes[i + 1] == b'/') {
+                i += 1;
+            }
+            if i + 1 < bytes.len() {
+                i += 2; // skip */
+            }
+        } else {
+            result.push(bytes[i] as char);
+            i += 1;
+        }
+    }
+    result
+}
+
 /// Generate CSS text from an AST node.
 ///
 /// This is the main public API. Walks the AST and produces a CSS string.
@@ -237,7 +260,11 @@ impl Generator {
                 self.token(TokenType::String, &val);
             }
             Node::Operator(n) => self.tokenize_chunk(&n.value),
-            Node::Raw(n) => self.tokenize_chunk(&n.value),
+            Node::Raw(n) => {
+                // Strip CSS comments from raw values (matching JS csstree behavior)
+                let stripped = strip_css_comments(&n.value);
+                self.tokenize_chunk(&stripped);
+            }
             Node::UnicodeRange(n) => self.token(TokenType::Ident, &n.value),
             Node::Url(n) => self.token(TokenType::Url, &format!("url({})", n.value)),
 
