@@ -38,6 +38,8 @@ pub struct Parser {
     pub locator: OffsetToLocation,
     /// Whether we're currently inside a style block (declaration context).
     pub in_style_block: bool,
+    /// Whether we're currently inside an at-rule prelude (for feature expression detection).
+    pub in_atrule_prelude: bool,
 }
 
 impl Parser {
@@ -50,6 +52,7 @@ impl Parser {
             filename: options.filename.clone(),
             locator,
             in_style_block: false,
+            in_atrule_prelude: false,
         }
     }
 
@@ -593,10 +596,13 @@ impl Parser {
             atrule_name.to_ascii_lowercase().as_str(),
             "media" | "supports" | "container" | "document"
         );
+        let prev = self.in_atrule_prelude;
+        self.in_atrule_prelude = has_features;
         let children = self.read_sequence(
             |p| p.atrule_prelude_get_node(has_features),
             |_p, _next, _children| {},
         );
+        self.in_atrule_prelude = prev;
         Node::AtrulePrelude(AtrulePrelude {
             loc: self.make_loc(start),
             children,
