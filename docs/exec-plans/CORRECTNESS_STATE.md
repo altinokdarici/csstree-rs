@@ -5,9 +5,9 @@ Real-time tracking of parse→generate round-trip correctness vs JS csstree.
 ## Current Scores
 
 ```yaml
-parser_pass: 642
+parser_pass: 644
 parser_total: 660
-parser_pct: 97.3
+parser_pct: 97.6
 lexer_pass: 657
 lexer_total: 1027
 lexer_pct: 64.0
