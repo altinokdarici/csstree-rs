@@ -1324,6 +1324,21 @@ impl Parser {
 
     fn parse_parentheses(&mut self) -> Node {
         let start = self.loc_start();
+        let in_atrule = self.in_atrule_prelude;
+        // Check if first token inside parens is a custom property (--*)
+        let starts_with_custom = in_atrule && {
+            // Look ahead past ( to find first non-WS/comment token
+            let mut off = 1;
+            while self.stream.lookup_type(off) == TokenType::WhiteSpace
+                || self.stream.lookup_type(off) == TokenType::Comment {
+                off += 1;
+            }
+            self.stream.lookup_type(off) == TokenType::Ident && {
+                let abs_idx = self.stream.token_index() + off;
+                let ident_start = self.stream.get_token_start(abs_idx);
+                self.source().get(ident_start..ident_start + 2) == Some("--")
+            }
+        };
         self.next(); // (
 
         // Inside parentheses, allow colons and preserve whitespace around +/-
@@ -1335,6 +1350,15 @@ impl Parser {
                 p.value_get_node()
             },
             |_p, next, children| {
+                // For custom property feature declarations (--custom: value),
+                // preserve space after colon
+                if starts_with_custom {
+                    let prev_is_colon = matches!(children.last(), Some(Node::Operator(op)) if op.value == ":");
+                    if prev_is_colon && next.is_some() {
+                        children.push(Node::WhiteSpace(WhiteSpace { loc: None, value: " ".to_string() }));
+                        return;
+                    }
+                }
                 let next_is_plus_minus = matches!(next, Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
                 let prev_is_plus_minus = matches!(children.last(), Some(Node::Operator(op)) if op.value == "+" || op.value == "-");
                 if next_is_plus_minus || prev_is_plus_minus {
