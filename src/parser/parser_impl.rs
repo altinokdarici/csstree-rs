@@ -235,6 +235,20 @@ impl Parser {
         })
     }
 
+    /// Like `consume_raw` but trims trailing spaces/tabs only
+    /// (matches JS Raw with excludeWhiteSpace=true).
+    fn consume_raw_exclude_ws(&mut self, stop: impl Fn(u8) -> u8) -> Node {
+        let raw = self.consume_raw(stop);
+        if let Node::Raw(r) = &raw {
+            // Only trim trailing ASCII spaces/tabs, NOT newlines
+            // (newlines can be significant in bad strings)
+            let trimmed = r.value.trim_end_matches([' ', '\t']).to_string();
+            Node::Raw(Raw { loc: r.loc.clone(), value: trimmed, verbatim: r.verbatim })
+        } else {
+            raw
+        }
+    }
+
     // ── Node parse functions ──
 
     /// Parse a `StyleSheet` node.
@@ -387,15 +401,26 @@ impl Parser {
             }
         };
 
-        // BadString after value means the declaration is malformed
-        if self.token_type() == TokenType::BadString {
-            return Err(CssSyntaxError {
-                message: "Unexpected bad string".into(),
-                source: String::new(),
-                offset: self.stream.token_start,
-                line: 0,
-                column: 0,
-            });
+        // After parsing value, check for valid declaration terminators.
+        // Like JS: if not at ;, }, !, EOF, or Raw value → error (falls back to raw)
+        self.skip_sc();
+        if !matches!(&value, Node::Raw(_)) {
+            let tt = self.token_type();
+            let at_excl = tt == TokenType::Delim
+                && self.source().as_bytes().get(self.stream.token_start) == Some(&b'!');
+            if !self.stream.eof
+                && tt != TokenType::Semicolon
+                && tt != TokenType::RightCurlyBracket
+                && !at_excl
+            {
+                return Err(CssSyntaxError {
+                    message: "Unexpected token after declaration value".into(),
+                    source: String::new(),
+                    offset: self.stream.token_start,
+                    line: 0,
+                    column: 0,
+                });
+            }
         }
 
         let important = self.parse_important();
@@ -516,6 +541,14 @@ impl Parser {
 
     /// Parse a `Block` node.
     pub fn parse_block(&mut self, is_style_block: bool) -> Node {
+        self.parse_block_inner(is_style_block, true)
+    }
+
+    pub fn parse_block_no_nesting(&mut self, is_style_block: bool) -> Node {
+        self.parse_block_inner(is_style_block, false)
+    }
+
+    fn parse_block_inner(&mut self, is_style_block: bool, allow_nested_rules: bool) -> Node {
         let start = self.loc_start();
         let _ = self.eat(TokenType::LeftCurlyBracket);
         let mut children = Vec::new();
@@ -548,7 +581,7 @@ impl Parser {
                             children.push(raw);
                         } else {
                             // Check if this looks like a nested rule (has { before ; or })
-                            let looks_like_rule = self.looks_like_nested_rule();
+                            let looks_like_rule = allow_nested_rules && self.looks_like_nested_rule();
                             let node = if looks_like_rule {
                                 self.parse_with_fallback(
                                     |p| p.parse_rule_result(),
@@ -557,7 +590,7 @@ impl Parser {
                             } else {
                                 self.parse_with_fallback(
                                     |p| p.parse_declaration(),
-                                    |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                                    |p| p.consume_raw_exclude_ws(|code| if code == 0x3B { 2 } else { 0 }),
                                 )
                             };
                             children.push(node);
@@ -659,8 +692,9 @@ impl Parser {
         // Parse block or consume semicolon
         // When nested inside a style block, @media/@supports blocks contain declarations
         let block_is_style = is_style_atrule(&name) || self.in_style_block;
+        let block_allows_nesting = !is_declaration_only_atrule(&name);
         let block = if self.token_type() == TokenType::LeftCurlyBracket {
-            Some(Box::new(self.parse_block(block_is_style)))
+            Some(Box::new(self.parse_block_inner(block_is_style, block_allows_nesting)))
         } else {
             if self.token_type() == TokenType::Semicolon {
                 self.next();
@@ -1888,6 +1922,15 @@ fn is_style_atrule(name: &str) -> bool {
     );
     // Default: if not a known rule-list at-rule, treat as style/declarations
     !is_rule_list
+}
+
+/// Returns true for at-rules that contain ONLY declarations (no nested rules).
+fn is_declaration_only_atrule(name: &str) -> bool {
+    matches!(
+        name.to_ascii_lowercase().as_str(),
+        "font-face" | "page" | "counter-style" | "font-palette-values"
+            | "property" | "font-feature-values" | "color-profile"
+    )
 }
 
 // ── Public API ──
