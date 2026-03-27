@@ -15,27 +15,39 @@ Rust unit tests:         256
 PER-FILE GAP ANALYSIS
 ────────────────────────────────────────────────────────────
 
-[MISSING] common.js (10 static, 0 dynamic) → NO RUST EQUIVALENT
-  - should expose version
-  - JSON.stringify()
-  - test CSS should contain all node types
-  - fork()
-  - generic option should work in fork()
-  - custom tokenizer should be set
-  - custom tokenizer should affect the parser
-  - custom tokenizer should affect the lexer
-  - custom tokenizer should affect the generator
-  - extend nodes
+common.js → common_inline.rs
+  JS: 10 static, 0 dynamic | Rust: 29 tests
+  UNMATCHED JS TESTS (9):
+    - should expose version (line 16)
+    - JSON.stringify() (line 20)
+    - test CSS should contain all node types (line 34)
+    - generic option should work in fork() (line 72)
+    - custom tokenizer should be set (line 94)
+    - custom tokenizer should affect the parser (line 104)
+    - custom tokenizer should affect the lexer (line 130)
+    - custom tokenizer should affect the generator (line 150)
+    - extend nodes (line 185)
 
-[MISSING] convert.js (2 static, 0 dynamic) → NO RUST EQUIVALENT
-  - fromPlainObject
-  - toPlainObject
+convert.js → convert_inline.rs
+  JS: 2 static, 0 dynamic | Rust: 2 tests
+  UNMATCHED JS TESTS (2):
+    - fromPlainObject (line 7)
+    - toPlainObject (line 15)
 
-[MISSING] decode-encode.js (1 static, 8 dynamic) → NO RUST EQUIVALENT
-  - (
+decode-encode.js → decode_encode_inline.rs
+  JS: 1 static, 8 dynamic | Rust: 22 tests
+  DYNAMIC TESTS (8 sources — may generate many individual tests):
+    - [dynamic] fixture-based tests (line 4)
+    - [dynamic] forEach-generated tests (line 5)
+    - [dynamic] fixture-based tests (line 61)
+    - [dynamic] fixture-based tests (line 83)
+    - [dynamic] fixture-based tests (line 119)
+    - [dynamic] fixture-based tests (line 143)
+    - [dynamic] fixture-based tests (line 179)
+    - [dynamic] fixture-based tests (line 264)
 
-definition-syntax-generate.js → definition_syntax_inline.rs, definition_syntax_fixtures.rs
-  JS: 6 static, 1 dynamic | Rust: 60 tests
+definition-syntax-generate.js → definition_syntax_inline.rs, definition_syntax_fixtures.rs, definition_syntax_extra_inline.rs
+  JS: 6 static, 1 dynamic | Rust: 80 tests
   UNMATCHED JS TESTS (6):
     - should throw an exception on bad node type (line 17)
     - ${section}/${name} (line 88)
@@ -46,44 +58,39 @@ definition-syntax-generate.js → definition_syntax_inline.rs, definition_syntax
   DYNAMIC TESTS (1 sources — may generate many individual tests):
     - [dynamic] forEach-generated tests (line 60)
 
-definition-syntax-match.js → definition_syntax_match_fixtures.rs
-  JS: 6 static, 4 dynamic | Rust: 12 tests
-  UNMATCHED JS TESTS (6):
-    - create default syntax (line 18)
+definition-syntax-match.js → definition_syntax_match_fixtures.rs, definition_syntax_extra_inline.rs
+  JS: 6 static, 4 dynamic | Rust: 32 tests
+  UNMATCHED JS TESTS (3):
     - should MATCH to  (line 98)
     - should NOT MATCH to  (line 115)
     - match result for  (line 127)
-    - should raise an error on broken type reference (line 140)
-    - should raise an error on broken property reference (line 149)
   DYNAMIC TESTS (4 sources — may generate many individual tests):
     - [dynamic] forEach-generated tests (line 97)
     - [dynamic] forEach-generated tests (line 114)
     - [dynamic] forEach-generated tests (line 124)
     - [dynamic] fixture-based tests (line 138)
 
-definition-syntax-parse.js → definition_syntax_inline.rs, definition_syntax_fixtures.rs
-  JS: 3 static, 0 dynamic | Rust: 60 tests
+definition-syntax-parse.js → definition_syntax_inline.rs, definition_syntax_fixtures.rs, definition_syntax_extra_inline.rs
+  JS: 3 static, 0 dynamic | Rust: 80 tests
   UNMATCHED JS TESTS (2):
     - ${section}/${name} (line 143)
     - prelude (line 153)
 
-definition-syntax-walk.js → definition_syntax_inline.rs
-  JS: 4 static, 0 dynamic | Rust: 37 tests
+definition-syntax-walk.js → definition_syntax_inline.rs, definition_syntax_extra_inline.rs
+  JS: 4 static, 0 dynamic | Rust: 57 tests
   UNMATCHED JS TESTS (2):
     - should throw an exception when nothing passed as walker handler (line 81)
     - should throw an exception when passed object has no enter or leave methods (line 88)
 
-[MISSING] exports.js (10 static, 0 dynamic) → NO RUST EQUIVALENT
-  - tokenizer
-  - parser
-  - generator
-  - walker
-  - convertor
-  - lexer
-  - definitionSyntax
-  - data
-  - data-patch
-  - utils
+exports.js → exports_inline.rs
+  JS: 10 static, 0 dynamic | Rust: 11 tests
+  UNMATCHED JS TESTS (6):
+    - convertor (line 133)
+    - lexer (line 156)
+    - definitionSyntax (line 163)
+    - data (line 172)
+    - data-patch (line 180)
+    - utils (line 188)
 
 find.js → walker_inline.rs
   JS: 7 static, 0 dynamic | Rust: 14 tests
@@ -107,30 +114,22 @@ generate.js → generator_inline.rs, generator_fixtures.rs
     - [dynamic] fixture-based tests (line 54)
     - [dynamic] fixture-based tests (line 64)
 
-lexer-check-atrule-descriptor.js → lexer_inline.rs
-  JS: 4 static, 0 dynamic | Rust: 33 tests
-  UNMATCHED JS TESTS (4):
-    - should fail on invalid atrule (line 5)
+lexer-check-atrule-descriptor.js → lexer_atrule_inline.rs
+  JS: 4 static, 0 dynamic | Rust: 38 tests
+  UNMATCHED JS TESTS (3):
     - should fail when at-rule has no descriptors (line 11)
     - should fail when at-rule has no descriptor (line 16)
     - should pass on correct descriptor (line 21)
 
-lexer-check-atrule-name.js → lexer_inline.rs
-  JS: 3 static, 0 dynamic | Rust: 33 tests
-  UNMATCHED JS TESTS (3):
-    - should pass correct atrule (line 5)
+lexer-check-atrule-name.js → lexer_atrule_inline.rs
+  JS: 3 static, 0 dynamic | Rust: 38 tests
+  UNMATCHED JS TESTS (1):
     - should pass correct vendor atrule (line 9)
-    - should fail on invalid atrule (line 14)
 
-lexer-check-atrule-prelude.js → lexer_inline.rs
-  JS: 6 static, 0 dynamic | Rust: 33 tests
-  UNMATCHED JS TESTS (6):
-    - should fail on invalid atrule (line 5)
-    - should fail when prelude is set for at-rule with no prelude (line 11)
-    - should pass when no prelude for at-rule with no prelude (line 16)
+lexer-check-atrule-prelude.js → lexer_atrule_inline.rs
+  JS: 6 static, 0 dynamic | Rust: 38 tests
+  UNMATCHED JS TESTS (1):
     - should pass when prelude is not defined and syntax allows it (line 22)
-    - should fail when prelude is not set for at-rule with prelude (line 28)
-    - should pass when prelude for at-rule with prelude (line 43)
 
 lexer-check-property-name.js → lexer_inline.rs
   JS: 3 static, 0 dynamic | Rust: 33 tests
@@ -138,12 +137,11 @@ lexer-check-property-name.js → lexer_inline.rs
     - should pass correct property (line 5)
     - should pass correct vendor property (line 9)
 
-lexer-check-structure.js → lexer_inline.rs
-  JS: 12 static, 2 dynamic | Rust: 33 tests
-  UNMATCHED JS TESTS (12):
+lexer-check-structure.js → lexer_structure_inline.rs
+  JS: 12 static, 2 dynamic | Rust: 12 tests
+  UNMATCHED JS TESTS (11):
     - should fail when no structure field in node definition (line 7)
     - should fail on bad value in structure (line 17)
-    - should pass correct structure (line 32)
     - should ignore properties from prototype (line 39)
     - node should be an object (line 66)
     - missed fields (line 75)
@@ -157,69 +155,64 @@ lexer-check-structure.js → lexer_inline.rs
     - [dynamic] fixture-based tests (line 3)
     - [dynamic] fixture-based tests (line 55)
 
-lexer-match-atrule-descriptor.js → lexer_fixtures.rs
-  JS: 7 static, 0 dynamic | Rust: 10 tests
-  UNMATCHED JS TESTS (7):
+lexer-match-atrule-descriptor.js → lexer_atrule_inline.rs
+  JS: 7 static, 0 dynamic | Rust: 38 tests
+  UNMATCHED JS TESTS (4):
     - should match (line 24)
-    - vendor prefix in keyword name (line 32)
-    - vendor prefix in declarator name (line 39)
-    - case insensetive with vendor prefix (line 46)
     - should use verdor version first (line 58)
     - should not be matched to empty value (line 71)
     - should not be matched to at-rules with no descriptors (line 85)
 
-lexer-match-atrule-prelude.js → lexer_fixtures.rs
-  JS: 8 static, 0 dynamic | Rust: 10 tests
-  UNMATCHED JS TESTS (8):
+lexer-match-atrule-prelude.js → lexer_atrule_inline.rs
+  JS: 8 static, 0 dynamic | Rust: 38 tests
+  UNMATCHED JS TESTS (6):
     - should match (line 19)
-    - vendor prefix (line 27)
-    - case insensetive with vendor prefix (line 34)
     - should use verdor version first (line 46)
     - should not be matched to empty value (line 59)
     - should be positive when no prelude and at-rule has no prelude (line 73)
     - regular name (line 92)
     - with verdor prefix (line 99)
 
-lexer-match-property-iterations.js → lexer_fixtures.rs
-  JS: 1 static, 0 dynamic | Rust: 10 tests
+lexer-match-property-iterations.js → lexer_inline.rs, lexer_match_extra_inline.rs
+  JS: 1 static, 0 dynamic | Rust: 47 tests
   UNMATCHED JS TESTS (1):
     - should not error on long values (line 6)
 
-lexer-match-property.js → lexer_inline.rs, lexer_fixtures.rs
-  JS: 9 static, 2 dynamic | Rust: 43 tests
-  UNMATCHED JS TESTS (5):
+lexer-match-property.js → lexer_inline.rs, lexer_match_extra_inline.rs
+  JS: 9 static, 2 dynamic | Rust: 47 tests
+  UNMATCHED JS TESTS (6):
     - hacks (line 36)
     - should use verdor version first (line 70)
     - custom property (line 83)
     - typed custom property (line 90)
+    - should match css wide keywords (line 120)
     - should not be matched to empty value (line 129)
   DYNAMIC TESTS (2 sources — may generate many individual tests):
     - [dynamic] fixture-based tests (line 4)
     - [dynamic] fixture-based tests (line 143)
 
-lexer-match-result.js → lexer_inline.rs
-  JS: 4 static, 0 dynamic | Rust: 33 tests
+lexer-match-result.js → lexer_match_extra_inline.rs
+  JS: 4 static, 0 dynamic | Rust: 14 tests
   UNMATCHED JS TESTS (4):
     - getTrace() (line 16)
     - isType() (line 31)
     - isProperty() (line 40)
     - isKeyword() (line 49)
 
-lexer-match-type.js → lexer_inline.rs
-  JS: 4 static, 0 dynamic | Rust: 33 tests
+lexer-match-type.js → lexer_inline.rs, lexer_match_extra_inline.rs
+  JS: 4 static, 0 dynamic | Rust: 47 tests
   UNMATCHED JS TESTS (2):
     - should fail on matching wrong value (line 32)
     - should return null and save error for unknown type (line 39)
 
-lexer-match.js → lexer_inline.rs
-  JS: 5 static, 0 dynamic | Rust: 33 tests
-  UNMATCHED JS TESTS (3):
-    - should take a string as a value (line 24)
+lexer-match.js → lexer_inline.rs, lexer_match_extra_inline.rs
+  JS: 5 static, 0 dynamic | Rust: 47 tests
+  UNMATCHED JS TESTS (2):
     - should fails on bad syntax (line 39)
     - ${syntax} -> ${value} (line 93)
 
-lexer-relative-colors.js → lexer_fixtures.rs
-  JS: 68 static, 0 dynamic | Rust: 10 tests
+lexer-relative-colors.js → lexer_relative_colors_inline.rs
+  JS: 68 static, 0 dynamic | Rust: 0 tests
   UNMATCHED JS TESTS (68):
     - should match rgb(25 25 25 / 50%) (line 6)
     - should match rgb(from hsl(0 100% 50%) r g b) (line 12)
@@ -290,14 +283,13 @@ lexer-relative-colors.js → lexer_fixtures.rs
     - should match alpha(from hsl(0 100% 50%) / calc(0.1 * 5)) (line 420)
     - should match alpha(from rgb(25 25 25) / none) (line 426)
 
-lexer-search-fragments.js → lexer_inline.rs
-  JS: 5 static, 0 dynamic | Rust: 33 tests
-  UNMATCHED JS TESTS (5):
+lexer-search-fragments.js → lexer_search_inline.rs
+  JS: 5 static, 0 dynamic | Rust: 5 tests
+  UNMATCHED JS TESTS (4):
     - should find single entry (line 14)
     - should find multiple entries (line 21)
     - should find single entry (line 30)
     - should find multiple entries (line 37)
-    - should find all entries in ast (line 46)
 
 lexer.js → lexer_inline.rs, lexer_fixtures.rs
   JS: 14 static, 0 dynamic | Rust: 43 tests
@@ -316,89 +308,58 @@ lexer.js → lexer_inline.rs, lexer_fixtures.rs
     - custom syntax should match own grammar only (line 154)
     - recovery syntax from dump (line 160)
 
-[MISSING] list.js (60 static, 0 dynamic) → NO RUST EQUIVALENT
-  - iterate
-  - iterate with thisArg
-  - nested iterate
-  - remove items on iterate
-  - insert items on iterate
-  - .createItem()
-  - #createItem()
-  - #size
-  - #fromArray()
-  - #toArray()
-  - #toJSON()
-  - #isEmpty
-  - #first
-  - #last
-  - #reduce()
-  - #reduceRight()
-  - should not iterate when start is null
-  - should stop iterate when callback returns true
-  - should not iterate when start is null
-  - should stop iterate when callback returns true
-  - basic
-  - should stop on first match
-  - basic
-  - basic
-  - empty list
-  - non-empty list
-  - #copy()
-  - #prepend()
-  - #prependData()
-  - #unshift()
-  - should remove first item
-  - should return an undefined for an empty list
-  - #append()
-  - #appendData()
-  - #push()
-  - should remove last item
-  - should return an undefined for an empty list
-  - should append when no ref item
-  - should insert before ref item
-  - insert in the middle
-  - insert the item before an item that doesn\
-  - should append when no ref item
-  - should insert before ref item
-  - insert in the middle
-  - insert the item before an item that doesn\
-  - clear a list
-  - clear a list in reverse order
-  - remove head item that doesn\
-  - remove tail item that doesn\
-  - prepend non-empty list to non-empty list
-  - prepend non-empty list to empty list
-  - prepend empty list to non-empty
-  - append non-empty list to non-empty list
-  - append non-empty list to empty list
-  - append empty list to non-empty
-  - add non-empty list to non-empty list
-  - add non-empty list to empty list
-  - add empty list to non-empty
-  - replace for an item
-  - replace for a list
+list.js → list_inline.rs
+  JS: 60 static, 0 dynamic | Rust: 84 tests
+  UNMATCHED JS TESTS (28):
+    - iterate with thisArg (line 75)
+    - remove items on iterate (line 123)
+    - insert items on iterate (line 137)
+    - .createItem() (line 192)
+    - #createItem() (line 200)
+    - #fromArray() (line 214)
+    - #toArray() (line 221)
+    - #toJSON() (line 227)
+    - #isEmpty (line 233)
+    - #reduceRight() (line 270)
+    - should not iterate when start is null (line 278)
+    - should stop iterate when callback returns true (line 288)
+    - should not iterate when start is null (line 305)
+    - should stop iterate when callback returns true (line 315)
+    - should stop on first match (line 340)
+    - #prependData() (line 424)
+    - should remove first item (line 449)
+    - should return an undefined for an empty list (line 458)
+    - #appendData() (line 472)
+    - should remove last item (line 497)
+    - should return an undefined for an empty list (line 506)
+    - should insert before ref item (line 520)
+    - insert the item before an item that doesn\ (line 553)
+    - should insert before ref item (line 571)
+    - insert the item before an item that doesn\ (line 603)
+    - remove head item that doesn\ (line 653)
+    - remove tail item that doesn\ (line 659)
+    - replace for a list (line 807)
 
-[MISSING] names.js (20 static, 9 dynamic) → NO RUST EQUIVALENT
-  - base test
-  - result should be immutable
-  - should normalize name to lower case
-  - should return the same object
-  - shouldn\
-  - base test
-  - result should be immutable
-  - should normalize name to lower case
-  - name with dashes
-  - should normalize vendor to lower case
-  - should detect custom property
-  - should detect vendor prefix and hack
-  - should detect custom property and hack
-  - should return the same object
-  - shouldn\
-  - shouldn\
-  - \
-  - \
-  - \
-  - \
+names.js → names_inline.rs
+  JS: 20 static, 9 dynamic | Rust: 33 tests
+  UNMATCHED JS TESTS (7):
+    - result should be immutable (line 16)
+    - should return the same object (line 54)
+    - shouldn\ (line 67)
+    - result should be immutable (line 104)
+    - should return the same object (line 215)
+    - shouldn\ (line 228)
+    - shouldn\ (line 239)
+  DYNAMIC TESTS (9 sources — may generate many individual tests):
+    - [dynamic] forEach-generated tests (line 41)
+    - [dynamic] forEach-generated tests (line 59)
+    - [dynamic] forEach-generated tests (line 78)
+    - [dynamic] forEach-generated tests (line 131)
+    - [dynamic] forEach-generated tests (line 168)
+    - [dynamic] forEach-generated tests (line 220)
+    - [dynamic] forEach-generated tests (line 262)
+    - [dynamic] forEach-generated tests (line 286)
+    - [dynamic] forEach-generated tests (line 308)
 
 nested-selector-disambiguation.js → parser_inline.rs
   JS: 7 static, 3 dynamic | Rust: 49 tests
@@ -411,28 +372,26 @@ nested-selector-disambiguation.js → parser_inline.rs
     - [dynamic] forEach-generated tests (line 111)
     - [dynamic] forEach-generated tests (line 146)
 
-parse-extension.js → parser_inline.rs
-  JS: 6 static, 0 dynamic | Rust: 49 tests
+parse-extension.js → parser_inline.rs, parse_extension_inline.rs
+  JS: 6 static, 0 dynamic | Rust: 55 tests
   UNMATCHED JS TESTS (4):
     - should parse according new rules (line 37)
     - should fail on unknown (line 55)
     - should parse according new rules (line 91)
     - should fail on unknown (line 118)
 
-parse.js → parser_inline.rs, parser_fixtures.rs
-  JS: 30 static, 8 dynamic | Rust: 63 tests
-  UNMATCHED JS TESTS (21):
+parse.js → parser_inline.rs, parser_fixtures.rs, parse_callbacks_inline.rs
+  JS: 30 static, 8 dynamic | Rust: 83 tests
+  UNMATCHED JS TESTS (19):
     - should use List for children when list is true (line 156)
     - should use Array for children when list is false (line 161)
     - should call onParseError when handler is passed (line 167)
     - formattedMessage (line 200)
     - formattedMessage at eof (line 227)
     - formattedMessage (windows new lines) (line 242)
-    - formattedMessage for source with long lines (line 285)
     - with no locations (line 342)
     - with locations (line 358)
     - as function (line 417)
-    - should start with specified offset, line and column (line 535)
     - should parse *property as Declaration (browser hack) (line 584)
     - should parse other hack prefixes as Declaration (line 593)
     - should parse * followed by space as nested rule selector (line 607)
@@ -466,8 +425,8 @@ tokenizer.js → tokenizer_inline.rs, tokenizer_fixtures.rs
     - [dynamic] forEach-generated tests (line 310)
     - [dynamic] fixture-based tests (line 311)
 
-walk.js → walker_inline.rs, walker_fixtures.rs
-  JS: 15 static, 5 dynamic | Rust: 34 tests
+walk.js → walker_inline.rs, walker_fixtures.rs, walk_extra_inline.rs
+  JS: 15 static, 5 dynamic | Rust: 41 tests
   UNMATCHED JS TESTS (7):
     - this.break (line 240)
     - this.break (line 314)
@@ -487,16 +446,15 @@ walk.js → walker_inline.rs, walker_fixtures.rs
 ================================================================================
   FINAL SUMMARY
 ================================================================================
-Total unmatched static JS tests: 312
+Total unmatched static JS tests: 241
 Total JS files with no Rust equivalent: 0
 
 MISSING TESTS BY FILE:
 
-  [NO RUST FILE] common.js (10):
+  common.js (9):
     - should expose version
     - JSON.stringify()
     - test CSS should contain all node types
-    - fork()
     - generic option should work in fork()
     - custom tokenizer should be set
     - custom tokenizer should affect the parser
@@ -504,108 +462,9 @@ MISSING TESTS BY FILE:
     - custom tokenizer should affect the generator
     - extend nodes
 
-  [NO RUST FILE] convert.js (2):
+  convert.js (2):
     - fromPlainObject
     - toPlainObject
-
-  [NO RUST FILE] decode-encode.js (1):
-    - (
-
-  [NO RUST FILE] exports.js (10):
-    - tokenizer
-    - parser
-    - generator
-    - walker
-    - convertor
-    - lexer
-    - definitionSyntax
-    - data
-    - data-patch
-    - utils
-
-  [NO RUST FILE] list.js (60):
-    - iterate
-    - iterate with thisArg
-    - nested iterate
-    - remove items on iterate
-    - insert items on iterate
-    - .createItem()
-    - #createItem()
-    - #size
-    - #fromArray()
-    - #toArray()
-    - #toJSON()
-    - #isEmpty
-    - #first
-    - #last
-    - #reduce()
-    - #reduceRight()
-    - should not iterate when start is null
-    - should stop iterate when callback returns true
-    - should not iterate when start is null
-    - should stop iterate when callback returns true
-    - basic
-    - should stop on first match
-    - basic
-    - basic
-    - empty list
-    - non-empty list
-    - #copy()
-    - #prepend()
-    - #prependData()
-    - #unshift()
-    - should remove first item
-    - should return an undefined for an empty list
-    - #append()
-    - #appendData()
-    - #push()
-    - should remove last item
-    - should return an undefined for an empty list
-    - should append when no ref item
-    - should insert before ref item
-    - insert in the middle
-    - insert the item before an item that doesn\
-    - should append when no ref item
-    - should insert before ref item
-    - insert in the middle
-    - insert the item before an item that doesn\
-    - clear a list
-    - clear a list in reverse order
-    - remove head item that doesn\
-    - remove tail item that doesn\
-    - prepend non-empty list to non-empty list
-    - prepend non-empty list to empty list
-    - prepend empty list to non-empty
-    - append non-empty list to non-empty list
-    - append non-empty list to empty list
-    - append empty list to non-empty
-    - add non-empty list to non-empty list
-    - add non-empty list to empty list
-    - add empty list to non-empty
-    - replace for an item
-    - replace for a list
-
-  [NO RUST FILE] names.js (20):
-    - base test
-    - result should be immutable
-    - should normalize name to lower case
-    - should return the same object
-    - shouldn\
-    - base test
-    - result should be immutable
-    - should normalize name to lower case
-    - name with dashes
-    - should normalize vendor to lower case
-    - should detect custom property
-    - should detect vendor prefix and hack
-    - should detect custom property and hack
-    - should return the same object
-    - shouldn\
-    - shouldn\
-    - \
-    - \
-    - \
-    - \
 
   definition-syntax-generate.js (6):
     - should throw an exception on bad node type
@@ -615,13 +474,10 @@ MISSING TESTS BY FILE:
     - basic
     - all the node types
 
-  definition-syntax-match.js (6):
-    - create default syntax
+  definition-syntax-match.js (3):
     - should MATCH to 
     - should NOT MATCH to 
     - match result for 
-    - should raise an error on broken type reference
-    - should raise an error on broken property reference
 
   definition-syntax-parse.js (2):
     - ${section}/${name}
@@ -630,6 +486,14 @@ MISSING TESTS BY FILE:
   definition-syntax-walk.js (2):
     - should throw an exception when nothing passed as walker handler
     - should throw an exception when passed object has no enter or leave methods
+
+  exports.js (6):
+    - convertor
+    - lexer
+    - definitionSyntax
+    - data
+    - data-patch
+    - utils
 
   find.js (6):
     - using refs
@@ -645,33 +509,24 @@ MISSING TESTS BY FILE:
     - should auto insert whitespaces where necessary
     - should not insert whitespaces for values passed to tokenize() by default
 
-  lexer-check-atrule-descriptor.js (4):
-    - should fail on invalid atrule
+  lexer-check-atrule-descriptor.js (3):
     - should fail when at-rule has no descriptors
     - should fail when at-rule has no descriptor
     - should pass on correct descriptor
 
-  lexer-check-atrule-name.js (3):
-    - should pass correct atrule
+  lexer-check-atrule-name.js (1):
     - should pass correct vendor atrule
-    - should fail on invalid atrule
 
-  lexer-check-atrule-prelude.js (6):
-    - should fail on invalid atrule
-    - should fail when prelude is set for at-rule with no prelude
-    - should pass when no prelude for at-rule with no prelude
+  lexer-check-atrule-prelude.js (1):
     - should pass when prelude is not defined and syntax allows it
-    - should fail when prelude is not set for at-rule with prelude
-    - should pass when prelude for at-rule with prelude
 
   lexer-check-property-name.js (2):
     - should pass correct property
     - should pass correct vendor property
 
-  lexer-check-structure.js (12):
+  lexer-check-structure.js (11):
     - should fail when no structure field in node definition
     - should fail on bad value in structure
-    - should pass correct structure
     - should ignore properties from prototype
     - node should be an object
     - missed fields
@@ -682,19 +537,14 @@ MISSING TESTS BY FILE:
     - bad loc #2
     - bad loc #3
 
-  lexer-match-atrule-descriptor.js (7):
+  lexer-match-atrule-descriptor.js (4):
     - should match
-    - vendor prefix in keyword name
-    - vendor prefix in declarator name
-    - case insensetive with vendor prefix
     - should use verdor version first
     - should not be matched to empty value
     - should not be matched to at-rules with no descriptors
 
-  lexer-match-atrule-prelude.js (8):
+  lexer-match-atrule-prelude.js (6):
     - should match
-    - vendor prefix
-    - case insensetive with vendor prefix
     - should use verdor version first
     - should not be matched to empty value
     - should be positive when no prelude and at-rule has no prelude
@@ -704,11 +554,12 @@ MISSING TESTS BY FILE:
   lexer-match-property-iterations.js (1):
     - should not error on long values
 
-  lexer-match-property.js (5):
+  lexer-match-property.js (6):
     - hacks
     - should use verdor version first
     - custom property
     - typed custom property
+    - should match css wide keywords
     - should not be matched to empty value
 
   lexer-match-result.js (4):
@@ -721,8 +572,7 @@ MISSING TESTS BY FILE:
     - should fail on matching wrong value
     - should return null and save error for unknown type
 
-  lexer-match.js (3):
-    - should take a string as a value
+  lexer-match.js (2):
     - should fails on bad syntax
     - ${syntax} -> ${value}
 
@@ -796,12 +646,11 @@ MISSING TESTS BY FILE:
     - should match alpha(from hsl(0 100% 50%) / calc(0.1 * 5))
     - should match alpha(from rgb(25 25 25) / none)
 
-  lexer-search-fragments.js (5):
+  lexer-search-fragments.js (4):
     - should find single entry
     - should find multiple entries
     - should find single entry
     - should find multiple entries
-    - should find all entries in ast
 
   lexer.js (13):
     - should not override generic types when used
@@ -818,6 +667,45 @@ MISSING TESTS BY FILE:
     - custom syntax should match own grammar only
     - recovery syntax from dump
 
+  list.js (28):
+    - iterate with thisArg
+    - remove items on iterate
+    - insert items on iterate
+    - .createItem()
+    - #createItem()
+    - #fromArray()
+    - #toArray()
+    - #toJSON()
+    - #isEmpty
+    - #reduceRight()
+    - should not iterate when start is null
+    - should stop iterate when callback returns true
+    - should not iterate when start is null
+    - should stop iterate when callback returns true
+    - should stop on first match
+    - #prependData()
+    - should remove first item
+    - should return an undefined for an empty list
+    - #appendData()
+    - should remove last item
+    - should return an undefined for an empty list
+    - should insert before ref item
+    - insert the item before an item that doesn\
+    - should insert before ref item
+    - insert the item before an item that doesn\
+    - remove head item that doesn\
+    - remove tail item that doesn\
+    - replace for a list
+
+  names.js (7):
+    - result should be immutable
+    - should return the same object
+    - shouldn\
+    - result should be immutable
+    - should return the same object
+    - shouldn\
+    - shouldn\
+
   nested-selector-disambiguation.js (3):
     - should handle multiple nested selectors in one block
     - should not confuse property-like selectors
@@ -829,18 +717,16 @@ MISSING TESTS BY FILE:
     - should parse according new rules
     - should fail on unknown
 
-  parse.js (21):
+  parse.js (19):
     - should use List for children when list is true
     - should use Array for children when list is false
     - should call onParseError when handler is passed
     - formattedMessage
     - formattedMessage at eof
     - formattedMessage (windows new lines)
-    - formattedMessage for source with long lines
     - with no locations
     - with locations
     - as function
-    - should start with specified offset, line and column
     - should parse *property as Declaration (browser hack)
     - should parse other hack prefixes as Declaration
     - should parse * followed by space as nested rule selector
