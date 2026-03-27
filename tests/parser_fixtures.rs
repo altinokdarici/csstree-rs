@@ -6,6 +6,7 @@
 
 use csstree::generator::{generate, GenerateOptions};
 use csstree::parser::{parse, ParseOptions};
+use csstree::parser::options::ParseContext;
 use std::fs;
 use std::path::Path;
 
@@ -24,6 +25,16 @@ fn round_trip_in_decl(css: &str) -> String {
     } else {
         full
     }
+}
+
+/// Parse CSS as a declaration list using DeclarationList context.
+fn round_trip_as_decl_list(css: &str) -> String {
+    let opts = ParseOptions {
+        context: ParseContext::DeclarationList,
+        ..ParseOptions::default()
+    };
+    let ast = parse(css, opts);
+    generate(&ast, &GenerateOptions::default())
 }
 
 /// Parse CSS as a media query inside @media and generate output.
@@ -88,7 +99,8 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
     let is_rule = fixture_path.contains("rule/");
     let is_selector = fixture_path.contains("selector/") || fixture_path.contains("selectorList/");
     let is_value = fixture_path.contains("value/");
-    let is_declaration = fixture_path.contains("declaration/") || fixture_path.contains("declarationList/");
+    let is_declaration = fixture_path.contains("declaration/");
+    let is_declaration_list = fixture_path.contains("declarationList/");
     let is_block = fixture_path.contains("block/");
     let is_media_query = fixture_path.contains("mediaQuery/");
 
@@ -146,6 +158,8 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
             round_trip_as_value(source)
         } else if is_media_query {
             round_trip_as_media_query(source)
+        } else if is_declaration_list {
+            round_trip_as_decl_list(source)
         } else if is_declaration {
             round_trip_in_decl(source)
         } else {

@@ -538,25 +538,34 @@ impl Parser {
                     );
                     children.push(node);
                 }
-                TokenType::Semicolon => {
-                    self.next();
-                }
                 _ => {
                     if is_style_block {
-                        // Check if this looks like a nested rule (has { before ; or })
-                        let looks_like_rule = self.looks_like_nested_rule();
-                        let node = if looks_like_rule {
-                            self.parse_with_fallback(
-                                |p| p.parse_rule_result(),
-                                |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
-                            )
+                        // Match JS: consumeDeclaration — standalone ; becomes Raw(";"),
+                        // trailing ; after declaration is consumed
+                        if self.token_type() == TokenType::Semicolon {
+                            // Standalone semicolon: create Raw(";") like JS does
+                            let raw = self.consume_raw(|code| if code == 0x3B { 2 } else { 0 });
+                            children.push(raw);
                         } else {
-                            self.parse_with_fallback(
-                                |p| p.parse_declaration(),
-                                |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
-                            )
-                        };
-                        children.push(node);
+                            // Check if this looks like a nested rule (has { before ; or })
+                            let looks_like_rule = self.looks_like_nested_rule();
+                            let node = if looks_like_rule {
+                                self.parse_with_fallback(
+                                    |p| p.parse_rule_result(),
+                                    |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                                )
+                            } else {
+                                self.parse_with_fallback(
+                                    |p| p.parse_declaration(),
+                                    |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                                )
+                            };
+                            children.push(node);
+                            // Eat trailing ; after declaration/rule (like JS consumeDeclaration)
+                            if self.token_type() == TokenType::Semicolon {
+                                self.next();
+                            }
+                        }
                     } else {
                         let node = self.parse_with_fallback(
                             |p| p.parse_rule_result(),
@@ -1898,20 +1907,36 @@ pub fn parse(source: &str, options: ParseOptions) -> Node {
             })
         }
         super::options::ParseContext::DeclarationList => {
-            // Parse as block content without braces
+            // Parse as style block content without braces (supports nested rules)
             let start = parser.loc_start();
             let mut children = Vec::new();
+            parser.in_style_block = true;
             while !parser.stream.eof {
                 let before = parser.stream.token_index();
                 match parser.token_type() {
                     TokenType::WhiteSpace | TokenType::Comment | TokenType::Semicolon => {
                         parser.next();
                     }
-                    _ => {
+                    TokenType::AtKeyword => {
                         let node = parser.parse_with_fallback(
-                            |p| p.parse_declaration(),
-                            |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                            |p| p.parse_atrule_result(),
+                            |p| p.consume_raw(|_| 0),
                         );
+                        children.push(node);
+                    }
+                    _ => {
+                        let looks_like_rule = parser.looks_like_nested_rule();
+                        let node = if looks_like_rule {
+                            parser.parse_with_fallback(
+                                |p| p.parse_rule_result(),
+                                |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                            )
+                        } else {
+                            parser.parse_with_fallback(
+                                |p| p.parse_declaration(),
+                                |p| p.consume_raw(|code| if code == 0x3B { 2 } else { 0 }),
+                            )
+                        };
                         children.push(node);
                     }
                 }
