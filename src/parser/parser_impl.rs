@@ -792,6 +792,7 @@ impl Parser {
         })
     }
 
+
     /// Parse a `LayerList` node.
     pub fn parse_layer_list(&mut self) -> Node {
         let start = self.loc_start();
@@ -1221,7 +1222,7 @@ impl Parser {
                 } else {
                     raw_value // starts with punctuation: preserve leading ws
                 };
-                children.push(Node::Raw(Raw { loc: None, value, verbatim: false }));
+                children.push(Node::Raw(Raw { loc: None, value, verbatim: true }));
             }
         }
 
