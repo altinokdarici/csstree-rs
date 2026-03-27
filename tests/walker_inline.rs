@@ -339,3 +339,54 @@ fn find_all_class_selectors() {
     let found = find_all(&ast, |node, _ctx| node.node_type() == "ClassSelector");
     assert_eq!(found.len(), 3); // .a, .b, .c
 }
+
+// ── Search tests from find.js ──
+
+#[test]
+fn find_first_foo_class() {
+    // find.js: "base" — find first .foo ClassSelector
+    let ast = parse(
+        ".foo { color: red; background: green; } .bar, .qux.foo { font-weight: bold; color: blue; }",
+        ParseOptions::default(),
+    );
+    let found = find(&ast, |node, _ctx| {
+        matches!(node, csstree::ast::Node::ClassSelector(n) if n.name == "foo")
+    });
+    assert!(found.is_some());
+    if let csstree::ast::Node::ClassSelector(n) = found.unwrap() {
+        assert_eq!(n.name, "foo");
+    }
+}
+
+#[test]
+fn find_last_foo_class() {
+    // find.js: "findLast" — findLast finds last .foo
+    // We use find_all and check last
+    let ast = parse(
+        ".foo { color: red; } .bar, .qux.foo { color: blue; }",
+        ParseOptions::default(),
+    );
+    let all = find_all(&ast, |node, _ctx| {
+        matches!(node, csstree::ast::Node::ClassSelector(n) if n.name == "foo")
+    });
+    assert_eq!(all.len(), 2, "Should find 2 .foo selectors");
+}
+
+#[test]
+fn find_all_foo_class() {
+    // find.js: "findAll" — finds all .foo ClassSelectors
+    let ast = parse(
+        ".foo { color: red; background: green; } .bar, .qux.foo { font-weight: bold; color: blue; }",
+        ParseOptions::default(),
+    );
+    let all = find_all(&ast, |node, _ctx| {
+        matches!(node, csstree::ast::Node::ClassSelector(n) if n.name == "foo")
+    });
+    assert_eq!(all.len(), 2, "Should find exactly 2 .foo selectors");
+    // First should be in .foo rule, second in .qux.foo
+    for item in &all {
+        if let csstree::ast::Node::ClassSelector(n) = item {
+            assert_eq!(n.name, "foo");
+        }
+    }
+}

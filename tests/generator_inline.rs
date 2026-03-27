@@ -4,6 +4,7 @@
 
 use csstree::generator::{generate, GenerateOptions};
 use csstree::parser::{parse, ParseOptions};
+use csstree::parser::options::ParseFlags;
 
 /// Helper: parse CSS then generate back.
 fn round_trip(css: &str) -> String {
@@ -52,10 +53,65 @@ fn auto_whitespace_insert() {
 
 #[test]
 fn auto_whitespace_tokenize_no_insert() {
-    // line 127: same input but with parseValue:false — values are Raw tokens
-    // In our implementation, we always parse values, so the output is the same
-    // as the auto-whitespace test. This verifies the tokenize() path works.
-    let result = round_trip("span#foo { border: 1%var(--a)#ff0000; }");
-    // Should produce the same result as above
-    assert_eq!(result, "span#foo{border:1% var(--a) #ff0000}");
+    // line 127: with parseRulePrelude:false + parseValue:false, values are Raw tokens
+    // Raw values go through tokenize() which should NOT auto-insert whitespace
+    let opts = ParseOptions {
+        flags: ParseFlags {
+            parse_rule_prelude: false,
+            parse_value: false,
+            ..ParseFlags::default()
+        },
+        ..ParseOptions::default()
+    };
+    let ast = parse("span#foo { border: 1%var(--a)#ff0000; }", opts);
+    let result = generate(&ast, &GenerateOptions::default());
+    assert_eq!(result, "span#foo{border:1%var(--a)#ff0000}");
+}
+
+// ── generate > parse-options round-trip tests ──
+
+#[test]
+fn round_trip_parse_value_false() {
+    // Verify parseValue:false produces same generate output
+    let css = ".a { color: red; margin: 10px 20px }";
+    let opts = ParseOptions {
+        flags: ParseFlags {
+            parse_value: false,
+            ..ParseFlags::default()
+        },
+        ..ParseOptions::default()
+    };
+    let ast = parse(css, opts);
+    let result = generate(&ast, &GenerateOptions::default());
+    assert_eq!(result, ".a{color:red;margin:10px 20px}");
+}
+
+#[test]
+fn round_trip_parse_rule_prelude_false() {
+    let css = ".a .b, .c { color: red }";
+    let opts = ParseOptions {
+        flags: ParseFlags {
+            parse_rule_prelude: false,
+            ..ParseFlags::default()
+        },
+        ..ParseOptions::default()
+    };
+    let ast = parse(css, opts);
+    let result = generate(&ast, &GenerateOptions::default());
+    assert_eq!(result, ".a .b, .c{color:red}");
+}
+
+#[test]
+fn round_trip_parse_atrule_prelude_false() {
+    let css = "@media screen and (min-width: 768px) { .a { color: red } }";
+    let opts = ParseOptions {
+        flags: ParseFlags {
+            parse_atrule_prelude: false,
+            ..ParseFlags::default()
+        },
+        ..ParseOptions::default()
+    };
+    let ast = parse(css, opts);
+    let result = generate(&ast, &GenerateOptions::default());
+    assert_eq!(result, "@media screen and (min-width: 768px){.a{color:red}}");
 }

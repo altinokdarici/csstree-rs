@@ -222,3 +222,158 @@ fn extension_selector_not_affect_base() {
     let node = parse("a % {}", ParseOptions::default());
     assert_eq!(node.node_type(), "StyleSheet");
 }
+
+// ── Nested Selector Disambiguation ──
+// Ported from external/csstree/lib/__tests/nested-selector-disambiguation.js
+
+/// Helper: get first child of a block
+fn block_child(node: &Node, index: usize) -> &Node {
+    match node {
+        Node::Block(b) => &b.children[index],
+        _ => panic!("Expected Block, got {}", node.node_type()),
+    }
+}
+
+/// Helper: get the first rule from a stylesheet
+fn first_rule(node: &Node) -> &Node {
+    match node {
+        Node::StyleSheet(ss) => &ss.children[0],
+        _ => panic!("Expected StyleSheet, got {}", node.node_type()),
+    }
+}
+
+/// Helper: get block from a rule
+fn rule_block(node: &Node) -> &Node {
+    match node {
+        Node::Rule(r) => &r.block,
+        _ => panic!("Expected Rule, got {}", node.node_type()),
+    }
+}
+
+#[test]
+fn nested_selector_p_first_of_type() {
+    let ast = parse("main { p:first-of-type { margin-top: 0; } }", ParseOptions::default());
+    let main_rule = first_rule(&ast);
+    assert_eq!(main_rule.node_type(), "Rule");
+    let nested = block_child(rule_block(main_rule), 0);
+    assert_eq!(nested.node_type(), "Rule", "p:first-of-type should be a nested Rule");
+}
+
+#[test]
+fn nested_selector_p_hover() {
+    let ast = parse("main { p:hover { color: red; } }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Rule", "p:hover should be a nested Rule");
+}
+
+#[test]
+fn nested_selector_p_focus() {
+    let ast = parse("main { p:focus { outline: none; } }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Rule", "p:focus should be a nested Rule");
+}
+
+#[test]
+fn nested_selector_p_nth_child() {
+    let ast = parse("main { p:nth-child(2n) { background: gray; } }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Rule", "p:nth-child should be a nested Rule");
+}
+
+#[test]
+fn nested_selector_div_last_child() {
+    let ast = parse("main { div:last-child { margin-bottom: 0; } }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Rule", "div:last-child should be a nested Rule");
+}
+
+#[test]
+fn nested_selector_span_not() {
+    let ast = parse("main { span:not(.hidden) { display: block; } }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Rule", "span:not(.hidden) should be a nested Rule");
+}
+
+#[test]
+fn nested_regular_property() {
+    let ast = parse("main { padding: 10px; }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Declaration");
+    if let Node::Declaration(d) = nested { assert_eq!(d.property, "padding"); }
+}
+
+#[test]
+fn nested_custom_property() {
+    let ast = parse("main { --my-color: red; }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Declaration");
+    if let Node::Declaration(d) = nested { assert_eq!(d.property, "--my-color"); }
+}
+
+#[test]
+fn nested_property_with_function() {
+    let ast = parse("main { background: url(image.jpg); }", ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Declaration");
+    if let Node::Declaration(d) = nested { assert_eq!(d.property, "background"); }
+}
+
+#[test]
+fn nested_multiple_nested_selectors() {
+    let css = "main { p:hover { color: red; } div { margin: 10px; } .button { padding: 5px; } }";
+    let ast = parse(css, ParseOptions::default());
+    let block = rule_block(first_rule(&ast));
+    if let Node::Block(b) = block {
+        assert_eq!(b.children.len(), 3, "Should have 3 nested rules");
+        for child in &b.children {
+            assert_eq!(child.node_type(), "Rule");
+        }
+    }
+}
+
+#[test]
+fn nested_mixed_declarations_and_rules() {
+    let css = "main { color: blue; p:hover { color: red; } margin: 10px; }";
+    let ast = parse(css, ParseOptions::default());
+    let block = rule_block(first_rule(&ast));
+    if let Node::Block(b) = block {
+        assert_eq!(b.children.len(), 3, "Should have 3 children");
+        assert_eq!(b.children[0].node_type(), "Declaration");
+        assert_eq!(b.children[1].node_type(), "Rule");
+        assert_eq!(b.children[2].node_type(), "Declaration");
+    }
+}
+
+#[test]
+fn nested_deeply_nested_selectors() {
+    let css = "main { p:hover { span:focus { color: red; } } }";
+    let ast = parse(css, ParseOptions::default());
+    let first_nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(first_nested.node_type(), "Rule");
+    let second_nested = block_child(rule_block(first_nested), 0);
+    assert_eq!(second_nested.node_type(), "Rule");
+}
+
+#[test]
+fn nested_property_like_selector_p_before() {
+    let css = "main { p:before { content: \"\"; } }";
+    let ast = parse(css, ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Rule", "p:before should parse as nested rule");
+}
+
+#[test]
+fn nested_comma_separated_selector_list() {
+    let css = "main { p:first-of-type, span { margin-top: 0; } }";
+    let ast = parse(css, ParseOptions::default());
+    let nested = block_child(rule_block(first_rule(&ast)), 0);
+    assert_eq!(nested.node_type(), "Rule");
+}
+
+#[test]
+fn nested_top_level_selector_still_works() {
+    let css = "p:first-of-type { margin-top: 0; }";
+    let ast = parse(css, ParseOptions::default());
+    let rule = first_rule(&ast);
+    assert_eq!(rule.node_type(), "Rule");
+}
