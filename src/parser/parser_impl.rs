@@ -1263,22 +1263,13 @@ impl Parser {
         if self.token_type() == TokenType::Comma {
             children.push(self.parse_operator()); // comma
 
-            // Fallback value: consume as balanced raw until matching )
+            // Fallback value: consume as balanced raw until matching ) using balance array
+            // This correctly handles interleaved brackets like ([)])
             let raw_start = self.stream.token_start;
-            let mut depth: u32 = 1; // we're inside var(
-            while !self.stream.eof && depth > 0 {
-                match self.token_type() {
-                    TokenType::LeftParenthesis | TokenType::Function => depth += 1,
-                    TokenType::RightParenthesis => {
-                        depth -= 1;
-                        if depth == 0 {
-                            break; // don't consume the closing )
-                        }
-                    }
-                    _ => {}
-                }
-                self.next();
-            }
+            let start_token = self.stream.token_index();
+            self.stream.skip_until_balanced(start_token, |code| {
+                if code == 0x29 { 1 } else { 0 } // stop at )
+            });
             let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
             if !raw_value.is_empty() {
                 // Strip leading whitespace only if content starts with alphanumeric

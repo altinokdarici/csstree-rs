@@ -55,16 +55,14 @@ fn round_trip_as_media_query(css: &str) -> String {
     full
 }
 
-/// Parse CSS as a value inside a declaration and generate output.
+/// Parse CSS as a value using the Value context directly.
 fn round_trip_as_value(css: &str) -> String {
-    let wrapped = format!("x{{p:{css}}}");
-    let full = round_trip(&wrapped);
-    // Extract value: strip "x{p:" prefix and "}" suffix
-    if let Some(inner) = full.strip_prefix("x{p:").and_then(|s| s.strip_suffix('}')) {
-        inner.to_string()
-    } else {
-        full
-    }
+    let opts = ParseOptions {
+        context: ParseContext::Value,
+        ..ParseOptions::default()
+    };
+    let ast = parse(css, opts);
+    generate(&ast, &GenerateOptions::default())
 }
 
 /// Parse CSS in a selector-wrapped context and generate output.
