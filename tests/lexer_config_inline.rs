@@ -22,26 +22,18 @@ fn make_basic_lexer() -> Lexer {
 
 #[test]
 fn generic_types_not_overridden() {
-    // In JS, when generic=true, built-in generics take precedence over custom types.
-    // Our Rust lexer currently gives custom types precedence.
-    // Test documents current behavior and marks the difference.
+    // When generic=true, built-in generics take priority over custom type definitions
     let mut config = LexerConfig::default();
     config.generic = true;
     config.types.insert("length".into(), "foo".into());
     let lexer = Lexer::new(config);
 
-    // Current behavior: custom type overrides generic for match_type
-    // JS behavior would be: generic takes precedence
-    // TODO: match JS behavior where generic types take priority
-    assert!(lexer.match_type("length", "foo").matched.is_some(),
-        "custom type definition is used");
-
-    // Verify generic types still work for types WITHOUT custom overrides
-    let mut config2 = LexerConfig::default();
-    config2.generic = true;
-    let lexer2 = Lexer::new(config2);
-    // match_type uses the types map, not generics directly
-    // Generic matchers are used during match_recursive when resolving <length> references
+    // "foo" should NOT match — generic <length> takes priority
+    assert!(lexer.match_type("length", "foo").matched.is_none(),
+        "custom type 'foo' should not override generic <length>");
+    // "1px" SHOULD match — generic <length> handles it
+    assert!(lexer.match_type("length", "1px").matched.is_some(),
+        "1px should match generic <length>");
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -286,19 +278,16 @@ fn match_result_get_trace_mismatch_returns_empty() {
 
 #[test]
 fn match_result_is_type() {
-    // Test is_type — needs OpenSyntax markers in match result
-    // Our current lexer doesn't emit OpenSyntax/CloseSyntax for type references
-    // so is_type always returns false. This test documents the expected behavior.
     let mut config = LexerConfig::default();
     config.generic = true;
-    config.properties.insert("background".into(), "<hex-color> | <ident>".into());
+    config.types.insert("my-color".into(), "<hex-color> | <ident>".into());
+    config.properties.insert("background".into(), "<my-color>".into());
     let lexer = Lexer::new(config);
 
     let result = lexer.match_property("background", "red");
     assert!(result.matched.is_some());
-    // TODO: emit OpenSyntax/CloseSyntax for type references to enable tracing
-    // For now, verify the API exists and doesn't panic
-    let _ = result.is_type(0, "color");
+    assert!(result.is_type(0, "my-color"), "Should detect my-color type in trace");
+    assert!(!result.is_property(0, "my-color"), "my-color is type, not property");
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -309,11 +298,13 @@ fn match_result_is_type() {
 fn match_result_is_property() {
     let mut config = LexerConfig::default();
     config.generic = true;
-    config.properties.insert("background".into(), "<hex-color> | <ident>".into());
+    config.types.insert("my-color".into(), "<hex-color> | <ident>".into());
+    config.properties.insert("bg-color".into(), "<my-color>".into());
+    config.properties.insert("background".into(), "<'bg-color'>".into());
     let lexer = Lexer::new(config);
 
     let result = lexer.match_property("background", "red");
     assert!(result.matched.is_some());
-    // TODO: emit OpenSyntax/CloseSyntax for property references
-    let _ = result.is_property(0, "background");
+    assert!(result.is_property(0, "bg-color"), "Should detect bg-color property in trace");
+    assert!(result.is_type(0, "my-color"), "Should detect my-color type in trace");
 }

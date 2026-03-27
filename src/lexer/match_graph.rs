@@ -227,27 +227,12 @@ fn build_multiplied(mult: &MultiplierNode) -> MatchNode {
         return term;
     }
 
-    // For other multipliers, build a loop structure
-    // This is simplified — the full JS implementation is more complex
-    let comma_sep = mult.comma.then_some(MatchNode::Comma);
-
-    // Build: match term, then optionally match (comma + term) repeatedly
-    let repeat = if let Some(comma) = comma_sep {
-        create_condition(
-            comma,
-            create_condition(term.clone(), MatchNode::DisallowEmpty, MatchNode::Mismatch),
-            MatchNode::Match,
-        )
-    } else {
-        create_condition(term.clone(), MatchNode::DisallowEmpty, MatchNode::Match)
-    };
-
-    if mult.min == 0 {
-        // * or #? = zero or more
-        create_condition(term, repeat, MatchNode::Match)
-    } else {
-        // + or # = one or more
-        create_condition(term, repeat, MatchNode::Mismatch)
+    // Use a Repeat node for proper looping
+    MatchNode::Repeat {
+        term: Box::new(term),
+        min: mult.min,
+        max: if mult.max == 0 { u32::MAX } else { mult.max },
+        comma: mult.comma,
     }
 }
 

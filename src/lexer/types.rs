@@ -94,6 +94,19 @@ pub enum MatchNode {
         /// The root node of the graph.
         graph: Box<MatchNode>,
     },
+
+    /// Repeating match: match `term` between `min` and `max` times.
+    /// If `comma` is true, elements are comma-separated.
+    Repeat {
+        /// The term to repeat.
+        term: Box<MatchNode>,
+        /// Minimum repetitions (0 for *, 1 for +/#).
+        min: u32,
+        /// Maximum repetitions (`u32::MAX` for unbounded).
+        max: u32,
+        /// Whether repetitions are comma-separated (#).
+        comma: bool,
+    },
 }
 
 // ── Match Token (prepared from CSS value) ──

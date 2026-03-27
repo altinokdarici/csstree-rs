@@ -7,7 +7,7 @@ use super::error::SyntaxReferenceError;
 use super::generic::get_generic_matcher;
 use super::match_graph::build_match_graph;
 use super::prepare_tokens::{prepare_tokens, PreparedToken};
-use super::types::{AtruleConfig, LexerConfig, MatchNode, MatchResult, MatchedItem, ValidationResult, CSS_WIDE_KEYWORDS};
+use super::types::{AtruleConfig, LexerConfig, MatchNode, MatchResult, MatchedItem, SyntaxKind, ValidationResult, CSS_WIDE_KEYWORDS};
 use crate::definition_syntax::parse::parse as parse_definition_syntax;
 use crate::tokenizer::types::TokenType;
 
@@ -170,7 +170,17 @@ impl Lexer {
     }
 
     /// Match a CSS value string against a type definition.
+    ///
+    /// When `generic=true`, built-in generic matchers take priority over
+    /// custom type definitions with the same name (matching JS behavior).
     pub fn match_type(&self, name: &str, value: &str) -> MatchResult {
+        // When generic=true and a built-in generic exists, use it exclusively
+        if self.generic && get_generic_matcher(name).is_some() {
+            let graph = MatchNode::Type { name: name.to_string() };
+            let tokens = prepare_tokens(value);
+            return self.match_tokens(&tokens, &graph);
+        }
+
         let graph = {
             let Some(desc) = self.types.get(name) else {
                 return MatchResult {
@@ -257,7 +267,10 @@ impl Lexer {
         match node {
             MatchNode::Match => true,
             MatchNode::Mismatch => false,
-            MatchNode::DisallowEmpty => !matched.is_empty(),
+            MatchNode::DisallowEmpty => {
+                // Must have at least one actual Token (not just syntax markers)
+                matched.iter().any(|m| matches!(m, MatchedItem::Token { .. }))
+            }
 
             MatchNode::If { condition, then_branch, else_branch } => {
                 let saved_index = *token_index;
@@ -351,6 +364,7 @@ impl Lexer {
 
             MatchNode::Type { name } | MatchNode::Property { name } => {
                 let is_type = matches!(node, MatchNode::Type { .. });
+                let kind = if is_type { SyntaxKind::Type } else { SyntaxKind::Property };
 
                 // First try generic matchers for types
                 if is_type {
@@ -359,6 +373,7 @@ impl Lexer {
                             let token = tokens[*token_index];
                             let consumed = matcher(token.token_type, &token.value);
                             if consumed > 0 {
+                                matched.push(MatchedItem::OpenSyntax { name: name.clone(), kind });
                                 for i in 0..consumed {
                                     if *token_index + i < tokens.len() {
                                         matched.push(MatchedItem::Token {
@@ -367,14 +382,20 @@ impl Lexer {
                                         });
                                     }
                                 }
+                                matched.push(MatchedItem::CloseSyntax { name: name.clone(), kind });
                                 *token_index += consumed;
                                 return true;
                             }
                         }
+                        // When generic=true, generic matchers have priority:
+                        // don't fall through to custom type definitions
+                        if self.generic {
+                            return false;
+                        }
                     }
                 }
 
-                // Then try resolving from the types/properties map
+                // Resolve from types/properties map (for non-generic types or generic=false)
                 let graph = if is_type {
                     self.types.get(name).and_then(SyntaxDescriptor::get_match_graph)
                 } else {
@@ -384,7 +405,9 @@ impl Lexer {
                 if let Some(g) = graph {
                     let saved_index = *token_index;
                     let saved_len = matched.len();
+                    matched.push(MatchedItem::OpenSyntax { name: name.clone(), kind });
                     if self.match_recursive(tokens, token_index, &g, matched, iterations) {
+                        matched.push(MatchedItem::CloseSyntax { name: name.clone(), kind });
                         return true;
                     }
                     *token_index = saved_index;
@@ -436,6 +459,62 @@ impl Lexer {
 
             MatchNode::MatchGraph { graph } => {
                 self.match_recursive(tokens, token_index, graph, matched, iterations)
+            }
+
+            MatchNode::Repeat { term, min, max, comma } => {
+                let entry_index = *token_index;
+                let entry_len = matched.len();
+                let mut count: u32 = 0;
+
+                loop {
+                    if count >= *max {
+                        break;
+                    }
+
+                    // For comma-separated (#), expect comma before 2nd+ item
+                    if *comma && count > 0 {
+                        if *token_index < tokens.len()
+                            && tokens[*token_index].token_type == TokenType::Comma
+                        {
+                            matched.push(MatchedItem::Token {
+                                token_index: *token_index,
+                                value: ",".into(),
+                            });
+                            *token_index += 1;
+                        } else {
+                            break; // No comma → stop repeating
+                        }
+                    }
+
+                    let saved_index = *token_index;
+                    let saved_len = matched.len();
+
+                    if self.match_recursive(tokens, token_index, term, matched, iterations) {
+                        // Ensure forward progress
+                        if *token_index == saved_index {
+                            break;
+                        }
+                        count += 1;
+                    } else {
+                        *token_index = saved_index;
+                        matched.truncate(saved_len);
+                        // If comma was consumed but term failed, undo comma
+                        if *comma && count > 0 && saved_index > entry_index {
+                            // The comma was already consumed; we need to back up
+                            // Actually the comma was consumed before the saved_index
+                            // so truncating to saved_len already removed it
+                        }
+                        break;
+                    }
+                }
+
+                if count >= *min {
+                    true
+                } else {
+                    *token_index = entry_index;
+                    matched.truncate(entry_len);
+                    false
+                }
             }
 
             MatchNode::MatchOnce { terms, all } => {
@@ -857,6 +936,7 @@ impl Lexer {
                 }
             }
             MatchNode::MatchGraph { graph } => self.can_match_empty(graph),
+            MatchNode::Repeat { min, .. } => *min == 0,
             // All other nodes require at least one token
             _ => false,
         }

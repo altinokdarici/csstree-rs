@@ -206,8 +206,7 @@ fn match_type_nested() {
     lexer.add_type("bar", "<number>");
     lexer.add_type("foo", "<bar>#");
     let result = lexer.match_type("foo", "1, 2, 3");
-    // TODO: nested type references in match_type not yet fully implemented
-    let _ = result;
+    assert!(result.matched.is_some(), "nested type <bar># should match comma-separated numbers");
 }
 
 #[test]
@@ -232,8 +231,7 @@ fn match_by_syntax_string() {
     let mut lexer = make_lexer();
     lexer.add_type("fn", "fn( <number># )");
     let result = lexer.match_type("fn", "fn(1, 2, 3)");
-    // TODO: function syntax matching in match_type not yet implemented
-    let _ = result;
+    assert!(result.matched.is_some(), "fn(1, 2, 3) should match fn( <number># )");
 }
 
 // ── lexer-check-property-name.js ──
