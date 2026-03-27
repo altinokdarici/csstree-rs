@@ -132,59 +132,59 @@ fn check_atrule_name_invalid_foo() {
 
 #[test]
 fn check_atrule_prelude_invalid_atrule() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let err = lexer.check_atrule_prelude("foo", None).unwrap_err();
     assert_eq!(err.message, "Unknown at-rule `@foo`");
 }
 
 #[test]
 fn check_atrule_prelude_font_face_with_prelude_should_fail() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let err = lexer.check_atrule_prelude("font-face", Some("hi")).unwrap_err();
     assert_eq!(err.message, "At-rule `@font-face` should not contain a prelude");
 }
 
 #[test]
 fn check_atrule_prelude_font_face_empty_string_ok() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.check_atrule_prelude("font-face", Some("")).is_ok());
 }
 
 #[test]
 fn check_atrule_prelude_font_face_none_ok() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.check_atrule_prelude("font-face", None).is_ok());
 }
 
 #[test]
 fn check_atrule_prelude_page_empty_ok() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.check_atrule_prelude("page", Some("")).is_ok());
 }
 
 #[test]
 fn check_atrule_prelude_page_none_ok() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.check_atrule_prelude("page", None).is_ok());
 }
 
 #[test]
 fn check_atrule_prelude_keyframes_empty_should_fail() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let err = lexer.check_atrule_prelude("keyframes", Some("")).unwrap_err();
     assert_eq!(err.message, "At-rule `@keyframes` should contain a prelude");
 }
 
 #[test]
 fn check_atrule_prelude_keyframes_none_should_fail() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let err = lexer.check_atrule_prelude("keyframes", None).unwrap_err();
     assert_eq!(err.message, "At-rule `@keyframes` should contain a prelude");
 }
 
 #[test]
 fn check_atrule_prelude_keyframes_with_value_ok() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.check_atrule_prelude("keyframes", Some("test")).is_ok());
 }
 
@@ -225,7 +225,7 @@ fn check_atrule_descriptor_name_valid() {
 
 #[test]
 fn match_atrule_descriptor_basic_match() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("font-face", "font-display", "swap");
     assert!(result.matched.is_some(), "Expected match for font-display: swap");
     assert!(result.error.is_none());
@@ -233,7 +233,7 @@ fn match_atrule_descriptor_basic_match() {
 
 #[test]
 fn match_atrule_descriptor_vendor_prefix_atrule() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("-prefix-font-face", "font-display", "swap");
     assert!(result.matched.is_some(), "Expected match with vendor-prefixed atrule");
     assert!(result.error.is_none());
@@ -241,7 +241,7 @@ fn match_atrule_descriptor_vendor_prefix_atrule() {
 
 #[test]
 fn match_atrule_descriptor_vendor_prefix_descriptor() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     // Vendor-prefixed descriptor falls back to basename
     let result = lexer.match_atrule_descriptor("font-face", "-prefix-font-display", "swap");
     assert!(result.matched.is_some(), "Expected match with vendor-prefixed descriptor");
@@ -250,7 +250,7 @@ fn match_atrule_descriptor_vendor_prefix_descriptor() {
 
 #[test]
 fn match_atrule_descriptor_case_insensitive() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("FONT-FACE", "FONT-DISPLAY", "swap");
     assert!(result.matched.is_some(), "Expected case-insensitive match");
     assert!(result.error.is_none());
@@ -258,14 +258,14 @@ fn match_atrule_descriptor_case_insensitive() {
 
 #[test]
 fn match_atrule_descriptor_empty_value_mismatch() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("font-face", "font-display", "");
     assert!(result.matched.is_none(), "Empty value should not match");
 }
 
 #[test]
 fn match_atrule_descriptor_no_descriptors_error() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("keyframes", "font-face", "swap");
     assert!(result.matched.is_none());
     assert_eq!(
@@ -276,35 +276,35 @@ fn match_atrule_descriptor_no_descriptors_error() {
 
 #[test]
 fn match_atrule_descriptor_css_wide_keyword_initial() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("font-face", "font-display", "initial");
     assert!(result.matched.is_none(), "CSS-wide keywords should not match for descriptors");
 }
 
 #[test]
 fn match_atrule_descriptor_css_wide_keyword_inherit() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("font-face", "font-display", "inherit");
     assert!(result.matched.is_none(), "CSS-wide keywords should not match for descriptors");
 }
 
 #[test]
 fn match_atrule_descriptor_css_wide_keyword_unset() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("font-face", "font-display", "unset");
     assert!(result.matched.is_none(), "CSS-wide keywords should not match for descriptors");
 }
 
 #[test]
 fn match_atrule_descriptor_css_wide_keyword_revert() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("font-face", "font-display", "revert");
     assert!(result.matched.is_none(), "CSS-wide keywords should not match for descriptors");
 }
 
 #[test]
 fn match_atrule_descriptor_css_wide_keyword_revert_layer() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_descriptor("font-face", "font-display", "revert-layer");
     assert!(result.matched.is_none(), "CSS-wide keywords should not match for descriptors");
 }
@@ -315,7 +315,7 @@ fn match_atrule_descriptor_css_wide_keyword_revert_layer() {
 
 #[test]
 fn match_atrule_prelude_basic_match() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("keyframes", Some("test"));
     assert!(result.matched.is_some(), "Expected match for keyframes prelude");
     assert!(result.error.is_none());
@@ -323,7 +323,7 @@ fn match_atrule_prelude_basic_match() {
 
 #[test]
 fn match_atrule_prelude_vendor_prefix() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("-webkit-keyframes", Some("test"));
     assert!(result.matched.is_some(), "Expected match with vendor prefix");
     assert!(result.error.is_none());
@@ -331,7 +331,7 @@ fn match_atrule_prelude_vendor_prefix() {
 
 #[test]
 fn match_atrule_prelude_case_insensitive() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("KEYFRAMES", Some("test"));
     assert!(result.matched.is_some(), "Expected case-insensitive match");
     assert!(result.error.is_none());
@@ -339,7 +339,7 @@ fn match_atrule_prelude_case_insensitive() {
 
 #[test]
 fn match_atrule_prelude_case_insensitive_with_vendor() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("-VENDOR-Keyframes", Some("test"));
     assert!(result.matched.is_some(), "Expected case-insensitive match with vendor");
     assert!(result.error.is_none());
@@ -347,7 +347,7 @@ fn match_atrule_prelude_case_insensitive_with_vendor() {
 
 #[test]
 fn match_atrule_prelude_empty_value_mismatch() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("keyframes", Some(""));
     assert!(result.matched.is_none());
     assert!(result.error.is_some());
@@ -355,7 +355,7 @@ fn match_atrule_prelude_empty_value_mismatch() {
 
 #[test]
 fn match_atrule_prelude_font_face_null_positive() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     // No prelude and at-rule has no prelude = positive with null matched
     let result = lexer.match_atrule_prelude("font-face", None);
     assert!(result.matched.is_none());
@@ -364,7 +364,7 @@ fn match_atrule_prelude_font_face_null_positive() {
 
 #[test]
 fn match_atrule_prelude_font_face_with_value_error() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("font-face", Some("test"));
     assert!(result.matched.is_none());
     assert_eq!(
@@ -375,7 +375,7 @@ fn match_atrule_prelude_font_face_with_value_error() {
 
 #[test]
 fn match_atrule_prelude_vendor_font_face_with_value_error() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("-prefix-font-face", Some("test"));
     assert!(result.matched.is_none());
     assert_eq!(
@@ -386,7 +386,7 @@ fn match_atrule_prelude_vendor_font_face_with_value_error() {
 
 #[test]
 fn match_atrule_prelude_page_empty_ok() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("page", Some(""));
     assert!(result.error.is_none());
     assert!(result.matched.is_some());
@@ -396,7 +396,7 @@ fn match_atrule_prelude_page_empty_ok() {
 
 #[test]
 fn match_atrule_prelude_page_none_ok() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_atrule_prelude("page", None);
     assert!(result.error.is_none());
     assert!(result.matched.is_some());

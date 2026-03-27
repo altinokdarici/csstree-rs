@@ -63,7 +63,7 @@ fn run_validation_tests(fixture_file: &str) {
 
         // If there's a `lexer.types` field, add those too
         // (some fixtures define custom types)
-        let mut lexer = Lexer::new(config);
+        let lexer = Lexer::new(config);
 
         for value in valid_values {
             total_valid += 1;
@@ -136,7 +136,7 @@ fn lexer_token_fixtures() {
 fn lexer_match_keyword_value() {
     let mut config = LexerConfig::default();
     config.properties.insert("display".into(), "block | inline | none | flex | grid".into());
-    let mut lexer = Lexer::new(config);
+    let lexer = Lexer::new(config);
 
     assert!(lexer.match_property("display", "block").matched.is_some());
     assert!(lexer.match_property("display", "none").matched.is_some());
@@ -148,7 +148,7 @@ fn lexer_match_keyword_value() {
 fn lexer_css_wide_keywords() {
     let mut config = LexerConfig::default();
     config.properties.insert("color".into(), "<ident>".into());
-    let mut lexer = Lexer::new(config);
+    let lexer = Lexer::new(config);
 
     assert!(lexer.match_property("color", "initial").matched.is_some());
     assert!(lexer.match_property("color", "inherit").matched.is_some());

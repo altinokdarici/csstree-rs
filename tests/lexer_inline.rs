@@ -23,25 +23,25 @@ fn make_lexer() -> Lexer {
 
 #[test]
 fn match_property_display_block() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "block").matched.is_some());
 }
 
 #[test]
 fn match_property_display_none() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "none").matched.is_some());
 }
 
 #[test]
 fn match_property_display_flex() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "flex").matched.is_some());
 }
 
 #[test]
 fn match_property_display_invalid() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "banana").matched.is_none());
 }
 
@@ -49,31 +49,31 @@ fn match_property_display_invalid() {
 
 #[test]
 fn match_property_initial() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "initial").matched.is_some());
 }
 
 #[test]
 fn match_property_inherit() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "inherit").matched.is_some());
 }
 
 #[test]
 fn match_property_unset() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "unset").matched.is_some());
 }
 
 #[test]
 fn match_property_revert() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "revert").matched.is_some());
 }
 
 #[test]
 fn match_property_revert_layer() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "revert-layer").matched.is_some());
 }
 
@@ -81,7 +81,7 @@ fn match_property_revert_layer() {
 
 #[test]
 fn match_property_case_insensitive() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("display", "BLOCK").matched.is_some());
     assert!(lexer.match_property("display", "Block").matched.is_some());
     assert!(lexer.match_property("display", "NONE").matched.is_some());
@@ -91,7 +91,7 @@ fn match_property_case_insensitive() {
 
 #[test]
 fn match_property_unknown() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("nonexistent", "value");
     assert!(result.matched.is_none());
     assert!(result.error.is_some());
@@ -101,7 +101,7 @@ fn match_property_unknown() {
 
 #[test]
 fn match_property_opacity_number() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("opacity", "0.5").matched.is_some());
     assert!(lexer.match_property("opacity", "1").matched.is_some());
     assert!(lexer.match_property("opacity", "0").matched.is_some());
@@ -109,7 +109,7 @@ fn match_property_opacity_number() {
 
 #[test]
 fn match_property_opacity_keyword_invalid() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("opacity", "auto").matched.is_none());
 }
 
@@ -117,7 +117,7 @@ fn match_property_opacity_keyword_invalid() {
 
 #[test]
 fn match_property_font_weight_keyword() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("font-weight", "bold").matched.is_some());
     assert!(lexer.match_property("font-weight", "normal").matched.is_some());
 }
@@ -198,7 +198,7 @@ fn match_property_case_insensitive_with_vendor_hack() {
 
 #[test]
 fn match_property_empty_value_fails() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("color", "");
     assert!(result.matched.is_none(), "empty value should not match");
 }
@@ -225,7 +225,7 @@ fn match_type_wrong_value() {
 
 #[test]
 fn match_type_unknown() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_type("nonexistent-type", "1");
     assert!(result.matched.is_none(), "unknown type should not match");
 }
@@ -268,7 +268,7 @@ fn check_property_name_invalid_foo() {
 #[test]
 fn match_property_long_value_no_error() {
     // Should not error on very long values (stress test)
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let long_value = (0..20).map(|_| "1px").collect::<Vec<_>>().join(" ");
     // This should complete without panic even if it doesn't match
     let _result = lexer.match_property("margin", &long_value);

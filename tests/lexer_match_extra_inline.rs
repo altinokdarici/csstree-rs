@@ -29,7 +29,7 @@ fn make_lexer() -> Lexer {
 #[test]
 fn match_result_matched_has_no_error() {
     // Equivalent of getTrace() — matched result has data
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("color", "red");
     assert!(result.matched.is_some(), "Should match 'red' as color");
     assert!(result.error.is_none(), "Matched result should have no error");
@@ -38,7 +38,7 @@ fn match_result_matched_has_no_error() {
 #[test]
 fn match_result_mismatched_has_error() {
     // Equivalent of getTrace() — mismatched result has error
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("color", "123px");
     assert!(result.matched.is_none(), "Should not match '123px' as color");
     assert!(result.error.is_some(), "Mismatched should have error");
@@ -56,7 +56,7 @@ fn match_result_is_type_check() {
 #[test]
 fn match_result_is_keyword_match() {
     // Equivalent of isKeyword() — keywords match
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("display", "block");
     assert!(result.matched.is_some(), "block is a keyword for display");
 }
@@ -64,7 +64,7 @@ fn match_result_is_keyword_match() {
 #[test]
 fn match_result_is_keyword_no_match() {
     // Number is not a keyword
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("display", "123");
     assert!(result.matched.is_none(), "123 is not a display keyword");
 }
@@ -74,7 +74,7 @@ fn match_result_is_keyword_no_match() {
 #[test]
 fn match_property_iterations_long_value() {
     // "should not error on long values"
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     // Generate a very long box-shadow value
     let shadow = "1px 2px #000";
     let long_value = std::iter::repeat(shadow).take(50).collect::<Vec<_>>().join(", ");
@@ -87,14 +87,14 @@ fn match_property_iterations_long_value() {
 #[test]
 fn match_takes_string_value() {
     // "should take a string as a value"
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("display", "block");
     assert!(result.matched.is_some());
 }
 
 #[test]
 fn match_fails_on_wrong_value() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("display", "banana");
     assert!(result.matched.is_none());
     assert!(result.error.is_some());
@@ -102,35 +102,35 @@ fn match_fails_on_wrong_value() {
 
 #[test]
 fn match_property_number_type() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("opacity", "0.5");
     assert!(result.matched.is_some(), "0.5 should match <number>");
 }
 
 #[test]
 fn match_property_integer_type() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("z-index", "42");
     assert!(result.matched.is_some(), "42 should match <integer>");
 }
 
 #[test]
 fn match_property_length_type() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("width", "100px");
     assert!(result.matched.is_some(), "100px should match <length>");
 }
 
 #[test]
 fn match_property_percentage_type() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("width", "50%");
     assert!(result.matched.is_some(), "50% should match <percentage>");
 }
 
 #[test]
 fn match_property_hex_color() {
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     let result = lexer.match_property("color", "#ff0000");
     assert!(result.matched.is_some(), "#ff0000 should match <hex-color>");
 }
@@ -138,7 +138,7 @@ fn match_property_hex_color() {
 #[test]
 fn match_property_double_bar_combinator() {
     // border uses || (any order)
-    let mut lexer = make_lexer();
+    let lexer = make_lexer();
     assert!(lexer.match_property("border", "1px solid #000").matched.is_some());
     // TODO: || combinator reverse order matching not yet fully implemented
     // assert!(lexer.match_property("border", "solid 1px").matched.is_some());
