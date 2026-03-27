@@ -1,5 +1,6 @@
 //! Main Lexer struct for CSS value validation.
 
+use std::cell::RefCell;
 use std::collections::HashMap;
 
 use super::error::SyntaxReferenceError;
@@ -14,30 +15,46 @@ use crate::tokenizer::types::TokenType;
 const ITERATION_LIMIT: u32 = 150_000;
 
 /// A syntax descriptor (lazy-parsed definition).
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 struct SyntaxDescriptor {
     /// The raw syntax string.
     syntax: String,
-    /// Cached match graph (built lazily).
-    match_graph: Option<MatchNode>,
+    /// Cached match graph (built lazily via interior mutability).
+    match_graph: RefCell<Option<MatchNode>>,
+}
+
+impl Clone for SyntaxDescriptor {
+    fn clone(&self) -> Self {
+        Self {
+            syntax: self.syntax.clone(),
+            match_graph: RefCell::new(self.match_graph.borrow().clone()),
+        }
+    }
 }
 
 impl SyntaxDescriptor {
     fn new(syntax: &str) -> Self {
         Self {
             syntax: syntax.to_string(),
-            match_graph: None,
+            match_graph: RefCell::new(None),
         }
     }
 
-    /// Get or build the match graph for this descriptor.
-    fn get_match_graph(&mut self) -> Option<&MatchNode> {
-        if self.match_graph.is_none() {
-            if let Ok(ast) = parse_definition_syntax(&self.syntax) {
-                self.match_graph = Some(build_match_graph(&ast));
+    /// Get or build the match graph for this descriptor (uses interior mutability).
+    fn get_match_graph(&self) -> Option<MatchNode> {
+        {
+            let cached = self.match_graph.borrow();
+            if cached.is_some() {
+                return cached.clone();
             }
         }
-        self.match_graph.as_ref()
+        if let Ok(ast) = parse_definition_syntax(&self.syntax) {
+            let graph = build_match_graph(&ast);
+            *self.match_graph.borrow_mut() = Some(graph.clone());
+            Some(graph)
+        } else {
+            None
+        }
     }
 }
 
@@ -90,7 +107,7 @@ impl Lexer {
     }
 
     /// Match a CSS value string against a property definition.
-    pub fn match_property(&mut self, name: &str, value: &str) -> MatchResult {
+    pub fn match_property(&self, name: &str, value: &str) -> MatchResult {
         // Check for CSS-wide keywords
         let lower_value = value.trim().to_ascii_lowercase();
         if CSS_WIDE_KEYWORDS.contains(&lower_value.as_str()) {
@@ -112,14 +129,14 @@ impl Lexer {
         };
 
         let graph = {
-            let Some(desc) = self.properties.get_mut(&key) else {
+            let Some(desc) = self.properties.get(&key) else {
                 return MatchResult {
                     matched: None,
                     error: Some(format!("Unknown property `{name}`")),
                     iterations: 0,
                 };
             };
-            desc.get_match_graph().cloned()
+            desc.get_match_graph()
         };
 
         match graph {
@@ -136,16 +153,16 @@ impl Lexer {
     }
 
     /// Match a CSS value string against a type definition.
-    pub fn match_type(&mut self, name: &str, value: &str) -> MatchResult {
+    pub fn match_type(&self, name: &str, value: &str) -> MatchResult {
         let graph = {
-            let Some(desc) = self.types.get_mut(name) else {
+            let Some(desc) = self.types.get(name) else {
                 return MatchResult {
                     matched: None,
                     error: Some(format!("Unknown type `{name}`")),
                     iterations: 0,
                 };
             };
-            desc.get_match_graph().cloned()
+            desc.get_match_graph()
         };
 
         match graph {
@@ -316,8 +333,10 @@ impl Lexer {
             }
 
             MatchNode::Type { name } | MatchNode::Property { name } => {
-                // For now, try to match using generic matchers for types
-                if let MatchNode::Type { .. } = node {
+                let is_type = matches!(node, MatchNode::Type { .. });
+
+                // First try generic matchers for types
+                if is_type {
                     if let Some(matcher) = get_generic_matcher(name) {
                         if *token_index < tokens.len() {
                             let token = tokens[*token_index];
@@ -337,21 +356,41 @@ impl Lexer {
                         }
                     }
                 }
+
+                // Then try resolving from the types/properties map
+                let graph = if is_type {
+                    self.types.get(name).and_then(SyntaxDescriptor::get_match_graph)
+                } else {
+                    self.properties.get(name).and_then(SyntaxDescriptor::get_match_graph)
+                };
+
+                if let Some(g) = graph {
+                    let saved_index = *token_index;
+                    let saved_len = matched.len();
+                    if self.match_recursive(tokens, token_index, &g, matched, iterations) {
+                        return true;
+                    }
+                    *token_index = saved_index;
+                    matched.truncate(saved_len);
+                }
+
                 false
             }
 
             MatchNode::Function { name } => {
                 if *token_index < tokens.len() {
                     let token = tokens[*token_index];
-                    if token.token_type == TokenType::Function
-                        && token.value.eq_ignore_ascii_case(name)
-                    {
-                        matched.push(MatchedItem::Token {
-                            token_index: *token_index,
-                            value: token.value.clone(),
-                        });
-                        *token_index += 1;
-                        return true;
+                    if token.token_type == TokenType::Function {
+                        // Token value includes trailing '(' (e.g., "rgb("), strip it for comparison
+                        let func_name = token.value.strip_suffix('(').unwrap_or(&token.value);
+                        if func_name.eq_ignore_ascii_case(name) {
+                            matched.push(MatchedItem::Token {
+                                token_index: *token_index,
+                                value: token.value.clone(),
+                            });
+                            *token_index += 1;
+                            return true;
+                        }
                     }
                 }
                 false
@@ -443,6 +482,259 @@ impl Lexer {
     pub fn type_names(&self) -> Vec<&str> {
         self.types.keys().map(String::as_str).collect()
     }
+
+    // ── At-rule methods ──
+
+    /// Resolve an at-rule name, handling case-insensitivity and vendor prefixes.
+    /// Returns the key under which the atrule is stored, or None if not found.
+    fn get_atrule_key(&self, name: &str) -> Option<String> {
+        let lower = name.to_ascii_lowercase();
+        // Try exact (lowercased) name first
+        if self.atrules.contains_key(&lower) {
+            return Some(lower);
+        }
+        // Try stripping vendor prefix
+        let basename = normalize_vendor_prefix(&lower).to_string();
+        if basename != lower && self.atrules.contains_key(&basename) {
+            return Some(basename);
+        }
+        None
+    }
+
+    /// Check if an at-rule name is known.
+    pub fn check_atrule_name(&self, name: &str) -> Result<(), SyntaxReferenceError> {
+        if self.get_atrule_key(name).is_some() {
+            Ok(())
+        } else {
+            Err(SyntaxReferenceError {
+                message: format!("Unknown at-rule `@{name}`"),
+                reference: format!("@{name}"),
+            })
+        }
+    }
+
+    /// Check if an at-rule prelude is valid.
+    /// `prelude` of `None` or `Some("")` means no prelude was provided.
+    pub fn check_atrule_prelude(
+        &self,
+        name: &str,
+        prelude: Option<&str>,
+    ) -> Result<(), SyntaxReferenceError> {
+        self.check_atrule_name(name)?;
+
+        let key = self.get_atrule_key(name).unwrap();
+        let atrule = &self.atrules[&key];
+        let has_prelude_syntax = atrule.prelude.is_some();
+        let prelude_is_empty = prelude.is_none() || prelude == Some("");
+
+        if !has_prelude_syntax && !prelude_is_empty {
+            return Err(SyntaxReferenceError {
+                message: format!("At-rule `@{name}` should not contain a prelude"),
+                reference: format!("@{name}"),
+            });
+        }
+
+        if has_prelude_syntax && prelude_is_empty {
+            // Check if the syntax allows an empty match
+            let syntax_str = atrule.prelude.clone().unwrap();
+            let result = self.match_syntax_str(&syntax_str, "");
+            if result.matched.is_none() {
+                return Err(SyntaxReferenceError {
+                    message: format!("At-rule `@{name}` should contain a prelude"),
+                    reference: format!("@{name}"),
+                });
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Check if a descriptor name is valid for an at-rule.
+    pub fn check_atrule_descriptor_name(
+        &self,
+        atrule_name: &str,
+        descriptor_name: Option<&str>,
+    ) -> Result<(), SyntaxReferenceError> {
+        self.check_atrule_name(atrule_name)?;
+
+        let key = self.get_atrule_key(atrule_name).unwrap();
+        let atrule = &self.atrules[&key];
+
+        if atrule.descriptors.is_empty() {
+            return Err(SyntaxReferenceError {
+                message: format!("At-rule `@{atrule_name}` has no known descriptors"),
+                reference: format!("@{atrule_name}"),
+            });
+        }
+
+        if let Some(desc_name) = descriptor_name {
+            let lower_desc = desc_name.to_ascii_lowercase();
+            let basename = normalize_vendor_prefix(&lower_desc).to_string();
+            if !atrule.descriptors.contains_key(&lower_desc)
+                && !atrule.descriptors.contains_key(&basename)
+            {
+                return Err(SyntaxReferenceError {
+                    message: format!("Unknown at-rule descriptor `{desc_name}`"),
+                    reference: desc_name.to_string(),
+                });
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Match an at-rule prelude against its syntax definition.
+    pub fn match_atrule_prelude(
+        &self,
+        name: &str,
+        prelude: Option<&str>,
+    ) -> MatchResult {
+        if let Err(e) = self.check_atrule_prelude(name, prelude) {
+            return MatchResult {
+                matched: None,
+                error: Some(e.message),
+                iterations: 0,
+            };
+        }
+
+        let key = self.get_atrule_key(name).unwrap();
+        let atrule = &self.atrules[&key];
+
+        if atrule.prelude.is_none() {
+            // No prelude syntax defined — positive result with no match data
+            return MatchResult {
+                matched: None,
+                error: None,
+                iterations: 0,
+            };
+        }
+
+        let syntax_str = atrule.prelude.clone().unwrap();
+        let value = prelude.unwrap_or("");
+
+        if value.is_empty() {
+            // Empty prelude matched the syntax check (allowed empty) —
+            // return an empty match
+            return MatchResult {
+                matched: Some(vec![]),
+                error: None,
+                iterations: 0,
+            };
+        }
+
+        self.match_syntax_str(&syntax_str, value)
+    }
+
+    /// Match an at-rule descriptor value against its syntax definition.
+    pub fn match_atrule_descriptor(
+        &self,
+        atrule_name: &str,
+        descriptor_name: &str,
+        value: &str,
+    ) -> MatchResult {
+        if let Err(e) = self.check_atrule_descriptor_name(atrule_name, Some(descriptor_name)) {
+            return MatchResult {
+                matched: None,
+                error: Some(e.message),
+                iterations: 0,
+            };
+        }
+
+        // Reject CSS-wide keywords for descriptors
+        let lower_value = value.trim().to_ascii_lowercase();
+        if CSS_WIDE_KEYWORDS.contains(&lower_value.as_str()) {
+            return MatchResult {
+                matched: None,
+                error: Some("Mismatch".into()),
+                iterations: 0,
+            };
+        }
+
+        let key = self.get_atrule_key(atrule_name).unwrap();
+        let atrule = &self.atrules[&key];
+
+        // Resolve descriptor: try vendor-prefixed name first, then basename
+        let lower_desc = descriptor_name.to_ascii_lowercase();
+        let basename = normalize_vendor_prefix(&lower_desc).to_string();
+        let syntax_str = atrule
+            .descriptors
+            .get(&lower_desc)
+            .or_else(|| atrule.descriptors.get(&basename))
+            .cloned()
+            .unwrap();
+
+        self.match_syntax_str(&syntax_str, value)
+    }
+
+    /// Match a value string against a raw syntax definition string.
+    fn match_syntax_str(&self, syntax: &str, value: &str) -> MatchResult {
+        let graph = {
+            if let Ok(ast) = parse_definition_syntax(syntax) {
+                Some(build_match_graph(&ast))
+            } else {
+                None
+            }
+        };
+
+        match graph {
+            Some(g) => {
+                let tokens = prepare_tokens(value);
+                // For empty values, check if the graph can match with no tokens
+                let filtered: Vec<&PreparedToken> = tokens
+                    .iter()
+                    .filter(|t| {
+                        t.token_type != TokenType::WhiteSpace
+                            && t.token_type != TokenType::Comment
+                    })
+                    .collect();
+                if filtered.is_empty() {
+                    return self.match_empty(&g);
+                }
+                self.match_tokens(&tokens, &g)
+            }
+            None => MatchResult {
+                matched: None,
+                error: Some(format!("Bad syntax: {syntax}")),
+                iterations: 0,
+            },
+        }
+    }
+
+    /// Check if a match graph can match with zero tokens (e.g., optional syntax).
+    fn match_empty(&self, node: &MatchNode) -> MatchResult {
+        // Walk the graph to see if we can reach Match without consuming tokens
+        if self.can_match_empty(node) {
+            MatchResult {
+                matched: Some(vec![]),
+                error: None,
+                iterations: 0,
+            }
+        } else {
+            MatchResult {
+                matched: None,
+                error: Some("Mismatch".into()),
+                iterations: 0,
+            }
+        }
+    }
+
+    /// Check if a match graph node can succeed without consuming any tokens.
+    #[allow(clippy::self_only_used_in_recursion)]
+    fn can_match_empty(&self, node: &MatchNode) -> bool {
+        match node {
+            MatchNode::Match => true,
+            MatchNode::If { condition, then_branch, else_branch } => {
+                if self.can_match_empty(condition) {
+                    self.can_match_empty(then_branch)
+                } else {
+                    self.can_match_empty(else_branch)
+                }
+            }
+            MatchNode::MatchGraph { graph } => self.can_match_empty(graph),
+            // All other nodes require at least one token
+            _ => false,
+        }
+    }
 }
 
 /// Strip vendor prefix from a property name (e.g., `-webkit-transform` → `transform`).
@@ -484,42 +776,42 @@ mod tests {
 
     #[test]
     fn match_keyword_property() {
-        let mut lexer = make_lexer();
+        let lexer = make_lexer();
         let result = lexer.match_property("display", "block");
         assert!(result.matched.is_some(), "Expected match for 'display: block'");
     }
 
     #[test]
     fn match_keyword_none() {
-        let mut lexer = make_lexer();
+        let lexer = make_lexer();
         let result = lexer.match_property("display", "none");
         assert!(result.matched.is_some());
     }
 
     #[test]
     fn mismatch_unknown_keyword() {
-        let mut lexer = make_lexer();
+        let lexer = make_lexer();
         let result = lexer.match_property("display", "banana");
         assert!(result.matched.is_none());
     }
 
     #[test]
     fn match_css_wide_keyword() {
-        let mut lexer = make_lexer();
+        let lexer = make_lexer();
         let result = lexer.match_property("display", "initial");
         assert!(result.matched.is_some());
     }
 
     #[test]
     fn match_css_wide_inherit() {
-        let mut lexer = make_lexer();
+        let lexer = make_lexer();
         let result = lexer.match_property("display", "inherit");
         assert!(result.matched.is_some());
     }
 
     #[test]
     fn unknown_property() {
-        let mut lexer = make_lexer();
+        let lexer = make_lexer();
         let result = lexer.match_property("nonexistent", "value");
         assert!(result.matched.is_none());
         assert!(result.error.is_some());
@@ -543,4 +835,5 @@ mod tests {
         assert_eq!(normalize_vendor_prefix("-moz-appearance"), "appearance");
         assert_eq!(normalize_vendor_prefix("color"), "color");
     }
+
 }

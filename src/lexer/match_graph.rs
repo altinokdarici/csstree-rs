@@ -40,7 +40,32 @@ fn is_function_type(name: &str) -> bool {
 
 /// Build match graph for a group node.
 fn build_group(group: &GroupNode) -> MatchNode {
-    let terms: Vec<MatchNode> = group.terms.iter().map(build_node).collect();
+    // Flatten Function+Group pairs: when a Function is followed by a Group (its body),
+    // expand to [Function, ...body_terms..., Token(")")] since the definition syntax
+    // parser consumes the closing ')' but the CSS tokenizer produces it.
+    let mut terms: Vec<MatchNode> = Vec::new();
+    let mut i = 0;
+    while i < group.terms.len() {
+        if matches!(&group.terms[i], DefinitionSyntaxNode::Function(_)) {
+            terms.push(build_node(&group.terms[i]));
+            i += 1;
+            // Check if next term is a Group (function body)
+            if i < group.terms.len() {
+                if let DefinitionSyntaxNode::Group(body) = &group.terms[i] {
+                    // Flatten the body group terms into our terms list
+                    for body_term in &body.terms {
+                        terms.push(build_node(body_term));
+                    }
+                    // Add closing paren token
+                    terms.push(MatchNode::Token { value: ")".to_string() });
+                    i += 1;
+                }
+            }
+        } else {
+            terms.push(build_node(&group.terms[i]));
+            i += 1;
+        }
+    }
 
     if terms.is_empty() {
         return MatchNode::Match;

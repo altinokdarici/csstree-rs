@@ -29,5 +29,5 @@ pub use css_lexer::Lexer;
 pub use error::{SyntaxMatchError, SyntaxReferenceError};
 pub use generic::get_generic_matcher;
 pub use match_graph::build_match_graph;
-pub use types::{MatchNode, MatchResult, MatchToken, LexerConfig};
+pub use types::{AtruleConfig, MatchNode, MatchResult, MatchToken, LexerConfig};
 pub use units::UNITS;

@@ -60,4 +60,5 @@ mod tests {
         assert!(!tokens.is_empty());
         assert_eq!(tokens[0].token_type, TokenType::Hash);
     }
+
 }
