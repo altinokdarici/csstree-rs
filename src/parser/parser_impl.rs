@@ -1498,6 +1498,15 @@ impl Parser {
         let start = self.loc_start();
         self.next(); // :
 
+        // A pseudo-class requires an Ident or Function after :
+        // If not, create a bare operator ":" for error recovery
+        if self.token_type() != TokenType::Ident && self.token_type() != TokenType::Function {
+            return Node::Operator(Operator {
+                loc: self.make_loc(start),
+                value: ":".to_string(),
+            });
+        }
+
         let name = self.token_value().to_string();
         let has_args = self.token_type() == TokenType::Function;
 
