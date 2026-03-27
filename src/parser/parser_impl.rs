@@ -1512,17 +1512,13 @@ impl Parser {
                 self.parse_nth_args()
             } else if !is_known {
                 // Unknown pseudo-class: consume raw balanced content preserving everything
+                // Use the tokenizer's balance array for proper bracket matching
                 let raw_start = self.stream.token_start;
-                let mut depth: i32 = 1;
-                while !self.stream.eof && depth > 0 {
-                    match self.token_type() {
-                        TokenType::LeftParenthesis | TokenType::Function => depth += 1,
-                        TokenType::RightParenthesis => depth -= 1,
-                        _ => {}
-                    }
-                    if depth <= 0 { break; }
-                    self.next();
-                }
+                let start_token = self.stream.token_index();
+                // Skip to the balanced closing ) using the tokenizer's balance tracking
+                self.stream.skip_until_balanced(start_token, |code| {
+                    if code == 0x29 { 1 } else { 0 } // stop at )
+                });
                 let raw_value = self.source()[raw_start..self.stream.token_start].to_string();
                 if raw_value.is_empty() { Vec::new() }
                 else { vec![Node::Raw(Raw { loc: None, value: raw_value, verbatim: true })] }
