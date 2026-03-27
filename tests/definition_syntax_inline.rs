@@ -216,3 +216,106 @@ fn parse_error_leading_combinator() {
     let result = parse_definition_syntax("| a");
     assert!(result.is_err());
 }
+
+// ── definition-syntax-generate.js: forceBraces ──
+
+#[test]
+fn generate_with_force_braces() {
+    // definition-syntax-generate.js: "using forceBraces"
+    let ast = parse_definition_syntax("a b | c || d && e f").unwrap();
+    let opts = DefSyntaxGenOptions { force_braces: true, compact: false };
+    let result = generate_definition_syntax(&ast, &opts);
+    assert_eq!(result, "[ [ a b ] | [ c || [ d && [ e f ] ] ] ]");
+}
+
+// ── definition-syntax-generate.js: round-trip ──
+
+#[test]
+fn generate_round_trip_multipliers() {
+    // Round-trip: parse → generate should preserve multipliers
+    for input in &["a?", "a*", "a+", "a#", "a{1,3}"] {
+        let ast = parse_definition_syntax(input).unwrap();
+        let output = generate_definition_syntax(&ast, &DefSyntaxGenOptions::default());
+        assert_eq!(&output, input, "Round-trip failed for {input}");
+    }
+}
+
+#[test]
+fn generate_round_trip_combinators() {
+    for input in &["a | b", "a || b", "a && b", "a b"] {
+        let ast = parse_definition_syntax(input).unwrap();
+        let output = generate_definition_syntax(&ast, &DefSyntaxGenOptions::default());
+        assert_eq!(&output, input, "Round-trip failed for {input}");
+    }
+}
+
+#[test]
+fn generate_round_trip_types() {
+    for input in &["<length>", "<'color'>", "<foo()>", "<number [0,100]>"] {
+        let ast = parse_definition_syntax(input).unwrap();
+        let output = generate_definition_syntax(&ast, &DefSyntaxGenOptions::default());
+        assert_eq!(&output, input, "Round-trip failed for {input}");
+    }
+}
+
+// ── definition-syntax-parse.js: bad syntax errors ──
+
+#[test]
+fn parse_error_expected_quote() {
+    let result = parse_definition_syntax("<'>");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_empty_angle_brackets() {
+    let result = parse_definition_syntax("<>");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unexpected_hash() {
+    let result = parse_definition_syntax("#");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unexpected_question() {
+    let result = parse_definition_syntax("?");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unexpected_plus() {
+    let result = parse_definition_syntax("+");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unexpected_star() {
+    let result = parse_definition_syntax("*");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unexpected_exclamation() {
+    let result = parse_definition_syntax("!");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unmatched_bracket() {
+    let result = parse_definition_syntax("[]]");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unclosed_angle() {
+    let result = parse_definition_syntax("<a");
+    assert!(result.is_err());
+}
+
+#[test]
+fn parse_error_unclosed_bracket() {
+    let result = parse_definition_syntax("[a");
+    assert!(result.is_err());
+}
