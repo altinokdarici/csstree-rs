@@ -11,9 +11,13 @@
 
 pub mod names;
 pub mod ident;
+pub mod string;
+pub mod url;
 
 pub use names::{
     keyword_descriptor, property_descriptor, vendor_prefix, is_custom_property,
     KeywordDescriptor, PropertyDescriptor,
 };
 pub use ident::{decode_ident, encode_ident};
+pub use string::{decode_string, encode_string};
+pub use url::{decode_url, encode_url};

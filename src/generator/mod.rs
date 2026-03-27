@@ -47,14 +47,103 @@ pub enum GenerateMode {
 pub struct GenerateOptions {
     /// Whitespace insertion mode.
     pub mode: GenerateMode,
+    /// Whether to generate a source map.
+    pub source_map: bool,
 }
 
 impl Default for GenerateOptions {
     fn default() -> Self {
         Self {
             mode: GenerateMode::Safe,
+            source_map: false,
         }
     }
+}
+
+/// A source map mapping entry.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SourceMapping {
+    /// Source filename.
+    pub source: String,
+    /// Original line (1-based).
+    pub original_line: u32,
+    /// Original column (0-based).
+    pub original_column: u32,
+    /// Generated line (1-based).
+    pub generated_line: u32,
+    /// Generated column (0-based).
+    pub generated_column: u32,
+}
+
+/// Result of generate with source map.
+#[derive(Debug, Clone)]
+pub struct GenerateResult {
+    /// The generated CSS string.
+    pub css: String,
+    /// Source map mappings (if `source_map` was enabled).
+    pub mappings: Vec<SourceMapping>,
+}
+
+/// VLQ base64 encoding for source maps.
+fn vlq_encode(value: i32) -> String {
+    const BASE64: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut vlq = if value < 0 { ((-value) << 1) | 1 } else { value << 1 };
+    let mut result = String::new();
+    loop {
+        let mut digit = usize::try_from(vlq & 0x1F).unwrap_or(0);
+        vlq >>= 5;
+        if vlq > 0 { digit |= 0x20; }
+        result.push(BASE64[digit] as char);
+        if vlq == 0 { break; }
+    }
+    result
+}
+
+/// Encode source map mappings to the V3 "mappings" string.
+fn encode_mappings(mappings: &[SourceMapping]) -> String {
+    let mut result = String::new();
+    let mut prev_gen_line: u32 = 1;
+    let mut prev_gen_col: u32 = 0;
+    let mut prev_src_idx: i32 = 0;
+    let mut prev_orig_line: u32 = 0;
+    let mut prev_orig_col: u32 = 0;
+
+    for m in mappings {
+        // Add semicolons for line gaps
+        while prev_gen_line < m.generated_line {
+            result.push(';');
+            prev_gen_line += 1;
+            prev_gen_col = 0;
+        }
+
+        if !result.is_empty() && !result.ends_with(';') {
+            result.push(',');
+        }
+
+        // Field 1: generated column (relative)
+        result.push_str(&vlq_encode(i32::try_from(m.generated_column).unwrap_or(0) - i32::try_from(prev_gen_col).unwrap_or(0)));
+        // Field 2: source index (always 0, relative)
+        result.push_str(&vlq_encode(0 - prev_src_idx));
+        prev_src_idx = 0;
+        // Field 3: original line (relative)
+        result.push_str(&vlq_encode(i32::try_from(m.original_line.saturating_sub(1)).unwrap_or(0) - i32::try_from(prev_orig_line).unwrap_or(0)));
+        prev_orig_line = m.original_line.saturating_sub(1);
+        // Field 4: original column (relative)
+        result.push_str(&vlq_encode(i32::try_from(m.original_column).unwrap_or(0) - i32::try_from(prev_orig_col).unwrap_or(0)));
+        prev_orig_col = m.original_column;
+
+        prev_gen_col = m.generated_column;
+    }
+
+    result
+}
+
+/// Serialize source map to JSON string.
+pub fn source_map_to_json(source_file: &str, mappings: &[SourceMapping]) -> String {
+    let encoded = encode_mappings(mappings);
+    format!(
+        r#"{{"version":3,"sources":["{source_file}"],"names":[],"mappings":"{encoded}"}}"#,
+    )
 }
 
 /// Internal generator state that accumulates CSS output.
@@ -66,6 +155,14 @@ struct Generator {
     prev_code: u32,
     /// Whitespace-required pair lookup table.
     ws_pairs: HashSet<u32>,
+    /// Whether source map tracking is enabled.
+    source_map: bool,
+    /// Current generated line (1-based).
+    gen_line: u32,
+    /// Current generated column (0-based).
+    gen_column: u32,
+    /// Collected source mappings.
+    mappings: Vec<SourceMapping>,
 }
 
 const REVERSE_SOLIDUS: u8 = 0x5C;
@@ -102,9 +199,32 @@ pub fn generate(node: &Node, options: &GenerateOptions) -> String {
         buffer: String::new(),
         prev_code: 0,
         ws_pairs,
+        source_map: options.source_map,
+        gen_line: 1,
+        gen_column: 0,
+        mappings: Vec::new(),
     };
     ctx.node(node);
     ctx.buffer
+}
+
+/// Generate CSS with source map.
+pub fn generate_with_source_map(node: &Node, options: &GenerateOptions) -> GenerateResult {
+    let ws_pairs = token_before::build_pairs(options.mode);
+    let mut ctx = Generator {
+        buffer: String::new(),
+        prev_code: 0,
+        ws_pairs,
+        source_map: true,
+        gen_line: 1,
+        gen_column: 0,
+        mappings: Vec::new(),
+    };
+    ctx.node(node);
+    GenerateResult {
+        css: ctx.buffer,
+        mappings: ctx.mappings,
+    }
 }
 
 // ── Core generator methods ──
@@ -118,15 +238,49 @@ impl Generator {
         // If bit 0 is set, insert a whitespace
         if self.prev_code & 1 != 0 {
             self.buffer.push(' ');
+            self.gen_column += 1;
         }
 
-        self.buffer.push_str(value);
+        self.emit_raw(value);
 
         // After a backslash delimiter, emit a newline (prevents broken escapes)
         if token_type == TokenType::Delim
             && value.as_bytes().first().copied() == Some(REVERSE_SOLIDUS)
         {
             self.buffer.push('\n');
+            self.gen_line += 1;
+            self.gen_column = 0;
+        }
+    }
+
+    /// Emit raw text and track position for source maps.
+    fn emit_raw(&mut self, value: &str) {
+        self.buffer.push_str(value);
+        if self.source_map {
+            for ch in value.bytes() {
+                if ch == b'\n' {
+                    self.gen_line += 1;
+                    self.gen_column = 0;
+                } else {
+                    self.gen_column += 1;
+                }
+            }
+        }
+    }
+
+    /// Record a source mapping for a node with location info.
+    fn record_mapping(&mut self, loc: Option<&Loc>) {
+        if !self.source_map {
+            return;
+        }
+        if let Some(loc) = loc {
+            self.mappings.push(SourceMapping {
+                source: loc.source.clone().unwrap_or_default(),
+                original_line: loc.start.line,
+                original_column: loc.start.column.saturating_sub(1), // 1-based → 0-based
+                generated_line: self.gen_line,
+                generated_column: self.gen_column,
+            });
         }
     }
 
@@ -200,10 +354,12 @@ impl Generator {
         match node {
             Node::StyleSheet(n) => self.children(&n.children),
             Node::Rule(n) => {
+                self.record_mapping(n.loc.as_ref());
                 self.node(&n.prelude);
                 self.node(&n.block);
             }
             Node::Atrule(n) => {
+                self.record_mapping(n.loc.as_ref());
                 self.token(TokenType::AtKeyword, &format!("@{}", n.name));
                 if let Some(prelude) = &n.prelude {
                     self.node(prelude);
@@ -221,6 +377,7 @@ impl Generator {
                 self.token(TokenType::RightCurlyBracket, "}");
             }
             Node::Declaration(n) => {
+                self.record_mapping(n.loc.as_ref());
                 self.token(TokenType::Ident, &n.property);
                 self.token(TokenType::Colon, ":");
                 self.node(&n.value);
