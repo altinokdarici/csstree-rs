@@ -309,17 +309,24 @@ impl Parser {
     }
 
     fn parse_rule_result(&mut self) -> Result<Node, CssSyntaxError> {
-        // A rule requires a { after the selector. Check if one exists.
-        // Use looks_like_nested_rule to see if there's a { ahead
+        // A rule requires a { after the selector at the top level (not inside parens/brackets).
         let mut offset = 0;
         let mut found_block = false;
+        let mut paren_depth: u32 = 0;
         loop {
             let tt = self.stream.lookup_type(offset);
             match tt {
-                TokenType::LeftCurlyBracket => { found_block = true; break; }
+                TokenType::LeftCurlyBracket if paren_depth == 0 => { found_block = true; break; }
+                TokenType::LeftParenthesis | TokenType::Function | TokenType::LeftSquareBracket => {
+                    paren_depth += 1;
+                }
+                TokenType::RightParenthesis | TokenType::RightSquareBracket => {
+                    paren_depth = paren_depth.saturating_sub(1);
+                }
                 TokenType::Eof => break,
-                _ => { offset += 1; }
+                _ => {}
             }
+            offset += 1;
             if offset > 200 { break; }
         }
         if !found_block {
