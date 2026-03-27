@@ -380,6 +380,17 @@ impl Parser {
             }
         };
 
+        // BadString after value means the declaration is malformed
+        if self.token_type() == TokenType::BadString {
+            return Err(CssSyntaxError {
+                message: "Unexpected bad string".into(),
+                source: String::new(),
+                offset: self.stream.token_start,
+                line: 0,
+                column: 0,
+            });
+        }
+
         let important = self.parse_important();
 
         // Check for trailing ! without important — this is an error
