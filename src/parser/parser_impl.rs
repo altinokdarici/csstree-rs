@@ -368,6 +368,13 @@ impl Parser {
                 } else {
                     raw
                 }
+            } else if is_custom {
+                // Custom properties preserve comments verbatim in default mode
+                if let Node::Raw(r) = &raw {
+                    Node::Raw(Raw { loc: r.loc.clone(), value: r.value.clone(), verbatim: true })
+                } else {
+                    raw
+                }
             } else {
                 raw
             }
