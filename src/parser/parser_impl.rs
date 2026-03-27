@@ -364,7 +364,7 @@ impl Parser {
             if is_progid {
                 if let Node::Raw(r) = &raw {
                     let trimmed = r.value.trim_end().to_string();
-                    Node::Raw(Raw { loc: r.loc.clone(), value: trimmed, verbatim: false })
+                    Node::Raw(Raw { loc: r.loc.clone(), value: trimmed, verbatim: true })
                 } else {
                     raw
                 }
