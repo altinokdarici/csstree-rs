@@ -120,6 +120,77 @@ pub struct MatchResult {
     pub iterations: u32,
 }
 
+/// A trace entry showing how a match resolved through the syntax tree.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TraceEntry {
+    /// Whether this was a Type or Property.
+    pub kind: SyntaxKind,
+    /// Name of the syntax.
+    pub name: String,
+}
+
+impl MatchResult {
+    /// Get the trace path from root syntax to the matched node at `token_index`.
+    pub fn get_trace(&self, token_index: usize) -> Option<Vec<TraceEntry>> {
+        let items = self.matched.as_ref()?;
+        let mut trace = Vec::new();
+        let mut stack: Vec<TraceEntry> = Vec::new();
+
+        for item in items {
+            match item {
+                MatchedItem::OpenSyntax { name, kind } => {
+                    stack.push(TraceEntry { kind: *kind, name: name.clone() });
+                }
+                MatchedItem::CloseSyntax { .. } => {
+                    stack.pop();
+                }
+                MatchedItem::Token { token_index: idx, .. } if *idx == token_index => {
+                    trace.clone_from(&stack);
+                    break;
+                }
+                MatchedItem::Token { .. } => {}
+            }
+        }
+
+        if trace.is_empty() && !stack.is_empty() {
+            return None;
+        }
+        Some(trace)
+    }
+
+    /// Check if the matched node at `token_index` is inside a Type with the given name.
+    pub fn is_type(&self, token_index: usize, type_name: &str) -> bool {
+        self.get_trace(token_index)
+            .is_some_and(|trace| trace.iter().any(|e| e.kind == SyntaxKind::Type && e.name == type_name))
+    }
+
+    /// Check if the matched node at `token_index` is inside a Property with the given name.
+    pub fn is_property(&self, token_index: usize, property_name: &str) -> bool {
+        self.get_trace(token_index)
+            .is_some_and(|trace| trace.iter().any(|e| e.kind == SyntaxKind::Property && e.name == property_name))
+    }
+
+    /// Check if the matched node at `token_index` was matched as a Keyword.
+    pub fn is_keyword(&self, token_index: usize) -> bool {
+        // A token is a keyword if it's inside an OpenSyntax with kind Keyword
+        // In practice, we check if the matched items contain a keyword marker for this index
+        let Some(items) = &self.matched else { return false };
+        // Look for a Keyword open/close around this token
+        let mut in_keyword = false;
+        for item in items {
+            match item {
+                MatchedItem::OpenSyntax { kind: SyntaxKind::Keyword, .. } => in_keyword = true,
+                MatchedItem::CloseSyntax { kind: SyntaxKind::Keyword, .. } => in_keyword = false,
+                MatchedItem::Token { token_index: idx, .. } if *idx == token_index => {
+                    return in_keyword;
+                }
+                _ => {}
+            }
+        }
+        false
+    }
+}
+
 /// An item in the match result tree.
 #[derive(Debug, Clone)]
 pub enum MatchedItem {
@@ -146,13 +217,15 @@ pub enum MatchedItem {
     },
 }
 
-/// Whether a syntax reference is a Type or Property.
+/// Whether a syntax reference is a Type, Property, or Keyword.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SyntaxKind {
     /// A `<type>` reference.
     Type,
     /// A `<'property'>` reference.
     Property,
+    /// A keyword match.
+    Keyword,
 }
 
 // ── Lexer Configuration ──
@@ -168,6 +241,10 @@ pub struct LexerConfig {
     pub atrules: HashMap<String, AtruleConfig>,
     /// Whether built-in generic types are enabled.
     pub generic: bool,
+    /// Override CSS-wide keywords (default: initial, inherit, unset, revert, revert-layer).
+    pub css_wide_keywords: Option<Vec<String>>,
+    /// Override unit groups (only existing groups are overridden, new groups ignored).
+    pub units: HashMap<String, Vec<String>>,
 }
 
 /// Configuration for an at-rule.
@@ -185,6 +262,17 @@ pub struct AtruleConfig {
 pub const CSS_WIDE_KEYWORDS: &[&str] = &[
     "initial", "inherit", "unset", "revert", "revert-layer",
 ];
+
+/// Result of calling `Lexer::validate()`.
+#[derive(Debug, Clone)]
+pub struct ValidationResult {
+    /// Error messages for broken definitions.
+    pub errors: Vec<String>,
+    /// Type names with broken definitions.
+    pub types: Vec<String>,
+    /// Property names with broken definitions.
+    pub properties: Vec<String>,
+}
 
 #[cfg(test)]
 mod tests {

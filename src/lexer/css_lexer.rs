@@ -7,7 +7,7 @@ use super::error::SyntaxReferenceError;
 use super::generic::get_generic_matcher;
 use super::match_graph::build_match_graph;
 use super::prepare_tokens::{prepare_tokens, PreparedToken};
-use super::types::{AtruleConfig, LexerConfig, MatchNode, MatchResult, MatchedItem, CSS_WIDE_KEYWORDS};
+use super::types::{AtruleConfig, LexerConfig, MatchNode, MatchResult, MatchedItem, ValidationResult, CSS_WIDE_KEYWORDS};
 use crate::definition_syntax::parse::parse as parse_definition_syntax;
 use crate::tokenizer::types::TokenType;
 
@@ -70,6 +70,10 @@ pub struct Lexer {
     atrules: HashMap<String, AtruleConfig>,
     /// Whether built-in generic types are enabled.
     generic: bool,
+    /// CSS-wide keywords accepted for all properties.
+    css_wide_keywords: Vec<String>,
+    /// Unit groups for generic type matching.
+    units: HashMap<String, Vec<String>>,
 }
 
 impl Lexer {
@@ -85,11 +89,29 @@ impl Lexer {
             properties.insert(name.clone(), SyntaxDescriptor::new(syntax));
         }
 
+        // CSS-wide keywords: use custom or default
+        let css_wide_keywords = config.css_wide_keywords.unwrap_or_else(|| {
+            CSS_WIDE_KEYWORDS.iter().map(|s| (*s).to_string()).collect()
+        });
+
+        // Units: start with defaults, then override existing groups
+        let mut units = crate::lexer::units::default_units()
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v.into_iter().map(str::to_string).collect()))
+            .collect::<HashMap<_, _>>();
+        for (group, values) in &config.units {
+            if units.contains_key(group.as_str()) {
+                units.insert(group.clone(), values.clone());
+            }
+        }
+
         Self {
             types,
             properties,
             atrules: config.atrules,
             generic: config.generic,
+            css_wide_keywords,
+            units,
         }
     }
 
@@ -110,7 +132,7 @@ impl Lexer {
     pub fn match_property(&self, name: &str, value: &str) -> MatchResult {
         // Check for CSS-wide keywords
         let lower_value = value.trim().to_ascii_lowercase();
-        if CSS_WIDE_KEYWORDS.contains(&lower_value.as_str()) {
+        if self.css_wide_keywords.iter().any(|k| k.eq_ignore_ascii_case(&lower_value)) {
             return MatchResult {
                 matched: Some(vec![MatchedItem::Token {
                     token_index: 0,
@@ -481,6 +503,120 @@ impl Lexer {
     /// Get all registered type names.
     pub fn type_names(&self) -> Vec<&str> {
         self.types.keys().map(String::as_str).collect()
+    }
+
+    /// Get the unit groups.
+    pub fn units(&self) -> &HashMap<String, Vec<String>> {
+        &self.units
+    }
+
+    /// Get the CSS-wide keywords.
+    pub fn css_wide_keywords(&self) -> &[String] {
+        &self.css_wide_keywords
+    }
+
+    /// Validate all syntax definitions. Returns None if all valid,
+    /// or a `ValidationResult` with errors.
+    pub fn validate(&self) -> Option<ValidationResult> {
+        let mut errors = Vec::new();
+        let mut bad_types = Vec::new();
+        let mut bad_properties = Vec::new();
+
+        // Check all type definitions
+        for (name, desc) in &self.types {
+            if parse_definition_syntax(&desc.syntax).is_err() {
+                errors.push(format!("<{name}> has broken syntax definition"));
+                bad_types.push(name.clone());
+            } else {
+                // Check for missing references
+                if let Ok(ast) = parse_definition_syntax(&desc.syntax) {
+                    self.check_syntax_refs(&ast, name, true, &mut errors, &mut bad_types);
+                }
+            }
+        }
+
+        // Check all property definitions
+        for (name, desc) in &self.properties {
+            if parse_definition_syntax(&desc.syntax).is_err() {
+                errors.push(format!("<'{name}'> has broken syntax definition"));
+                bad_properties.push(name.clone());
+            } else if let Ok(ast) = parse_definition_syntax(&desc.syntax) {
+                self.check_syntax_refs(&ast, name, false, &mut errors, &mut bad_properties);
+            }
+        }
+
+        if errors.is_empty() {
+            None
+        } else {
+            Some(ValidationResult { errors, types: bad_types, properties: bad_properties })
+        }
+    }
+
+    /// Check a syntax AST for missing type/property references.
+    #[allow(clippy::only_used_in_recursion)]
+    fn check_syntax_refs(
+        &self,
+        node: &crate::definition_syntax::types::DefinitionSyntaxNode,
+        parent_name: &str,
+        is_type: bool,
+        errors: &mut Vec<String>,
+        bad_list: &mut Vec<String>,
+    ) {
+        use crate::definition_syntax::types::DefinitionSyntaxNode;
+        match node {
+            DefinitionSyntaxNode::Type(t) => {
+                let type_name = &t.name;
+                if !self.types.contains_key(type_name)
+                    && (!self.generic || crate::lexer::generic::get_generic_matcher(type_name).is_none())
+                {
+                    errors.push(format!("<{parent_name}> used missed syntax definition <{type_name}>"));
+                    if !bad_list.contains(&parent_name.to_string()) {
+                        bad_list.push(parent_name.to_string());
+                    }
+                }
+            }
+            DefinitionSyntaxNode::Property(p) => {
+                let prop_name = &p.name;
+                if let Some(ref_desc) = self.properties.get(prop_name) {
+                    // Check if the referenced property is itself broken
+                    if parse_definition_syntax(&ref_desc.syntax).is_err() {
+                        errors.push(format!("<'{parent_name}'> used broken syntax definition <{prop_name}>"));
+                        if !bad_list.contains(&parent_name.to_string()) {
+                            bad_list.push(parent_name.to_string());
+                        }
+                    }
+                }
+            }
+            DefinitionSyntaxNode::Group(g) => {
+                for term in &g.terms {
+                    self.check_syntax_refs(term, parent_name, is_type, errors, bad_list);
+                }
+            }
+            DefinitionSyntaxNode::Multiplied(m) => {
+                self.check_syntax_refs(&m.term, parent_name, is_type, errors, bad_list);
+            }
+            _ => {}
+        }
+    }
+
+    /// Dump the lexer configuration for serialization/recovery.
+    pub fn dump(&self) -> LexerConfig {
+        let mut types = HashMap::new();
+        for (name, desc) in &self.types {
+            types.insert(name.clone(), desc.syntax.clone());
+        }
+        let mut properties = HashMap::new();
+        for (name, desc) in &self.properties {
+            properties.insert(name.clone(), desc.syntax.clone());
+        }
+        LexerConfig {
+            types,
+            properties,
+            atrules: self.atrules.clone(),
+            generic: self.generic,
+            css_wide_keywords: Some(self.css_wide_keywords.clone()),
+            units: self.units.clone(),
+        }
     }
 
     // ── At-rule methods ──
