@@ -1250,7 +1250,7 @@ impl Parser {
         if raw_value.is_empty() {
             Vec::new()
         } else {
-            vec![Node::Raw(Raw { loc: None, value: raw_value, verbatim: false })]
+            vec![Node::Raw(Raw { loc: None, value: raw_value, verbatim: true })]
         }
     }
 
