@@ -310,7 +310,7 @@ impl Parser {
                 |p| p.consume_raw(|code| if code == 0x7B { 1 } else { 0 }),
             )
         } else {
-            self.consume_raw(|code| if code == 0x7B { 1 } else { 0 })
+            self.consume_raw_exclude_ws(|code| if code == 0x7B { 1 } else { 0 })
         };
 
         let block = self.parse_block(true);
@@ -356,6 +356,7 @@ impl Parser {
     }
 
     /// Parse a `Declaration` node.
+    #[allow(clippy::too_many_lines)]
     pub fn parse_declaration(&mut self) -> Result<Node, CssSyntaxError> {
         let start = self.loc_start();
 
@@ -374,13 +375,51 @@ impl Parser {
         let is_progid = self.token_type() == TokenType::Ident
             && self.token_value().eq_ignore_ascii_case("progid");
 
-        let value = if self.flags.parse_value && !is_custom && !is_progid {
-            self.parse_value()
+        let parse_this_value = if is_custom {
+            self.flags.parse_custom_property
         } else {
-            // Custom/progid property: consume raw until ; or } or !
-            let raw = self.consume_raw(|code| {
-                if code == 0x21 || code == 0x3B || code == 0x7D { 1 } else { 0 }
-            });
+            self.flags.parse_value && !is_progid
+        };
+
+        // Track if there's whitespace between colon and value end (for custom property empty value)
+        // Scan ahead to check for any WhiteSpace token before value starts
+        let has_ws_after_colon = is_custom && {
+            let mut found = false;
+            let mut off = 0;
+            loop {
+                let tt = self.stream.lookup_type(off);
+                match tt {
+                    TokenType::WhiteSpace => { found = true; break; }
+                    TokenType::Comment => { off += 1; }
+                    _ => break,
+                }
+            }
+            found
+        };
+        let mut value = if parse_this_value {
+            let mut val = self.parse_value();
+            // For custom properties with parseCustomProperty:true,
+            // if value is empty but there was whitespace after colon, add WhiteSpace child
+            if is_custom {
+                if let Node::Value(ref mut v) = val {
+                    if v.children.is_empty() && has_ws_after_colon {
+                        v.children.push(Node::WhiteSpace(WhiteSpace { loc: None, value: " ".to_string() }));
+                    }
+                }
+            }
+            val
+        } else {
+            // Custom/progid property or parseValue:false: consume raw until ; or } or !
+            // Use ws-trimming for non-custom properties (like JS's excludeWhiteSpace=true)
+            let raw = if is_custom {
+                self.consume_raw(|code| {
+                    if code == 0x21 || code == 0x3B || code == 0x7D { 1 } else { 0 }
+                })
+            } else {
+                self.consume_raw_exclude_ws(|code| {
+                    if code == 0x21 || code == 0x3B || code == 0x7D { 1 } else { 0 }
+                })
+            };
             // For progid values, trim trailing whitespace
             if is_progid {
                 if let Node::Raw(r) = &raw {
@@ -423,7 +462,26 @@ impl Parser {
             }
         }
 
-        let important = self.parse_important();
+        // Check for !important at end of value children (when ! was parsed as Operator)
+        let mut important = false;
+        if let Node::Value(ref mut v) = value {
+            let len = v.children.len();
+            if len >= 2 {
+                let has_bang = matches!(&v.children[len - 2], Node::Operator(op) if op.value == "!");
+                let has_important = matches!(&v.children[len - 1], Node::Identifier(id) if id.name.eq_ignore_ascii_case("important"));
+                if has_bang && has_important {
+                    v.children.truncate(len - 2);
+                    important = true;
+                    // For custom properties, if value is now empty and had whitespace, add it
+                    if is_custom && v.children.is_empty() && has_ws_after_colon {
+                        v.children.push(Node::WhiteSpace(WhiteSpace { loc: None, value: " ".to_string() }));
+                    }
+                }
+            }
+        }
+        if !important {
+            important = self.parse_important();
+        }
 
         // Check for trailing ! without important — this is an error
         if !important {
@@ -683,7 +741,7 @@ impl Parser {
             Some(Box::new(if self.flags.parse_atrule_prelude {
                 self.parse_atrule_prelude(&name)
             } else {
-                self.consume_raw(|code| if code == 0x7B || code == 0x3B { 1 } else { 0 })
+                self.consume_raw_exclude_ws(|code| if code == 0x7B || code == 0x3B { 1 } else { 0 })
             }))
         } else {
             None
@@ -1281,7 +1339,10 @@ impl Parser {
                 } else {
                     raw_value // starts with punctuation: preserve leading ws
                 };
-                children.push(Node::Raw(Raw { loc: None, value, verbatim: true }));
+                // When parseCustomProperty is true, comments should be stripped (non-verbatim)
+                // When false (default), preserve comments verbatim
+                let verbatim = !self.flags.parse_custom_property;
+                children.push(Node::Raw(Raw { loc: None, value, verbatim }));
             }
         }
 

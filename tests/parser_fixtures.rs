@@ -6,20 +6,45 @@
 
 use csstree::generator::{generate, GenerateOptions};
 use csstree::parser::{parse, ParseOptions};
-use csstree::parser::options::ParseContext;
+use csstree::parser::options::{ParseContext, ParseFlags};
 use std::fs;
 use std::path::Path;
 
+/// Build ParseOptions from fixture options JSON.
+fn build_options(test: &serde_json::Value) -> ParseOptions {
+    let mut opts = ParseOptions::default();
+    if let Some(options) = test.get("options").and_then(|o| o.as_object()) {
+        if let Some(v) = options.get("parseValue").and_then(|v| v.as_bool()) {
+            opts.flags.parse_value = v;
+        }
+        if let Some(v) = options.get("parseCustomProperty").and_then(|v| v.as_bool()) {
+            opts.flags.parse_custom_property = v;
+        }
+        if let Some(v) = options.get("parseRulePrelude").and_then(|v| v.as_bool()) {
+            opts.flags.parse_rule_prelude = v;
+        }
+        if let Some(v) = options.get("parseAtrulePrelude").and_then(|v| v.as_bool()) {
+            opts.flags.parse_atrule_prelude = v;
+        }
+    }
+    opts
+}
+
 /// Parse CSS and generate minified output.
 fn round_trip(css: &str) -> String {
-    let ast = parse(css, ParseOptions::default());
+    round_trip_with_opts(css, ParseOptions::default())
+}
+
+/// Parse CSS and generate minified output with custom options.
+fn round_trip_with_opts(css: &str, opts: ParseOptions) -> String {
+    let ast = parse(css, opts);
     generate(&ast, &GenerateOptions::default())
 }
 
 /// Parse CSS in a declaration-wrapped context and generate output.
-fn round_trip_in_decl(css: &str) -> String {
+fn round_trip_in_decl(css: &str, opts: ParseOptions) -> String {
     let wrapped = format!("x{{{css}}}");
-    let full = round_trip(&wrapped);
+    let full = round_trip_with_opts(&wrapped, opts);
     if let Some(inner) = full.strip_prefix("x{").and_then(|s| s.strip_suffix('}')) {
         inner.to_string()
     } else {
@@ -28,10 +53,10 @@ fn round_trip_in_decl(css: &str) -> String {
 }
 
 /// Parse CSS as a declaration list using DeclarationList context.
-fn round_trip_as_decl_list(css: &str) -> String {
+fn round_trip_as_decl_list(css: &str, opts: ParseOptions) -> String {
     let opts = ParseOptions {
         context: ParseContext::DeclarationList,
-        ..ParseOptions::default()
+        ..opts
     };
     let ast = parse(css, opts);
     generate(&ast, &GenerateOptions::default())
@@ -56,10 +81,10 @@ fn round_trip_as_media_query(css: &str) -> String {
 }
 
 /// Parse CSS as a value using the Value context directly.
-fn round_trip_as_value(css: &str) -> String {
+fn round_trip_as_value(css: &str, opts: ParseOptions) -> String {
     let opts = ParseOptions {
         context: ParseContext::Value,
-        ..ParseOptions::default()
+        ..opts
     };
     let ast = parse(css, opts);
     generate(&ast, &GenerateOptions::default())
@@ -123,22 +148,8 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
             continue;
         }
 
-        // Skip tests with special options we don't support yet
-        if let Some(options) = test.get("options").and_then(|o| o.as_object()) {
-            let has_unsupported = options.iter().any(|(k, v)| {
-                match k.as_str() {
-                    "parseValue" => v.as_bool() == Some(false),
-                    "parseCustomProperty" => v.as_bool() == Some(true),
-                    "parseRulePrelude" => v.as_bool() == Some(false),
-                    "parseAtrulePrelude" => v.as_bool() == Some(false),
-                    _ => false,
-                }
-            });
-            if has_unsupported {
-                results.skip += 1;
-                continue;
-            }
-        }
+        // Build parser options from fixture
+        let opts = build_options(test);
 
         // Get expected output: use "generate" field if present, else source
         let gen_field = test.get("generate").and_then(|g| g.as_str());
@@ -149,19 +160,19 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
 
         // Parse and generate using appropriate context
         let actual = if is_stylesheet || is_rule || is_block {
-            round_trip(source)
+            round_trip_with_opts(source, opts)
         } else if is_selector {
             round_trip_in_selector(source)
         } else if is_value {
-            round_trip_as_value(source)
+            round_trip_as_value(source, opts)
         } else if is_media_query {
             round_trip_as_media_query(source)
         } else if is_declaration_list {
-            round_trip_as_decl_list(source)
+            round_trip_as_decl_list(source, opts)
         } else if is_declaration {
-            round_trip_in_decl(source)
+            round_trip_in_decl(source, opts)
         } else {
-            round_trip_in_decl(source)
+            round_trip_in_decl(source, opts)
         };
 
         if actual == expected {
