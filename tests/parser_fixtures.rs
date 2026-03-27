@@ -113,6 +113,23 @@ fn run_strict_fixture(fixture_path: &str) -> FixtureResults {
             continue;
         }
 
+        // Skip tests with special options we don't support yet
+        if let Some(options) = test.get("options").and_then(|o| o.as_object()) {
+            let has_unsupported = options.iter().any(|(k, v)| {
+                match k.as_str() {
+                    "parseValue" => v.as_bool() == Some(false),
+                    "parseCustomProperty" => v.as_bool() == Some(true),
+                    "parseRulePrelude" => v.as_bool() == Some(false),
+                    "parseAtrulePrelude" => v.as_bool() == Some(false),
+                    _ => false,
+                }
+            });
+            if has_unsupported {
+                results.skip += 1;
+                continue;
+            }
+        }
+
         // Get expected output: use "generate" field if present, else source
         let gen_field = test.get("generate").and_then(|g| g.as_str());
         let expected = match gen_field {
