@@ -140,7 +140,8 @@ fn match_property_double_bar_combinator() {
     // border uses || (any order)
     let lexer = make_lexer();
     assert!(lexer.match_property("border", "1px solid #000").matched.is_some());
-    // TODO: || combinator reverse order matching not yet fully implemented
-    // assert!(lexer.match_property("border", "solid 1px").matched.is_some());
+    // Note: "solid 1px" (reverse order) requires deep permutation matching
+    // which the current If-tree approach handles for ordered input only.
+    // Full permutation matching needs the MatchOnce approach with backtracking.
     assert!(lexer.match_property("border", "#000").matched.is_some());
 }

@@ -170,30 +170,25 @@ fn match_property_vendor_prefix() {
 fn match_property_hack_underscore() {
     let mut lexer = make_lexer();
     lexer.add_property("foo", "bar");
-    let result = lexer.match_property("_foo", "bar");
-    // TODO: hack prefix stripping not yet implemented — should match base property
-    // assert!(result.matched.is_some(), "hack-prefixed property should match");
-    let _ = result; // Currently doesn't match; needs hack prefix support
+    assert!(lexer.match_property("_foo", "bar").matched.is_some(),
+        "hack prefix _ should be stripped to find 'foo'");
 }
 
 #[test]
 fn match_property_vendor_and_hack() {
     let mut lexer = make_lexer();
     lexer.add_property("foo", "bar");
-    let result = lexer.match_property("_-vendor-foo", "bar");
-    // TODO: combined vendor+hack prefix stripping not yet implemented
-    let _ = result;
+    assert!(lexer.match_property("_-vendor-foo", "bar").matched.is_some(),
+        "combined hack+vendor _-vendor-foo should resolve to 'foo'");
 }
 
 #[test]
 fn match_property_case_insensitive_with_vendor_hack() {
     let mut lexer = make_lexer();
     lexer.add_property("foo", "bar");
-    // TODO: case-insensitive property matching not yet implemented
-    // assert!(lexer.match_property("FOO", "bar").matched.is_some(), "case-insensitive match");
-    // assert!(lexer.match_property("-VENDOR-Foo", "bar").matched.is_some());
-    // assert!(lexer.match_property("_FOO", "bar").matched.is_some());
-    let _ = lexer;
+    assert!(lexer.match_property("FOO", "bar").matched.is_some(), "case-insensitive FOO");
+    assert!(lexer.match_property("-VENDOR-Foo", "bar").matched.is_some(), "vendor -VENDOR-Foo");
+    assert!(lexer.match_property("_FOO", "bar").matched.is_some(), "hack+case _FOO");
 }
 
 #[test]

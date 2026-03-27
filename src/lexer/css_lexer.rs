@@ -143,12 +143,7 @@ impl Lexer {
             };
         }
 
-        let normalized = normalize_vendor_prefix(name).to_string();
-        let key = if self.properties.contains_key(&normalized) {
-            normalized
-        } else {
-            name.to_string()
-        };
+        let key = resolve_property_key(&self.properties, name);
 
         let graph = {
             let Some(desc) = self.properties.get(&key) else {
@@ -446,9 +441,10 @@ impl Lexer {
             MatchNode::MatchOnce { terms, all } => {
                 let mut mask: u32 = 0;
                 let all_mask = (1u32 << terms.len()) - 1;
+                let entry_index = *token_index;
+                let entry_len = matched.len();
 
-                loop {
-                    let mut any_matched = false;
+                'matchonce: loop {
                     for (i, term) in terms.iter().enumerate() {
                         let flag = 1u32 << i;
                         if mask & flag != 0 {
@@ -460,27 +456,21 @@ impl Lexer {
 
                         if self.match_recursive(tokens, token_index, term, matched, iterations) {
                             mask |= flag;
-                            any_matched = true;
-                            break;
+                            continue 'matchonce;
                         }
                         *token_index = saved_index;
                         matched.truncate(saved_len);
                     }
-
-                    if !any_matched {
-                        break;
-                    }
-
-                    if mask == all_mask {
-                        return true;
-                    }
+                    // No term matched at current position — done
+                    break;
                 }
 
-                if *all {
-                    mask == all_mask
-                } else {
-                    mask != 0
+                let success = if *all { mask == all_mask } else { mask != 0 };
+                if !success {
+                    *token_index = entry_index;
+                    matched.truncate(entry_len);
                 }
+                success
             }
         }
     }
@@ -876,12 +866,42 @@ impl Lexer {
 /// Strip vendor prefix from a property name (e.g., `-webkit-transform` → `transform`).
 fn normalize_vendor_prefix(name: &str) -> &str {
     if let Some(stripped) = name.strip_prefix('-') {
-        // Find second hyphen after vendor prefix
         if let Some(pos) = stripped.find('-') {
             return &stripped[pos + 1..];
         }
     }
     name
+}
+
+/// Strip hack prefixes, vendor prefixes, and lowercase a property name.
+fn normalize_property_name(name: &str) -> String {
+    let mut s = name;
+    // Strip hack prefixes
+    if s.starts_with("//") {
+        s = &s[2..];
+    } else if s.starts_with(['*', '_', '$', '+', '#', '&', '/']) {
+        s = &s[1..];
+    }
+    let lower = s.to_ascii_lowercase();
+    // Strip vendor prefix
+    if let Some(stripped) = lower.strip_prefix('-') {
+        if let Some(pos) = stripped.find('-') {
+            return stripped[pos + 1..].to_string();
+        }
+    }
+    lower
+}
+
+/// Resolve property name to key in properties map.
+fn resolve_property_key(properties: &HashMap<String, SyntaxDescriptor>, name: &str) -> String {
+    if properties.contains_key(name) { return name.to_string(); }
+    let lower = name.to_ascii_lowercase();
+    if properties.contains_key(&lower) { return lower; }
+    let vendor = normalize_vendor_prefix(name).to_ascii_lowercase();
+    if properties.contains_key(&vendor) { return vendor; }
+    let full = normalize_property_name(name);
+    if properties.contains_key(&full) { return full; }
+    name.to_string()
 }
 
 #[cfg(test)]
