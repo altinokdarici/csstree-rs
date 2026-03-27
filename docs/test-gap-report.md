@@ -8,7 +8,7 @@ SUMMARY
 JS test files:           34
 JS static it() blocks:   359
 JS dynamic test sources: 48
-Rust integration tests:  304
+Rust integration tests:  552
 Rust unit tests:         256
 
 
